@@ -175,7 +175,7 @@ namespace octet {
 
 	  dog_sprite,
 
-      num_sprites, // This needs to stay at the end of the enum, with any new sprites added before it, otherwise the sprite counter gets asked for somthing out of range which crashes everything.
+      num_sprites, // This needs to stay at the end of the enum, with any new sprites added before it, otherwise the sprit array 'sprites' gets asked to add somthing out of range, which crashes everything.
 
     };
 
@@ -201,7 +201,7 @@ namespace octet {
     ALuint sources[num_sound_sources];
 
     // big array of sprites
-    sprite sprites[num_sprites];
+    sprite sprites[num_sprites]; // Cool so because the count starts at 0 the num_sprites adds 1 to the total by being present itself, so it actually represents the right total intrinsically!
 
     // random number generator
     class random randomizer;
@@ -244,7 +244,7 @@ namespace octet {
 
     // use the keyboard to move the ship
     void move_ship() {
-      const float ship_speed = 0.10f;
+      const float ship_speed = 0.05f;
       // left and right arrows
       if (is_key_down(key_left)) {
         sprites[ship_sprite].translate(-ship_speed, 0);
@@ -258,6 +258,41 @@ namespace octet {
         }
       }
     }
+
+	//enum WASDkeys {key_W = 119};
+
+	// Use WASD to move Dog
+	void move_dog()
+	{
+		const float dog_Xspeed = 0.07f;
+		const float dog_Yspeed = 0.1f;
+		// A D for horizontal
+		if (is_key_down(0x41)) { // Needs to be in ASCII code format using capitals
+			sprites[dog_sprite].translate(-dog_Xspeed, 0);
+			if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 2])) {
+				sprites[dog_sprite].translate(+dog_Xspeed, 0);
+			}
+		}
+		else if (is_key_down(0x44)) {
+			sprites[dog_sprite].translate(+dog_Xspeed, 0);
+			if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 3])) {
+				sprites[dog_sprite].translate(-dog_Xspeed, 0);
+			}
+		}
+		// W S for vertical
+		if (is_key_down(0x57)) {
+			sprites[dog_sprite].translate(0, +dog_Yspeed);
+			if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 2])) {
+				sprites[dog_sprite].translate(0, -dog_Yspeed);
+			}
+		}
+		else if (is_key_down(0x53)) {
+			sprites[dog_sprite].translate(0, -dog_Yspeed);
+			if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 3])) {
+				sprites[dog_sprite].translate(0, +dog_Yspeed);
+			}
+		}
+	}
 
     // fire button (space)
     void fire_missiles() {
@@ -507,6 +542,8 @@ namespace octet {
       }
 
       move_ship();
+
+	  move_dog();
 
       fire_missiles();
 
