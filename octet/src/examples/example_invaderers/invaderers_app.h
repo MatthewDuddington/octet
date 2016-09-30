@@ -39,6 +39,10 @@ namespace octet {
       enabled = true;
     }
 
+	/// <summary>
+	/// Initialises into the scene the texture represented by a GLuint from get_texture_handle.
+	/// x and y floats set the starting coords and w and h floats specify the size on screen.
+	/// </summary>
     void init(int _texture, float x, float y, float w, float h) {
       modelToWorld.loadIdentity();
       modelToWorld.translate(x, y, 0);
@@ -169,7 +173,9 @@ namespace octet {
       first_border_sprite,
       last_border_sprite = first_border_sprite + num_borders - 1,
 
-      num_sprites,
+	  dog_sprite,
+
+      num_sprites, // This needs to stay at the end of the enum, with any new sprites added before it, otherwise the sprite counter gets asked for somthing out of range which crashes everything.
 
     };
 
@@ -450,6 +456,10 @@ namespace octet {
 		  }
         }
       }
+
+	 GLuint dog = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/dog.jpg");
+	 sprites[dog_sprite].init(dog, 2, 2, 0.5f, 0.5f);
+
 
       // set the border to white for clarity
       GLuint white = resource_dict::get_texture_handle(GL_RGB, "#ffffff");
