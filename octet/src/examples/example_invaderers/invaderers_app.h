@@ -430,13 +430,24 @@ namespace octet {
       GLuint GameOver = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/GameOver.gif");
       sprites[game_over_sprite].init(GameOver, 20, 0, 3, 1.5f);
 
+	  GLuint tree = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/tree.jpg");
+
       GLuint invaderer = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/invaderer.gif");
       for (int j = 0; j != num_rows; ++j) {
         for (int i = 0; i != num_cols; ++i) {
           assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
-          sprites[first_invaderer_sprite + i + j*num_cols].init(
-            invaderer, ((float)i - num_cols * 0.5f) * 0.5f, 2.50f - ((float)j * 0.5f), 0.25f, 0.25f
-          );
+		  float xf = ((float)i - num_cols * 0.5f) * 0.5f;
+		  float yf = 2.50f - ((float)j * 0.5f);
+		  if ((j % 2 == 0 && i % 2 == 0) || (j % 2 != 0 && i % 2 != 0)) {
+			  sprites[first_invaderer_sprite + i + j*num_cols].init(
+				  invaderer, xf, yf, 0.25f, 0.25f
+			  );
+		  }
+		  else {
+			  sprites[first_invaderer_sprite + i + j*num_cols].init(
+				  tree, xf, yf, 0.25f, 0.25f
+			  );
+		  }
         }
       }
 
