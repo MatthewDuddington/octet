@@ -107,6 +107,19 @@ namespace octet {
       modelToWorld.translate(x, y, 0);
     }
 
+	// rotate the object... I hope
+	void rotate(sprite* spriteP, float z)
+	{
+		//(*spriteP).modelToWorld.rotateZ(z);
+		spriteP->modelToWorld.rotateZ(z);
+	}
+
+	// Alternate setup of pointer pairing in funtion and argument.
+	void rotateAlt(sprite& spriteP, float z)
+	{
+		spriteP.modelToWorld.rotateZ(z);
+	}
+
     // position the object relative to another.
     void set_relative(sprite &rhs, float x, float y) {
       modelToWorld = rhs.modelToWorld;
@@ -259,9 +272,10 @@ namespace octet {
       }
     }
 
-	//enum WASDkeys {key_W = 119};
+	//enum WASDkeys {key_W = 57};
 
 	// Use WASD to move Dog
+	// Adaptation of Andy's move_ship code.
 	void move_dog()
 	{
 		const float dog_Xspeed = 0.07f;
@@ -292,6 +306,36 @@ namespace octet {
 				sprites[dog_sprite].translate(0, +dog_Yspeed);
 			}
 		}
+	}
+
+	// Can we rotate the dog?! Scary challenge time!
+	// Q E for dog roation
+	void rotate_dog()
+	{
+		float dog_Rspeed = 3.0f;
+		
+		//Pointer pair as &spriteP in rotate.
+		/*
+		sprite* dogSpriteP = &sprites[dog_sprite];
+		if (is_key_down(0x51))
+		{
+			sprites[dog_sprite].rotateAlt(*dogSpriteP, -dog_Rspeed);
+		}
+		if (is_key_down(0x45))
+		{
+			sprites[dog_sprite].rotateAlt(sprites[dog_sprite], +dog_Rspeed);
+		}
+		/*/
+		sprite* dogSpriteP = &sprites[dog_sprite];
+		if (is_key_down(0x51))
+		{
+			sprites[dog_sprite].rotate(dogSpriteP, -dog_Rspeed);
+		}
+		if (is_key_down(0x45))
+		{
+			sprites[dog_sprite].rotate(&sprites[dog_sprite], +dog_Rspeed);
+		}
+		//*/
 	}
 
     // fire button (space)
@@ -544,6 +588,8 @@ namespace octet {
       move_ship();
 
 	  move_dog();
+
+	  rotate_dog();
 
       fire_missiles();
 
