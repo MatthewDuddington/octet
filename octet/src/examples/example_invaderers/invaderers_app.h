@@ -346,7 +346,7 @@ namespace octet {
         // find a missile
         for (int i = 0; i != num_missiles; ++i) {
           if (!sprites[first_missile_sprite+i].is_enabled()) {
-            sprites[first_missile_sprite+i].set_relative(sprites[ship_sprite], 0, 0.5f);
+            sprites[first_missile_sprite+i].set_relative(sprites[dog_sprite], 0, 0.5f);
             sprites[first_missile_sprite+i].is_enabled() = true;
             missiles_disabled = 5;
             ALuint source = get_sound_source();
@@ -389,23 +389,26 @@ namespace octet {
     // animate the missiles
     void move_missiles() {
       const float missile_speed = 0.3f;
-      for (int i = 0; i != num_missiles; ++i) {
-        sprite &missile = sprites[first_missile_sprite+i];
-        if (missile.is_enabled()) {
-          missile.translate(0, missile_speed);
-          for (int j = 0; j != num_invaderers; ++j) {
-            sprite &invaderer = sprites[first_invaderer_sprite+j];
-            if (invaderer.is_enabled() && missile.collides_with(invaderer)) {
-              invaderer.is_enabled() = false;
-              invaderer.translate(20, 0);
-              missile.is_enabled() = false;
-              missile.translate(20, 0);
-              on_hit_invaderer();
+	  for (int i = 0; i != num_missiles; ++i) {
+		  sprite &missile = sprites[first_missile_sprite + i];
+		  if (missile.is_enabled()) {
+			  missile.translate(0, missile_speed);
+			  for (int j = 0; j != num_invaderers; ++j) {
+				  sprite &invaderer = sprites[first_invaderer_sprite + j];
+				  if (invaderer.is_enabled() && missile.collides_with(invaderer)) {
+					  invaderer.is_enabled() = false;
+					  invaderer.translate(20, 0);
+					  missile.is_enabled() = false;
+					  missile.translate(20, 0);
+					  on_hit_invaderer();
 
-              goto next_missile;
-            }
-          }
-          if (missile.collides_with(sprites[first_border_sprite+1])) {
+					  goto next_missile;
+				  }
+			  }
+			  if (missile.collides_with(sprites[first_border_sprite])
+				  || missile.collides_with(sprites[first_border_sprite + 1])
+				  || missile.collides_with(sprites[last_border_sprite - 1])
+				  || missile.collides_with(sprites[last_border_sprite])) {
             missile.is_enabled() = false;
             missile.translate(20, 0);
           }
