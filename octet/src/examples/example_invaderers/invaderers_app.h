@@ -161,34 +161,36 @@ namespace octet {
     // shader to draw a textured triangle
     texture_shader texture_shader_;
 
-    enum {
-      num_sound_sources = 8,
-      num_rows = 5,
-      num_cols = 10,
-      num_missiles = 2,
-      num_bombs = 2,
-      num_borders = 4,
-      num_invaderers = num_rows * num_cols,
+	enum {
+		num_sound_sources = 8,
+		num_rows = 5,
+		num_cols = 10,
+		num_missiles = 2,
+		num_bombs = 2,
+		num_borders = 4,
+		num_invaderers = num_rows * num_cols,
 
-      // sprite definitions
-      ship_sprite = 0,
-      game_over_sprite,
+		// sprite definitions
+		ship_sprite = 0,
+		game_over_sprite,
 
-      first_invaderer_sprite,
-      last_invaderer_sprite = first_invaderer_sprite + num_invaderers - 1,
+		first_invaderer_sprite,
+		last_invaderer_sprite = first_invaderer_sprite + num_invaderers - 1,
 
-      first_missile_sprite,
-      last_missile_sprite = first_missile_sprite + num_missiles - 1,
+		first_missile_sprite,
+		last_missile_sprite = first_missile_sprite + num_missiles - 1,
 
-      first_bomb_sprite,
-      last_bomb_sprite = first_bomb_sprite + num_bombs - 1,
+		first_bomb_sprite,
+		last_bomb_sprite = first_bomb_sprite + num_bombs - 1,
 
-      first_border_sprite,
-      last_border_sprite = first_border_sprite + num_borders - 1,
+		first_border_sprite,
+		last_border_sprite = first_border_sprite + num_borders - 1,
 
-	  dog_sprite,
+		dog_sprite,
 
-      num_sprites, // This needs to stay at the end of the enum, with any new sprites added before it, otherwise the sprit array 'sprites' gets asked to add somthing out of range, which crashes everything.
+		explosion_sprite,
+
+        num_sprites, // This needs to stay at the end of the enum, with any new sprites added before it, otherwise the sprit array 'sprites' gets asked to add somthing out of range, which crashes everything.
 
     };
 
@@ -385,6 +387,8 @@ namespace octet {
         }
       }
     }
+	
+
 
     // animate the missiles
     void move_missiles() {
@@ -396,10 +400,13 @@ namespace octet {
 			  for (int j = 0; j != num_invaderers; ++j) {
 				  sprite &invaderer = sprites[first_invaderer_sprite + j];
 				  if (invaderer.is_enabled() && missile.collides_with(invaderer)) {
+					  // Make the enemy expload?
+            sprites[explosion_sprite].set_relative(invaderer, 0, 0);
+
 					  invaderer.is_enabled() = false;
 					  invaderer.translate(20, 0);
 					  missile.is_enabled() = false;
-					  missile.translate(20, 0);
+            missile.translate(20, 0);
 					  on_hit_invaderer();
 
 					  goto next_missile;
@@ -519,6 +526,9 @@ namespace octet {
       sprites[game_over_sprite].init(GameOver, 20, 0, 3, 1.5f);
 
 	  GLuint tree = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/tree.jpg");
+
+	  GLuint explosion = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/explosion.jpg");
+	  sprites[explosion_sprite].init(explosion, -5, -5, 0.25f, 0.25f);
 
       GLuint invaderer = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/invaderer.gif");
       for (int j = 0; j != num_rows; ++j) {
