@@ -439,4 +439,12 @@
       <Filter>resources</Filter>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Resources\Level.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\someCSV.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
