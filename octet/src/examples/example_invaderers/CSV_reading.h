@@ -28,6 +28,6 @@ public:
     }
   }
 
-}
+};
 
 #endif // !CSVhandler_H
