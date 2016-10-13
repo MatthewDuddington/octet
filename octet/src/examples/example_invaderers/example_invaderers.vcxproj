@@ -224,6 +224,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Resources\Level.txt" />
+    <Text Include="Resources\setup.txt" />
     <Text Include="Resources\someCSV.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

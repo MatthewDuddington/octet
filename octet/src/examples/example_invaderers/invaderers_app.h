@@ -17,6 +17,11 @@
 //   Audio
 //
 
+#include <iostream> // Will I need this one too?
+#include <fstream>
+#include <string>
+#include <sstream>
+
 namespace octet {
   class sprite {
     // where is our sprite (overkill for a 2D game!)
@@ -337,7 +342,7 @@ namespace octet {
       }
       if (is_key_down(0x45))
       {
-        sprites[dog_sprite].rotate(&sprites[dog_sprite], +dog_Rspeed);
+        sprites[ship_sprite].rotate(&sprites[ship_sprite], +dog_Rspeed);
       }
       //*/
     }
@@ -472,6 +477,48 @@ namespace octet {
       return false;
     }
 
+    // Read CSV file for invaderer alteration
+    // (really inefficient as we're opening the file every time!)
+    char readFile(int ref) {
+      // Open the CSV file
+      std::ifstream myFile("Resources/setup.txt");
+      char chars[num_invaderers];
+      myFile.get(chars, num_invaderers);
+      /*
+      for (int i = 0; i != num_invaderers; i++) {
+        std::cout << chars[i];
+      }
+      */
+      std::cout << chars[ref];
+      
+      return chars[ref];
+
+      // Sorry for the mess Andy! This is a WIP.
+
+
+      /*
+      std::stringstream ss;
+      ss << chars[ref];
+      std::string x;
+      ss >> x;
+
+      int returnInt = std::stoi(x);
+      */
+
+      /*
+      std::string input;
+      std::string* p = &input;
+      myFile.get(p, num_invaderers);
+      
+
+      // Read a line from the file
+      while (std::getline(myFile, currentLine)){
+        wholeLine + currentLine;
+      }
+      std::stoi(wholeLine)
+      */
+
+    }
 
     void draw_text(texture_shader &shader, float x, float y, float scale, const char *text) {
       mat4t modelToWorld;
@@ -535,6 +582,8 @@ namespace octet {
       sprites[explosion_sprite].init(explosion, -5, -5, 0.25f, 0.25f);
 
       GLuint invaderer = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/invaderer.gif");
+
+      /*
       for (int j = 0; j != num_rows; ++j) {
         for (int i = 0; i != num_cols; ++i) {
           assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
@@ -552,6 +601,31 @@ namespace octet {
           }
         }
       }
+      */
+      
+      for (int j = 0; j != num_rows; ++j) {
+        for (int i = 0; i != num_cols; ++i) {
+          assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
+
+          switch (readFile(i + j*num_cols)) {
+          case '.':
+            // Miss out invaderer
+            sprites[first_invaderer_sprite + i + j*num_cols].is_enabled() = false;
+            break;
+          case 'x':
+          case 'X':
+            // Spawn invaiderer
+            sprites[first_invaderer_sprite + i + j*num_cols].init(
+              invaderer, ((float)i - num_cols * 0.5f) * 0.5f, 2.50f - ((float)j * 0.5f), 0.25f, 0.25f);
+            break;
+          default:
+            std::cout << "Unknown char";
+            // Happens at eof too.
+            break;
+          }
+        }
+      }
+      
 
       GLuint dog = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/dog.jpg");
       sprites[dog_sprite].init(dog, 2, 2, 0.5f, 0.5f);

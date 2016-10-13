@@ -16,12 +16,6 @@
 /// Create a box with octet
 int main(int argc, char **argv) {
 
-  CSVhandler::readFile();
-
-  char i;
-  std::cin >> i;
-
-  /*
   // set up the platform.
   octet::app::init_all(argc, argv);
 
@@ -31,8 +25,5 @@ int main(int argc, char **argv) {
 
   // open windows
   octet::app::run_all_apps();
-  */
-
-  return 0;
 }
 
