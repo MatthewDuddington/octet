@@ -12,21 +12,31 @@ public:
     // Open the CSV file
     std::ifstream myFile("Resources/someCSV.txt");
 
+    /*
     if (!myFile.is_open()) {
       std::cout << "Failed to open file :(\n";
     }
     else {
       std::cout << "Opened CSV file :)\n";
 
-      while (!myFile.eof()) {
+      std::string wholeFile;
+      std::string currentLine;
+      //while (!myFile.eof()) {
         // Read a line from the file
-        std::string currentLine;
-        std::getline(myFile, currentLine);
-
-        std::cout << currentLine << "\n";
+      while (std::getline(myFile, currentLine));
+        wholeFile + currentLine;
       }
+      std::cout << currentLine << "\n";
     }
+    */
   }
+
+  enum entities {
+    start = 0,
+    end = 1,
+    ground = 2,
+    wall = 3,
+  };
 
 };
 
