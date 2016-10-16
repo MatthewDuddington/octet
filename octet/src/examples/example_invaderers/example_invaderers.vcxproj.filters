@@ -430,7 +430,10 @@
     <ClInclude Include="invaderers_app.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="CSV_reading.h">
+    <ClInclude Include="data_file_handler.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="level_file_handler.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -443,10 +446,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Level.txt">
+    <Text Include="Resources\someCSV.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="Resources\someCSV.txt">
+    <Text Include="Resources\setup.txt" />
+    <Text Include="Resources\level.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

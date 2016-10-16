@@ -10,18 +10,33 @@ Assumes that the file has been prepared to the same size as the array.
 #include <string>
 #include <vector>
 
+#include <iostream>
+
 class level_file_handler {
   
   std::vector<char> file_contents;
 
   void extract_file_content(const std::string &file_location) {
-    std::ifstream inputFile(file_location);
+    std::ifstream input_file(file_location);
 
-    if (inputFile.bad) {
+    if (input_file.bad()) {
       printf("%s", "ERROR: File was not loaded succesfully.");
     }
     else {
       // Load the chars into file_contents
+      // Read in the level design file
+      // Store it in a char vector
+      // Read in each line and add it to the end of the array
+      // At end of file stop
+      
+      while (!input_file.eof()) {
+        std::string temp_string;
+        std::getline(input_file, temp_string);
+        for (int i = 0; i < temp_string.length(); i++) {
+          file_contents.push_back(temp_string.at(i));
+          std::cout << file_contents.data()[i];
+        }
+      }
     }
   }
 
@@ -31,14 +46,14 @@ public:
   // Use in a level loading loop like the space invaiderers array.
   char get_design_symbol(int symbol_index,
                          const std::string &file_location) {
-    if (file_contents.empty) {
+    if (file_contents.empty()) {
       extract_file_content(file_location);
     }
     return get_design_symbol(symbol_index);
   }
 
   char get_design_symbol(int symbol_index) {
-    if (file_contents.empty) {
+    if (file_contents.empty()) {
       printf("%s", "ERROR: No level design file has been loaded.");
       return NULL;
     }
@@ -55,21 +70,10 @@ public:
     }
   }
 
+  // Destructor to clean up 
   ~level_file_handler() {
     file_contents.clear();
   }
-
-  // Function: Private: Extract file content
-  // Read in the level design file
-  // Store it in a char vector
-  // Read in each line and add it to the end of the array
-  // At end of file stop
-
-  // Function: Public: get design symbol
-  // Pass in vector nth term int
-  // Return the symbol at that locaiton
-
-  // Function: Private: Clean up extracted file vector
 
 };
 

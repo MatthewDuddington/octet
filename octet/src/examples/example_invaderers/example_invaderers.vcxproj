@@ -215,15 +215,16 @@
     <ClInclude Include="..\..\shaders\shader.h" />
     <ClInclude Include="..\..\shaders\shaders.h" />
     <ClInclude Include="..\..\shaders\texture_shader.h" />
-    <ClInclude Include="CSV_reading.h" />
+    <ClInclude Include="data_file_handler.h" />
     <ClInclude Include="invaderers_app.h" />
+    <ClInclude Include="level_file_handler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl" />
     <None Include="..\..\resources\resources.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Level.txt" />
+    <Text Include="Resources\level.txt" />
     <Text Include="Resources\setup.txt" />
     <Text Include="Resources\someCSV.txt" />
   </ItemGroup>
