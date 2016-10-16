@@ -25,6 +25,7 @@
 namespace octet {
 
   class sprite {
+  public: // TODO remove this public temp fix
     // where is our sprite (overkill for a 2D game!)
     mat4t modelToWorld;
 
@@ -39,6 +40,7 @@ namespace octet {
 
     // true if this sprite is enabled.
     bool enabled;
+  
   public:
     sprite() {
       texture = 0;
@@ -152,23 +154,62 @@ namespace octet {
     }
   };
 
+  class map_cell : sprite {
+  
+  public: static const enum cell_type {
+    start,
+    goal,
+    path,
+    wall,
+    bush,
+    fence
+  };
+
+  private:
+    cell_type cell_type_;
+
+  public:
+    void init(int _texture,
+              map_cell::cell_type cell_type,
+              float x, float y,
+              float w, float h) {
+      cell_type_ = cell_type;
+      // TODO why cant I access parent class vars without making them public?
+      modelToWorld.loadIdentity();
+      modelToWorld.translate(x, y, 0);
+      halfWidth = w * 0.5f;
+      halfHeight = h * 0.5f;
+      texture = _texture;
+      enabled = true;
+    }
+
+  };
+
   class level {
 
     int level_width = 0;
     int level_height = 0;
-    std::string level_name = "No Level Loaded";
+    // std::string level_name = "No Level Loaded";
     
-    level_file_handler file_handler;
+    level_file_handler level_file_handler_;
 
-    std::vector<sprite> level_grid;
+    std::vector<map_cell> level_grid;
 
-    // Textures
-
-    GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/path.gif");
-    GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/wall.gif");
-    GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush.gif");
-    GLuint fence_vertical_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical.gif");
-    GLuint fence_horizontal_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal.gif");
+    // Load map textures
+    GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/start.gif");
+    GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/goal.gif");
+    GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/path.gif");
+    GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/wall.gif");
+    GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/bush.gif");
+    GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/fence_vertical.gif");
+    GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/fence_horizontal.gif");
 
     void build_level() {
 
@@ -176,46 +217,68 @@ namespace octet {
         for (int i = 0; i != level_width; ++i) {
           int current_cell = i + (j * level_width);
           GLuint* texture_p = &path_texture;
-          switch (file_handler.get_design_symbol(current_cell, "Resources/level.txt")) {
-          case '.':
-            // Path (already pointed to)
+          map_cell::cell_type _cell_type;
+          switch (level_file_handler_.get_design_symbol(current_cell, "Resources/level.txt")) {
+          case '.': // Path (already pointed to)
+            _cell_type = map_cell::cell_type::path;
             break;
-          case 'x':
-          case 'X':
-            // Wall
+          case 'x': // fallthrough
+          case 'X': // Wall
             *texture_p = wall_texture;
+            _cell_type = map_cell::cell_type::wall;
             break;
-          case 'b':
+          case 'I': // Fence vertical
+            *texture_p = fence_verti_texture;
+            _cell_type = map_cell::cell_type::fence;
+            break;
+          case 'H': // Fence horizontal
+            *texture_p = fence_horiz_texture;
+            _cell_type = map_cell::cell_type::fence;
+            break;
+          case 'b': // Bush
             *texture_p = bush_texture;
+            _cell_type = map_cell::cell_type::bush;
+            break;
+          case 'S': // Start
+            *texture_p = start_texture;
+            _cell_type = map_cell::cell_type::start;
+            break;
+          case 'G': // Goal
+            *texture_p = goal_texture;
+            _cell_type = map_cell::cell_type::goal;
+            break;
           case NULL:
-            std::cout << "null";
+            std::cout << "Map gen reading in: Null";
             break;
           default:
-            std::cout << "Unknown char";
-            // Happens at eof too.
+            std::cout << "Map gen reading in: Unknown char";
             break;
           }
+          /*
           level_grid[current_cell].init(
               *texture_p, // Texture image
+              _cell_type, // Cell type identified
               ((float)i - level_width * 0.5f) * 0.5f, // x Pos
               2.50f - ((float)j * 0.5f), // y Pos
               0.25f, // Width
               0.25f // Height
               );
+              */
         }
       }
     }
 
   public:
-    void load_level(int level_num) {
-      level_file_handler level_handler;
-      level_handler.get_design_symbol  file_reader.
+    void load_level(int level_num) { // TODO make mumber load specific level from file.
+      build_level();
     }
 
   };
 
   class invaderers_app : public octet::app {
    
+    level level_;
+
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
     mat4t cameraToWorld;
@@ -338,8 +401,6 @@ namespace octet {
       }
     }
 
-    //enum WASDkeys {key_W = 57};
-
     // Use WASD to move Dog
     // Adaptation of Andy's move_ship code.
     void move_dog()
@@ -347,26 +408,26 @@ namespace octet {
       const float dog_Xspeed = 0.07f;
       const float dog_Yspeed = 0.1f;
       // A D for horizontal
-      if (is_key_down(0x41)) { // Needs to be in ASCII code format using capitals
+      if (is_key_down(0x41)) { // A
         sprites[dog_sprite].translate(-dog_Xspeed, 0);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 2])) {
           sprites[dog_sprite].translate(+dog_Xspeed, 0);
         }
       }
-      else if (is_key_down(0x44)) {
+      else if (is_key_down(0x44)) { // D
         sprites[dog_sprite].translate(+dog_Xspeed, 0);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 3])) {
           sprites[dog_sprite].translate(-dog_Xspeed, 0);
         }
       }
       // W S for vertical
-      if (is_key_down(0x57)) {
+      if (is_key_down(0x57)) { // W
         sprites[dog_sprite].translate(0, +dog_Yspeed);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 2])) {
           sprites[dog_sprite].translate(0, -dog_Yspeed);
         }
       }
-      else if (is_key_down(0x53)) {
+      else if (is_key_down(0x53)) { // S
         sprites[dog_sprite].translate(0, -dog_Yspeed);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 3])) {
           sprites[dog_sprite].translate(0, +dog_Yspeed);
@@ -374,34 +435,19 @@ namespace octet {
       }
     }
 
-    // Can we rotate the dog?! Scary challenge time!
-    // Q E for dog roation
+    // Rotate dog with Q E
     void rotate_dog()
     {
-      float dog_Rspeed = 3.0f;
+      float rotation_speed = 3.0f;
 
-      //Pointer pair as &spriteP in rotate.
-      /*
-      sprite* dogSpriteP = &sprites[dog_sprite];
-      if (is_key_down(0x51))
-      {
-        sprites[dog_sprite].rotateAlt(*dogSpriteP, -dog_Rspeed);
-      }
-      if (is_key_down(0x45))
-      {
-        sprites[dog_sprite].rotateAlt(sprites[dog_sprite], +dog_Rspeed);
-      }
-      /*/
-      sprite* dogSpriteP = &sprites[dog_sprite];
       if (is_key_down(0x51)) // Q
       {
-        sprites[dog_sprite].rotate(dogSpriteP, -dog_Rspeed);
+        sprites[dog_sprite].rotate(-rotation_speed);
       }
       if (is_key_down(0x45)) // E
       {
-        sprites[dog_sprite].rotate(&sprites[dog_sprite], +dog_Rspeed);
+        sprites[dog_sprite].rotate(+rotation_speed);
       }
-      //*/
     }
 
     // fire button (space)
@@ -453,8 +499,6 @@ namespace octet {
         }
       }
     }
-
-
 
     // animate the missiles
     void move_missiles() {
@@ -534,49 +578,6 @@ namespace octet {
       return false;
     }
 
-    // Read CSV file for invaderer alteration
-    // (really inefficient as we're opening the file every time!)
-    char readFile(int ref) {
-      // Open the CSV file
-      std::ifstream myFile("Resources/setup.txt");
-      char chars[num_invaderers];
-      myFile.get(chars, num_invaderers);
-      /*
-      for (int i = 0; i != num_invaderers; i++) {
-        std::cout << chars[i];
-      }
-      */
-      std::cout << chars[ref];
-      
-      return chars[ref];
-
-      // Sorry for the mess Andy! This is a WIP.
-
-
-      /*
-      std::stringstream ss;
-      ss << chars[ref];
-      std::string x;
-      ss >> x;
-
-      int returnInt = std::stoi(x);
-      */
-
-      /*
-      std::string input;
-      std::string* p = &input;
-      myFile.get(p, num_invaderers);
-      
-
-      // Read a line from the file
-      while (std::getline(myFile, currentLine)){
-        wholeLine + currentLine;
-      }
-      std::stoi(wholeLine)
-      */
-
-    }
-
     void draw_text(texture_shader &shader, float x, float y, float scale, const char *text) {
       mat4t modelToWorld;
       modelToWorld.loadIdentity();
@@ -624,6 +625,8 @@ namespace octet {
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
       cameraToWorld.translate(0, 0, 3);
+
+      level_.load_level(1);
 
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
 

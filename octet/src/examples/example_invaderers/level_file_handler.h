@@ -38,12 +38,16 @@ class level_file_handler {
     // TODO add the ability to recognise end of the level symbols and the start of object links within the same file.
   }
 
+public:
+
+  level_file_handler() {
+
+  }
+
   // Destructor to clean up 
   ~level_file_handler() {
     file_contents.clear();
   }
-
-public:
 
   // Loads the level file only once and returns the char.
   // Use in a level loading loop like the space invaiderers array.
