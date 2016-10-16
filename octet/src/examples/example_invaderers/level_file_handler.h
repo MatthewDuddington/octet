@@ -1,6 +1,8 @@
 /*
 Handles the parsing of custom level design files.
 Assumes that the file has been prepared to the same size as the array.
+
+Influenced by: https://github.com/andy-thomason/read_a_csv_file
 */
 
 #ifndef level_file_handler_h
@@ -9,8 +11,6 @@ Assumes that the file has been prepared to the same size as the array.
 #include <fstream>
 #include <string>
 #include <vector>
-
-#include <iostream>
 
 class level_file_handler {
   
@@ -33,25 +33,14 @@ class level_file_handler {
           file_contents.push_back(line_buffer.at(i));
         }
       }
-
-      /*
-      for (int i = 0; i < file_contents.size(); i++) {
-        printf("%c", file_contents.at(i));
-      }
-      */
-
-      /*
-      char line_buffer[50]; // Store the current line here
-
-      while (!input_file.eof()) {
-        input_file.getline(line_buffer, sizeof(line_buffer));
-        for (int i = 0; i < sizeof(line_buffer); i++) {
-          file_contents.push_back(line_buffer[i]);
-          std::cout << file_contents.data()[i];
-        }
-      }
-      */
     }
+
+    // TODO add the ability to recognise end of the level symbols and the start of object links within the same file.
+  }
+
+  // Destructor to clean up 
+  ~level_file_handler() {
+    file_contents.clear();
   }
 
 public:
@@ -82,11 +71,6 @@ public:
       }
       return file_contents.at(symbol_index);
     }
-  }
-
-  // Destructor to clean up 
-  ~level_file_handler() {
-    file_contents.clear();
   }
 
 };

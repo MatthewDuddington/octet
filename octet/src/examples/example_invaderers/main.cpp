@@ -9,7 +9,7 @@
 
 #include "../../octet.h"
 
-//#include "invaderers_app.h"
+#include "invaderers_app.h"
 
 #include "level_file_handler.h"
 

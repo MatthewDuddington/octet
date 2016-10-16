@@ -449,8 +449,10 @@
     <Text Include="Resources\someCSV.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="Resources\setup.txt" />
     <Text Include="Resources\level.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\setup.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
