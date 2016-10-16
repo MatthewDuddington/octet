@@ -20,9 +20,10 @@
 #include <iostream> // Will I need this one too?
 #include <fstream>
 #include <string>
-#include <time.h>
+#include <vector>
 
 namespace octet {
+
   class sprite {
     // where is our sprite (overkill for a 2D game!)
     mat4t modelToWorld;
@@ -78,8 +79,8 @@ namespace octet {
       // a straight "float" here means this array is being generated here at runtime.
       float vertices[] = {
         -halfWidth, -halfHeight, 0,
-         halfWidth, -halfHeight, 0,
-         halfWidth,  halfHeight, 0,
+        halfWidth, -halfHeight, 0,
+        halfWidth,  halfHeight, 0,
         -halfWidth,  halfHeight, 0,
       };
 
@@ -91,10 +92,10 @@ namespace octet {
 
       // this is an array of the positions of the corners of the texture in 2D
       static const float uvs[] = {
-         0,  0,
-         1,  0,
-         1,  1,
-         0,  1,
+        0,  0,
+        1,  0,
+        1,  1,
+        0,  1,
       };
 
       // attribute_uv is position in the texture of each corner
@@ -112,17 +113,10 @@ namespace octet {
       modelToWorld.translate(x, y, 0);
     }
 
-    // rotate the object... I hope
-    void rotate(sprite* spriteP, float z)
+    // Added: Rotate the object
+    void rotate(float z)
     {
-      //(*spriteP).modelToWorld.rotateZ(z);
-      spriteP->modelToWorld.rotateZ(z);
-    }
-
-    // Alternate setup of pointer pairing in funtion and argument.
-    void rotateAlt(sprite& spriteP, float z)
-    {
-      spriteP.modelToWorld.rotateZ(z);
+      modelToWorld.rotateZ(z);
     }
 
     // position the object relative to another.
@@ -158,38 +152,70 @@ namespace octet {
     }
   };
 
+  class level {
+
+    int level_width = 0;
+    int level_height = 0;
+    std::string level_name = "No Level Loaded";
+    
+    level_file_handler file_handler;
+
+    std::vector<sprite> level_grid;
+
+    // Textures
+
+    GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/path.gif");
+    GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/wall.gif");
+    GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush.gif");
+    GLuint fence_vertical_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical.gif");
+    GLuint fence_horizontal_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal.gif");
+
+    void build_level() {
+
+      for (int j = 0; j != level_height; ++j) {
+        for (int i = 0; i != level_width; ++i) {
+          int current_cell = i + (j * level_width);
+          GLuint* texture_p = &path_texture;
+          switch (file_handler.get_design_symbol(current_cell, "Resources/level.txt")) {
+          case '.':
+            // Path (already pointed to)
+            break;
+          case 'x':
+          case 'X':
+            // Wall
+            *texture_p = wall_texture;
+            break;
+          case 'b':
+            *texture_p = bush_texture;
+          case NULL:
+            std::cout << "null";
+            break;
+          default:
+            std::cout << "Unknown char";
+            // Happens at eof too.
+            break;
+          }
+          level_grid[current_cell].init(
+              *texture_p, // Texture image
+              ((float)i - level_width * 0.5f) * 0.5f, // x Pos
+              2.50f - ((float)j * 0.5f), // y Pos
+              0.25f, // Width
+              0.25f // Height
+              );
+        }
+      }
+    }
+
+  public:
+    void load_level(int level_num) {
+      level_file_handler level_handler;
+      level_handler.get_design_symbol  file_reader.
+    }
+
+  };
+
   class invaderers_app : public octet::app {
    
-    /*
-    // FPS Checking from http://gamedev.stackexchange.com/questions/83159/simple-framerate-counter
-    int frames = 0;
-    double starttime = 0;
-    bool first = TRUE;
-    float fps = 0.0f;
-
-    void checkFPS() {
-      time_t timepassed;
-      time(&timepassed);
-      
-      if (first)
-      {
-        frames = 0;
-        starttime = timepassed;
-        first = FALSE;
-        return;
-      }
-
-      if (timepassed - starttime > 0.25 && frames > 10)
-      {
-        fps = (double)frames / (timepassed - starttime);
-        starttime = timepassed;
-        frames = 0;
-      }
-
-      std::cout << "\n" << fps;
-    }
-    */
-    
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
     mat4t cameraToWorld;
@@ -614,29 +640,6 @@ namespace octet {
 
       GLuint invaderer = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/invaderer.gif");
 
-      /*
-      for (int j = 0; j != num_rows; ++j) {
-        for (int i = 0; i != num_cols; ++i) {
-          assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
-          float xf = ((float)i - num_cols * 0.5f) * 0.5f;
-          float yf = 2.50f - ((float)j * 0.5f);
-          if ((j % 2 == 0 && i % 2 == 0) || (j % 2 != 0 && i % 2 != 0)) {
-            sprites[first_invaderer_sprite + i + j*num_cols].init(
-              invaderer, xf, yf, 0.25f, 0.25f
-            );
-          }
-          else {
-            sprites[first_invaderer_sprite + i + j*num_cols].init(
-              tree, xf, yf, 0.25f, 0.25f
-            );
-          }
-        }
-      }
-      */
-      
-
-      
-
       GLuint dog = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/dog.jpg");
       sprites[dog_sprite].init(dog, 2, 2, 0.5f, 0.5f);
 
@@ -708,7 +711,6 @@ namespace octet {
         move_invaders(invader_velocity, -0.1f);
       }
 
-      // checkFPS();
     }
 
     // this is called to draw the world

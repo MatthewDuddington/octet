@@ -1,26 +1,25 @@
-#ifndef level_builder_h
-#define level_builder_h
+#ifndef level_h
+#define level_h
 
-class level_builder {
+#include <string>
 
-  enum {
-    level_width = 15,
-    level_height = 9,
-    num_level_cells = level_width * level_height,
+class level {
 
-    // Cell indicies
-    first_level_cell = 0,
-    last_level_cell = num_level_cells;
-  };
+  int level_width = 0;
+  int level_height = 0;
+  std::string level_name = "No Level Loaded";
+
+  std::vector<sprite> level_grid;
 
   void build_level() {
+
     for (int j = 0; j != level_height; ++j) {
       for (int i = 0; i != level_width; ++i) {
-
-        switch (readFile(i + (j * num_cols))) {
+        int current_cell = i + (j * level_width);
+        switch (readFile(current_cell)) {
         case '.':
           // Path
-          sprites[first_level_cell + i + (j * level_num_cols)].is_enabled() = false;
+          level_grid[current_cell].is_enabled() = false;
           break;
         case 'x':
         case 'X':
@@ -41,6 +40,12 @@ class level_builder {
     }
   }
 
+public:
+  void load_level(int level_num) {
+    level_file_handler level_handler;
+    level_handler.get_design_symbol  file_reader.
+  }
+
 };
 
-#endif // !level_builder_h
+#endif // !level_h
