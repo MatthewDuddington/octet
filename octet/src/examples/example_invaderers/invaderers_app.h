@@ -20,7 +20,7 @@
 #include <iostream> // Will I need this one too?
 #include <fstream>
 #include <string>
-#include <sstream>
+#include <time.h>
 
 namespace octet {
   class sprite {
@@ -159,6 +159,37 @@ namespace octet {
   };
 
   class invaderers_app : public octet::app {
+   
+    /*
+    // FPS Checking from http://gamedev.stackexchange.com/questions/83159/simple-framerate-counter
+    int frames = 0;
+    double starttime = 0;
+    bool first = TRUE;
+    float fps = 0.0f;
+
+    void checkFPS() {
+      time_t timepassed;
+      time(&timepassed);
+      
+      if (first)
+      {
+        frames = 0;
+        starttime = timepassed;
+        first = FALSE;
+        return;
+      }
+
+      if (timepassed - starttime > 0.25 && frames > 10)
+      {
+        fps = (double)frames / (timepassed - starttime);
+        starttime = timepassed;
+        frames = 0;
+      }
+
+      std::cout << "\n" << fps;
+    }
+    */
+    
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
     mat4t cameraToWorld;
@@ -336,13 +367,13 @@ namespace octet {
       }
       /*/
       sprite* dogSpriteP = &sprites[dog_sprite];
-      if (is_key_down(0x51))
+      if (is_key_down(0x51)) // Q
       {
         sprites[dog_sprite].rotate(dogSpriteP, -dog_Rspeed);
       }
-      if (is_key_down(0x45))
+      if (is_key_down(0x45)) // E
       {
-        sprites[ship_sprite].rotate(&sprites[ship_sprite], +dog_Rspeed);
+        sprites[dog_sprite].rotate(&sprites[dog_sprite], +dog_Rspeed);
       }
       //*/
     }
@@ -618,6 +649,9 @@ namespace octet {
             sprites[first_invaderer_sprite + i + j*num_cols].init(
               invaderer, ((float)i - num_cols * 0.5f) * 0.5f, 2.50f - ((float)j * 0.5f), 0.25f, 0.25f);
             break;
+          case NULL:
+            std::cout << "null";
+            break;
           default:
             std::cout << "Unknown char";
             // Happens at eof too.
@@ -697,6 +731,8 @@ namespace octet {
         invader_velocity = -invader_velocity;
         move_invaders(invader_velocity, -0.1f);
       }
+
+      // checkFPS();
     }
 
     // this is called to draw the world
