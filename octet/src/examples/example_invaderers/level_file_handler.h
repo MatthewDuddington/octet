@@ -17,26 +17,40 @@ class level_file_handler {
   std::vector<char> file_contents;
 
   void extract_file_content(const std::string &file_location) {
+    // Open file
     std::ifstream input_file(file_location);
 
     if (input_file.bad()) {
       printf("%s", "ERROR: File was not loaded succesfully.");
     }
     else {
-      // Load the chars into file_contents
-      // Read in the level design file
-      // Store it in a char vector
-      // Read in each line and add it to the end of the array
-      // At end of file stop
-      
+      std::string line_buffer; // Store current line here
+
+      while (!input_file.eof()) { // Stop at end of file
+        std::getline(input_file, line_buffer); // Extract a line
+        // Add each char from the current line to the vector
+        for (int i = 0; i < line_buffer.length(); i++) {
+          file_contents.push_back(line_buffer.at(i));
+        }
+      }
+
+      /*
+      for (int i = 0; i < file_contents.size(); i++) {
+        printf("%c", file_contents.at(i));
+      }
+      */
+
+      /*
+      char line_buffer[50]; // Store the current line here
+
       while (!input_file.eof()) {
-        std::string temp_string;
-        std::getline(input_file, temp_string);
-        for (int i = 0; i < temp_string.length(); i++) {
-          file_contents.push_back(temp_string.at(i));
+        input_file.getline(line_buffer, sizeof(line_buffer));
+        for (int i = 0; i < sizeof(line_buffer); i++) {
+          file_contents.push_back(line_buffer[i]);
           std::cout << file_contents.data()[i];
         }
       }
+      */
     }
   }
 
