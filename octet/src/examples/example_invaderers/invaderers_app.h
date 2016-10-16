@@ -634,31 +634,7 @@ namespace octet {
       }
       */
       
-      for (int j = 0; j != num_rows; ++j) {
-        for (int i = 0; i != num_cols; ++i) {
-          assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
 
-          switch (readFile(i + j*num_cols)) {
-          case '.':
-            // Miss out invaderer
-            sprites[first_invaderer_sprite + i + j*num_cols].is_enabled() = false;
-            break;
-          case 'x':
-          case 'X':
-            // Spawn invaiderer
-            sprites[first_invaderer_sprite + i + j*num_cols].init(
-              invaderer, ((float)i - num_cols * 0.5f) * 0.5f, 2.50f - ((float)j * 0.5f), 0.25f, 0.25f);
-            break;
-          case NULL:
-            std::cout << "null";
-            break;
-          default:
-            std::cout << "Unknown char";
-            // Happens at eof too.
-            break;
-          }
-        }
-      }
       
 
       GLuint dog = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/dog.jpg");

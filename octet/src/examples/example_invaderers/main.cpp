@@ -12,6 +12,7 @@
 #include "invaderers_app.h"
 
 #include "level_file_handler.h"
+#include "level_builder.h"
 
 /// Create a box with octet
 int main(int argc, char **argv) {
