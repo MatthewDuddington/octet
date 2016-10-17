@@ -224,14 +224,14 @@ namespace octet {
           
       // TODO Remove these hard coded numbers and replace with reading the map to calculate width and height.
       level_width = 15;
-      level_height = 9;
+      level_height = 15;
       level_grid_.resize(level_width * level_height);
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
       for (int j = 0; j != level_height; ++j) { // For each row...
-        //printf("%s %i %s", "J loop ", j, "\n"); // TODO Remove
+        //printf("%s %i %s", "J loop ", j, "\n"); // DEBUG
         for (int i = 0; i != level_width; ++i) { // ...and each coll in that row
-          //printf("%s%i%s", "I loop ", i, "\n"); // TODO Remove
+          //printf("%s%i%s", "I loop ", i, "\n"); // DEBUG
 
           // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
           int current_cell = i + (j * level_width); // Calculate index of current cell
@@ -280,7 +280,7 @@ namespace octet {
               *texture_p, // Texture image
               _cell_type, // Cell type identified
               0.25f + ((float)i - level_width * 0.5f) * 0.5f, // x Pos
-              ((float)j - level_height* 0.5) * -0.5, // y Pos
+              -0.25f + ((float)j - level_height* 0.5) * -0.5, // y Pos
               0.5f, // Width
               0.5f); // Height
           
@@ -767,15 +767,17 @@ namespace octet {
       for (int i = 0; i != level_.level_size(); ++i) {
         level_.level_grid().at(i).render(texture_shader_, cameraToWorld);
       }
+
       /*
       // draw all the sprites
       for (int i = 0; i != num_sprites; ++i) {
         sprites[i].render(texture_shader_, cameraToWorld);
       }
-      */
+      
       char score_text[32];
       sprintf(score_text, "score: %d   lives: %d\n", score, num_lives);
       draw_text(texture_shader_, -1.75f, 2, 1.0f / 256, score_text);
+      */
 
       // move the listener with the camera
       vec4 &cpos = cameraToWorld.w();

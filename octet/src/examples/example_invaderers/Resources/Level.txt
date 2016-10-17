@@ -6,4 +6,10 @@ X.........b...X
 X...b..IHHHHH.X
 X.b....I...b..X
 X......I.G....X
+X.............X
+X..bbb..bbb..bX
+X.......HHHHHHX
+X..HHHHHI.....X
+X.......I...bbX
+Xb......I..b..X
 xxxxxxxxxxxxxxx
