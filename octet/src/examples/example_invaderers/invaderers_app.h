@@ -229,9 +229,9 @@ namespace octet {
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
       for (int j = 0; j != level_height; ++j) { // For each row...
-        printf("%s %i %s", "J loop ", j, "\n");
+        //printf("%s %i %s", "J loop ", j, "\n"); // TODO Remove
         for (int i = 0; i != level_width; ++i) { // ...and each coll in that row
-          printf("%s%i%s", "I loop ", i, "\n");
+          //printf("%s%i%s", "I loop ", i, "\n"); // TODO Remove
 
           // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
           int current_cell = i + (j * level_width); // Calculate index of current cell
@@ -279,10 +279,10 @@ namespace octet {
           level_grid_[current_cell].init(
               *texture_p, // Texture image
               _cell_type, // Cell type identified
-              ((float)i - level_width * 0.5f) * 0.5f, // x Pos
-              2.50f - ((float)j * 0.5f), // y Pos
-              0.25f, // Width
-              0.25f); // Height
+              0.25f + ((float)i - level_width * 0.5f) * 0.5f, // x Pos
+              ((float)j - level_height* 0.5) * -0.5, // y Pos
+              0.5f, // Width
+              0.5f); // Height
           
           // Loop until map filled.
         }
@@ -653,7 +653,7 @@ namespace octet {
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
-      cameraToWorld.translate(0, 0, 3);
+      cameraToWorld.translate(0, 0, 4);
 
       level_.load_level(1);
 
