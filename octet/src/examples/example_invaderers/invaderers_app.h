@@ -154,7 +154,7 @@ namespace octet {
     }
   };
 
-  class map_cell : sprite {
+  class map_cell : public sprite {
   
   public: static const enum cell_type {
     start,
@@ -169,6 +169,14 @@ namespace octet {
     cell_type cell_type_;
 
   public:
+
+    map_cell() {
+      cell_type_ = path;
+
+      texture = 0;
+      enabled = true;
+    }
+
     void init(int _texture,
               map_cell::cell_type cell_type,
               float x, float y,
@@ -191,61 +199,73 @@ namespace octet {
     int level_height = 0;
     // std::string level_name = "No Level Loaded";
     
-    level_file_handler level_file_handler_;
+    level_file_handler level_file_handler_; // Assistant module to read the level design file. 
 
-    std::vector<map_cell> level_grid;
+    std::vector<map_cell> level_grid_; // Stores grid of map sprites.
 
-    // Load map textures
-    GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/start.gif");
-    GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/goal.gif");
-    GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/path.gif");
-    GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/wall.gif");
-    GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/bush.gif");
-    GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/fence_vertical.gif");
-    GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/fence_horizontal.gif");
-
+    // Construct the level map.
     void build_level() {
 
-      for (int j = 0; j != level_height; ++j) {
-        for (int i = 0; i != level_width; ++i) {
-          int current_cell = i + (j * level_width);
-          GLuint* texture_p = &path_texture;
-          map_cell::cell_type _cell_type;
+      // Load map textures
+      static GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/start.gif");
+      static GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/goal.gif");
+      static GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/path.gif");
+      static GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/wall.gif");
+      static GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/bush.gif");
+      static GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/fence_vertical.gif");
+      static GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/fence_horizontal.gif");
+          
+      // TODO Remove these hard coded numbers and replace with reading the map to calculate width and height.
+      level_width = 15;
+      level_height = 9;
+      level_grid_.resize(level_width * level_height);
+
+      // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
+      for (int j = 0; j != level_height; ++j) { // For each row...
+        printf("%s %i %s", "J loop ", j, "\n");
+        for (int i = 0; i != level_width; ++i) { // ...and each coll in that row
+          printf("%s%i%s", "I loop ", i, "\n");
+
+          // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
+          int current_cell = i + (j * level_width); // Calculate index of current cell
+          GLuint* texture_p = &path_texture; // Store texture ref here
+          map_cell::cell_type _cell_type = map_cell::path; // Store enum type here
           switch (level_file_handler_.get_design_symbol(current_cell, "Resources/level.txt")) {
+
           case '.': // Path (already pointed to)
-            _cell_type = map_cell::cell_type::path;
+            _cell_type = map_cell::path;
             break;
           case 'x': // fallthrough
           case 'X': // Wall
-            *texture_p = wall_texture;
-            _cell_type = map_cell::cell_type::wall;
+            texture_p = &wall_texture;
+            _cell_type = map_cell::wall;
             break;
           case 'I': // Fence vertical
-            *texture_p = fence_verti_texture;
-            _cell_type = map_cell::cell_type::fence;
+            texture_p = &fence_verti_texture;
+            _cell_type = map_cell::fence;
             break;
           case 'H': // Fence horizontal
-            *texture_p = fence_horiz_texture;
-            _cell_type = map_cell::cell_type::fence;
+            texture_p = &fence_horiz_texture;
+            _cell_type = map_cell::fence;
             break;
           case 'b': // Bush
-            *texture_p = bush_texture;
-            _cell_type = map_cell::cell_type::bush;
+            texture_p = &bush_texture;
+            _cell_type = map_cell::bush;
             break;
           case 'S': // Start
-            *texture_p = start_texture;
-            _cell_type = map_cell::cell_type::start;
+            texture_p = &start_texture;
+            _cell_type = map_cell::start;
             break;
           case 'G': // Goal
-            *texture_p = goal_texture;
-            _cell_type = map_cell::cell_type::goal;
+            texture_p = &goal_texture;
+            _cell_type = map_cell::goal;
             break;
           case NULL:
             std::cout << "Map gen reading in: Null";
@@ -254,23 +274,32 @@ namespace octet {
             std::cout << "Map gen reading in: Unknown char";
             break;
           }
-          /*
-          level_grid[current_cell].init(
+
+          // Use the stored texture and type to instantiate the cell
+          level_grid_[current_cell].init(
               *texture_p, // Texture image
               _cell_type, // Cell type identified
               ((float)i - level_width * 0.5f) * 0.5f, // x Pos
               2.50f - ((float)j * 0.5f), // y Pos
               0.25f, // Width
-              0.25f // Height
-              );
-              */
+              0.25f); // Height
+          
+          // Loop until map filled.
         }
       }
     }
 
   public:
-    void load_level(int level_num) { // TODO make mumber load specific level from file.
+    void load_level(int level_num) { // TODO make argument load specific level from file.
       build_level();
+    }
+
+    int level_size() {
+      return level_width * level_height;
+    }
+
+    std::vector<map_cell> &level_grid() {
+      return level_grid_;
     }
 
   };
@@ -734,11 +763,16 @@ namespace octet {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+      // Draw the map
+      for (int i = 0; i != level_.level_size(); ++i) {
+        level_.level_grid().at(i).render(texture_shader_, cameraToWorld);
+      }
+      /*
       // draw all the sprites
       for (int i = 0; i != num_sprites; ++i) {
         sprites[i].render(texture_shader_, cameraToWorld);
       }
-
+      */
       char score_text[32];
       sprintf(score_text, "score: %d   lives: %d\n", score, num_lives);
       draw_text(texture_shader_, -1.75f, 2, 1.0f / 256, score_text);

@@ -33,6 +33,12 @@ class level_file_handler {
           file_contents.push_back(line_buffer.at(i));
         }
       }
+      /*
+      for (int i = 0; i < file_contents.size(); i++) {
+        printf("%c", file_contents.at(i));
+      }
+      */
+      
     }
 
     // TODO add the ability to recognise end of the level symbols and the start of object links within the same file.
@@ -56,6 +62,7 @@ public:
     if (file_contents.empty()) {
       extract_file_content(file_location);
     }
+    printf("%c%s", get_design_symbol(symbol_index), "\n");
     return get_design_symbol(symbol_index);
   }
 
