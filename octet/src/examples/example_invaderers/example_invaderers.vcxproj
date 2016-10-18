@@ -217,6 +217,7 @@
     <ClInclude Include="..\..\shaders\texture_shader.h" />
     <ClInclude Include="data_file_handler.h" />
     <ClInclude Include="invaderers_app.h" />
+    <ClInclude Include="level.h" />
     <ClInclude Include="level_file_handler.h" />
   </ItemGroup>
   <ItemGroup>

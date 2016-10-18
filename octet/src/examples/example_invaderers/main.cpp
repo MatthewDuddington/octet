@@ -9,18 +9,17 @@
 
 #include "../../octet.h"
 
+#include "level_file_handler.h"
+
 #include "invaderers_app.h"
 
-#include "level_file_handler.h"
 
 /// Create a box with octet
 int main(int argc, char **argv) {
 
-  //*
+  /*
 
-  level_file_handler level_file;
-  level_file.get_design_symbol(0, "Resources/level.txt");
-  printf("%s", "main.cpp is being rerouted");
+  // Testing code goes here
 
   std::getchar();
 

@@ -20,10 +20,12 @@
 #include <iostream> // Will I need this one too?
 #include <fstream>
 #include <string>
-#include <time.h>
+#include <vector>
 
 namespace octet {
+
   class sprite {
+  public: // TODO remove this public temp fix
     // where is our sprite (overkill for a 2D game!)
     mat4t modelToWorld;
 
@@ -38,6 +40,7 @@ namespace octet {
 
     // true if this sprite is enabled.
     bool enabled;
+  
   public:
     sprite() {
       texture = 0;
@@ -78,8 +81,8 @@ namespace octet {
       // a straight "float" here means this array is being generated here at runtime.
       float vertices[] = {
         -halfWidth, -halfHeight, 0,
-         halfWidth, -halfHeight, 0,
-         halfWidth,  halfHeight, 0,
+        halfWidth, -halfHeight, 0,
+        halfWidth,  halfHeight, 0,
         -halfWidth,  halfHeight, 0,
       };
 
@@ -91,10 +94,10 @@ namespace octet {
 
       // this is an array of the positions of the corners of the texture in 2D
       static const float uvs[] = {
-         0,  0,
-         1,  0,
-         1,  1,
-         0,  1,
+        0,  0,
+        1,  0,
+        1,  1,
+        0,  1,
       };
 
       // attribute_uv is position in the texture of each corner
@@ -112,17 +115,10 @@ namespace octet {
       modelToWorld.translate(x, y, 0);
     }
 
-    // rotate the object... I hope
-    void rotate(sprite* spriteP, float z)
+    // Added: Rotate the object
+    void rotate(float z)
     {
-      //(*spriteP).modelToWorld.rotateZ(z);
-      spriteP->modelToWorld.rotateZ(z);
-    }
-
-    // Alternate setup of pointer pairing in funtion and argument.
-    void rotateAlt(sprite& spriteP, float z)
-    {
-      spriteP.modelToWorld.rotateZ(z);
+      modelToWorld.rotateZ(z);
     }
 
     // position the object relative to another.
@@ -158,38 +154,160 @@ namespace octet {
     }
   };
 
+  class map_cell : public sprite {
+  
+  public: static const enum cell_type {
+    start,
+    goal,
+    path,
+    wall,
+    bush,
+    fence
+  };
+
+  private:
+    cell_type cell_type_;
+
+  public:
+
+    map_cell() {
+      cell_type_ = path;
+
+      texture = 0;
+      enabled = true;
+    }
+
+    void init(int _texture,
+              map_cell::cell_type cell_type,
+              float x, float y,
+              float w, float h) {
+      cell_type_ = cell_type;
+      // TODO why cant I access parent class vars without making them public?
+      modelToWorld.loadIdentity();
+      modelToWorld.translate(x, y, 0);
+      halfWidth = w * 0.5f;
+      halfHeight = h * 0.5f;
+      texture = _texture;
+      enabled = true;
+    }
+
+  };
+
+  class level {
+
+    int level_width = 0;
+    int level_height = 0;
+    // std::string level_name = "No Level Loaded";
+    
+    level_file_handler level_file_handler_; // Assistant module to read the level design file. 
+
+    std::vector<map_cell> level_grid_; // Stores grid of map sprites.
+
+    // Construct the level map.
+    void build_level() {
+
+      // Load map textures
+      static GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/start.gif");
+      static GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/goal.gif");
+      static GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/path.gif");
+      static GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/wall.gif");
+      static GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/bush.gif");
+      static GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/fence_vertical.gif");
+      static GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/fence_horizontal.gif");
+          
+      // TODO Remove these hard coded numbers and replace with reading the map to calculate width and height.
+      level_width = 15;
+      level_height = 15;
+      level_grid_.resize(level_width * level_height);
+
+      // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
+      for (int j = 0; j != level_height; ++j) { // For each row...
+        //printf("%s %i %s", "J loop ", j, "\n"); // DEBUG
+        for (int i = 0; i != level_width; ++i) { // ...and each coll in that row
+          //printf("%s%i%s", "I loop ", i, "\n"); // DEBUG
+
+          // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
+          int current_cell = i + (j * level_width); // Calculate index of current cell
+          GLuint* texture_p = &path_texture; // Store texture ref here
+          map_cell::cell_type _cell_type = map_cell::path; // Store enum type here
+          switch (level_file_handler_.get_design_symbol(current_cell, "Resources/level.txt")) {
+
+          case '.': // Path (already pointed to)
+            _cell_type = map_cell::path;
+            break;
+          case 'x': // fallthrough
+          case 'X': // Wall
+            texture_p = &wall_texture;
+            _cell_type = map_cell::wall;
+            break;
+          case 'I': // Fence vertical
+            texture_p = &fence_verti_texture;
+            _cell_type = map_cell::fence;
+            break;
+          case 'H': // Fence horizontal
+            texture_p = &fence_horiz_texture;
+            _cell_type = map_cell::fence;
+            break;
+          case 'b': // Bush
+            texture_p = &bush_texture;
+            _cell_type = map_cell::bush;
+            break;
+          case 'S': // Start
+            texture_p = &start_texture;
+            _cell_type = map_cell::start;
+            break;
+          case 'G': // Goal
+            texture_p = &goal_texture;
+            _cell_type = map_cell::goal;
+            break;
+          case NULL:
+            std::cout << "Map gen reading in: Null";
+            break;
+          default:
+            std::cout << "Map gen reading in: Unknown char";
+            break;
+          }
+
+          // Use the stored texture and type to instantiate the cell
+          level_grid_[current_cell].init(
+              *texture_p, // Texture image
+              _cell_type, // Cell type identified
+              0.25f + ((float)i - level_width * 0.5f) * 0.5f, // x Pos
+              -0.25f + ((float)j - level_height* 0.5) * -0.5, // y Pos
+              0.5f, // Width
+              0.5f); // Height
+          
+          // Loop until map filled.
+        }
+      }
+    }
+
+  public:
+    void load_level(int level_num) { // TODO make argument load specific level from file.
+      build_level();
+    }
+
+    int level_size() {
+      return level_width * level_height;
+    }
+
+    std::vector<map_cell> &level_grid() {
+      return level_grid_;
+    }
+
+  };
+
   class invaderers_app : public octet::app {
    
-    /*
-    // FPS Checking from http://gamedev.stackexchange.com/questions/83159/simple-framerate-counter
-    int frames = 0;
-    double starttime = 0;
-    bool first = TRUE;
-    float fps = 0.0f;
+    level level_;
 
-    void checkFPS() {
-      time_t timepassed;
-      time(&timepassed);
-      
-      if (first)
-      {
-        frames = 0;
-        starttime = timepassed;
-        first = FALSE;
-        return;
-      }
-
-      if (timepassed - starttime > 0.25 && frames > 10)
-      {
-        fps = (double)frames / (timepassed - starttime);
-        starttime = timepassed;
-        frames = 0;
-      }
-
-      std::cout << "\n" << fps;
-    }
-    */
-    
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
     mat4t cameraToWorld;
@@ -312,8 +430,6 @@ namespace octet {
       }
     }
 
-    //enum WASDkeys {key_W = 57};
-
     // Use WASD to move Dog
     // Adaptation of Andy's move_ship code.
     void move_dog()
@@ -321,26 +437,26 @@ namespace octet {
       const float dog_Xspeed = 0.07f;
       const float dog_Yspeed = 0.1f;
       // A D for horizontal
-      if (is_key_down(0x41)) { // Needs to be in ASCII code format using capitals
+      if (is_key_down(0x41)) { // A
         sprites[dog_sprite].translate(-dog_Xspeed, 0);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 2])) {
           sprites[dog_sprite].translate(+dog_Xspeed, 0);
         }
       }
-      else if (is_key_down(0x44)) {
+      else if (is_key_down(0x44)) { // D
         sprites[dog_sprite].translate(+dog_Xspeed, 0);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 3])) {
           sprites[dog_sprite].translate(-dog_Xspeed, 0);
         }
       }
       // W S for vertical
-      if (is_key_down(0x57)) {
+      if (is_key_down(0x57)) { // W
         sprites[dog_sprite].translate(0, +dog_Yspeed);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 2])) {
           sprites[dog_sprite].translate(0, -dog_Yspeed);
         }
       }
-      else if (is_key_down(0x53)) {
+      else if (is_key_down(0x53)) { // S
         sprites[dog_sprite].translate(0, -dog_Yspeed);
         if (sprites[dog_sprite].collides_with(sprites[first_border_sprite + 3])) {
           sprites[dog_sprite].translate(0, +dog_Yspeed);
@@ -348,34 +464,19 @@ namespace octet {
       }
     }
 
-    // Can we rotate the dog?! Scary challenge time!
-    // Q E for dog roation
+    // Rotate dog with Q E
     void rotate_dog()
     {
-      float dog_Rspeed = 3.0f;
+      float rotation_speed = 3.0f;
 
-      //Pointer pair as &spriteP in rotate.
-      /*
-      sprite* dogSpriteP = &sprites[dog_sprite];
-      if (is_key_down(0x51))
-      {
-        sprites[dog_sprite].rotateAlt(*dogSpriteP, -dog_Rspeed);
-      }
-      if (is_key_down(0x45))
-      {
-        sprites[dog_sprite].rotateAlt(sprites[dog_sprite], +dog_Rspeed);
-      }
-      /*/
-      sprite* dogSpriteP = &sprites[dog_sprite];
       if (is_key_down(0x51)) // Q
       {
-        sprites[dog_sprite].rotate(dogSpriteP, -dog_Rspeed);
+        sprites[dog_sprite].rotate(-rotation_speed);
       }
       if (is_key_down(0x45)) // E
       {
-        sprites[dog_sprite].rotate(&sprites[dog_sprite], +dog_Rspeed);
+        sprites[dog_sprite].rotate(+rotation_speed);
       }
-      //*/
     }
 
     // fire button (space)
@@ -427,8 +528,6 @@ namespace octet {
         }
       }
     }
-
-
 
     // animate the missiles
     void move_missiles() {
@@ -508,49 +607,6 @@ namespace octet {
       return false;
     }
 
-    // Read CSV file for invaderer alteration
-    // (really inefficient as we're opening the file every time!)
-    char readFile(int ref) {
-      // Open the CSV file
-      std::ifstream myFile("Resources/setup.txt");
-      char chars[num_invaderers];
-      myFile.get(chars, num_invaderers);
-      /*
-      for (int i = 0; i != num_invaderers; i++) {
-        std::cout << chars[i];
-      }
-      */
-      std::cout << chars[ref];
-      
-      return chars[ref];
-
-      // Sorry for the mess Andy! This is a WIP.
-
-
-      /*
-      std::stringstream ss;
-      ss << chars[ref];
-      std::string x;
-      ss >> x;
-
-      int returnInt = std::stoi(x);
-      */
-
-      /*
-      std::string input;
-      std::string* p = &input;
-      myFile.get(p, num_invaderers);
-      
-
-      // Read a line from the file
-      while (std::getline(myFile, currentLine)){
-        wholeLine + currentLine;
-      }
-      std::stoi(wholeLine)
-      */
-
-    }
-
     void draw_text(texture_shader &shader, float x, float y, float scale, const char *text) {
       mat4t modelToWorld;
       modelToWorld.loadIdentity();
@@ -597,7 +653,9 @@ namespace octet {
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
-      cameraToWorld.translate(0, 0, 3);
+      cameraToWorld.translate(0, 0, 4);
+
+      level_.load_level(1);
 
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
 
@@ -613,53 +671,6 @@ namespace octet {
       sprites[explosion_sprite].init(explosion, -5, -5, 0.25f, 0.25f);
 
       GLuint invaderer = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/invaderer.gif");
-
-      /*
-      for (int j = 0; j != num_rows; ++j) {
-        for (int i = 0; i != num_cols; ++i) {
-          assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
-          float xf = ((float)i - num_cols * 0.5f) * 0.5f;
-          float yf = 2.50f - ((float)j * 0.5f);
-          if ((j % 2 == 0 && i % 2 == 0) || (j % 2 != 0 && i % 2 != 0)) {
-            sprites[first_invaderer_sprite + i + j*num_cols].init(
-              invaderer, xf, yf, 0.25f, 0.25f
-            );
-          }
-          else {
-            sprites[first_invaderer_sprite + i + j*num_cols].init(
-              tree, xf, yf, 0.25f, 0.25f
-            );
-          }
-        }
-      }
-      */
-      
-      for (int j = 0; j != num_rows; ++j) {
-        for (int i = 0; i != num_cols; ++i) {
-          assert(first_invaderer_sprite + i + j*num_cols <= last_invaderer_sprite);
-
-          switch (readFile(i + j*num_cols)) {
-          case '.':
-            // Miss out invaderer
-            sprites[first_invaderer_sprite + i + j*num_cols].is_enabled() = false;
-            break;
-          case 'x':
-          case 'X':
-            // Spawn invaiderer
-            sprites[first_invaderer_sprite + i + j*num_cols].init(
-              invaderer, ((float)i - num_cols * 0.5f) * 0.5f, 2.50f - ((float)j * 0.5f), 0.25f, 0.25f);
-            break;
-          case NULL:
-            std::cout << "null";
-            break;
-          default:
-            std::cout << "Unknown char";
-            // Happens at eof too.
-            break;
-          }
-        }
-      }
-      
 
       GLuint dog = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/dog.jpg");
       sprites[dog_sprite].init(dog, 2, 2, 0.5f, 0.5f);
@@ -732,7 +743,6 @@ namespace octet {
         move_invaders(invader_velocity, -0.1f);
       }
 
-      // checkFPS();
     }
 
     // this is called to draw the world
@@ -753,14 +763,21 @@ namespace octet {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+      // Draw the map
+      for (int i = 0; i != level_.level_size(); ++i) {
+        level_.level_grid().at(i).render(texture_shader_, cameraToWorld);
+      }
+
+      /*
       // draw all the sprites
       for (int i = 0; i != num_sprites; ++i) {
         sprites[i].render(texture_shader_, cameraToWorld);
       }
-
+      
       char score_text[32];
       sprintf(score_text, "score: %d   lives: %d\n", score, num_lives);
       draw_text(texture_shader_, -1.75f, 2, 1.0f / 256, score_text);
+      */
 
       // move the listener with the camera
       vec4 &cpos = cameraToWorld.w();
