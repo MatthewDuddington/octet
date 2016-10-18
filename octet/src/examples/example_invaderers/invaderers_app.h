@@ -25,7 +25,7 @@
 namespace octet {
 
   class sprite {
-  public: // TODO remove this public temp fix
+  protected:
     // where is our sprite (overkill for a 2D game!)
     mat4t modelToWorld;
 
@@ -154,7 +154,7 @@ namespace octet {
     }
   };
 
-  class map_cell : public sprite {
+  class map_cell {
   
   public: static const enum cell_type {
     start,
@@ -166,6 +166,7 @@ namespace octet {
   };
 
   private:
+    sprite sprite_;
     cell_type cell_type_;
 
   public:
@@ -182,7 +183,7 @@ namespace octet {
               float x, float y,
               float w, float h) {
       cell_type_ = cell_type;
-      // TODO why cant I access parent class vars without making them public?
+      // Access via protected. Is this reasonable to do or would it be better to redeclare them in this child class?
       modelToWorld.loadIdentity();
       modelToWorld.translate(x, y, 0);
       halfWidth = w * 0.5f;
@@ -197,9 +198,7 @@ namespace octet {
 
     int level_width = 0;
     int level_height = 0;
-    // std::string level_name = "No Level Loaded";
-    
-    level_file_handler level_file_handler_; // Assistant module to read the level design file. 
+    // std::string level_name = "Level name goes here";  // TODO extract level name from file and display onscreen.
 
     std::vector<map_cell> level_grid_; // Stores grid of map sprites.
 
@@ -221,10 +220,11 @@ namespace octet {
         "assets/invaderers/fence_vertical.gif");
       static GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
         "assets/invaderers/fence_horizontal.gif");
-          
-      // TODO Remove these hard coded numbers and replace with reading the map to calculate width and height.
-      level_width = 15;
-      level_height = 15;
+
+      // Load devel design and set level specific infromation.
+      level_file_handler level_file_handler_; // Assistant module to read the level design file. 
+      // TODO add way to load level from int rather than hard coded address.
+      level_file_handler_.init("Resources/level.txt", level_width, level_height);
       level_grid_.resize(level_width * level_height);
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
@@ -237,12 +237,12 @@ namespace octet {
           int current_cell = i + (j * level_width); // Calculate index of current cell
           GLuint* texture_p = &path_texture; // Store texture ref here
           map_cell::cell_type _cell_type = map_cell::path; // Store enum type here
-          switch (level_file_handler_.get_design_symbol(current_cell, "Resources/level.txt")) {
+          switch (level_file_handler_.get_design_symbol(current_cell)) {
 
           case '.': // Path (already pointed to)
             _cell_type = map_cell::path;
             break;
-          case 'x': // fallthrough
+          case 'x': // fallthrough to
           case 'X': // Wall
             texture_p = &wall_texture;
             _cell_type = map_cell::wall;
