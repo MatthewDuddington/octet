@@ -9,10 +9,17 @@
 
 #include "../../octet.h"
 
+#include <string>
+#include <vector>
+
+#include "sprite.h"  // Andy's sprite class moved to its own header.
+
+#include "map_cell.h"
+#include "actor.h"
 #include "level_file_handler.h"
+#include "level.h"
 
 #include "invaderers_app.h"
-
 
 /// Create a box with octet
 int main(int argc, char **argv) {
