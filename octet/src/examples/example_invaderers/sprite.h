@@ -96,7 +96,11 @@ namespace octet {
 
     // Added: Get position of the object in world space
     const vec3 Position() {
-      modelToWorld.xyz();
+      vec3 position;
+      position.x() = modelToWorld[3][0];
+      position.y() = modelToWorld[3][1];
+      position.z() = modelToWorld[3][2];
+      return position;
     }
 
     // move the object
@@ -105,8 +109,7 @@ namespace octet {
     }
 
     // Added: Rotate the object
-    void rotate(float z)
-    {
+    void rotate(float z) {
       modelToWorld.rotateZ(z);
     }
 

@@ -42,13 +42,13 @@ namespace octet {
       level_grid_.resize(size());
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
-      for (int j = 0; j != level_height_; ++j) {   // For each row...
-        printf("%s %d \n", "J loop ", j);  // DEBUG
-        for (int i = 0; i != level_width_; ++i) {  // ...and each column in that row
-        printf("%s %d \n", "I loop ", i);  // DEBUG
+      for (int row = 0; row != level_height_; ++row) {            // For each row...
+        printf("%s %d \n", "J loop ", row);  // DEBUG
+        for (int column = 0; column != level_width_; ++column) {  // ...and each column in that row
+        printf("%s %d \n", "I loop ", column);  // DEBUG
 
           // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
-          int current_cell = i + (j * level_width_);  // Calculate index of current cell
+          int current_cell = column + (row * level_width_);  // Calculate index of current cell
           GLuint texture = path_texture;  // Switch will store the texture to be applied here
           MapCell::CellType cell_type = MapCell::PATH;  // Switch will store enum type here
           switch (level_file_handler.GetDesignSymbol(current_cell)) {
@@ -91,10 +91,12 @@ namespace octet {
 
           // Use the stored texture and type to instantiate the cell
           level_grid_[current_cell].Init(
-            texture,  // Texture image
-            cell_type,  // Cell type identified
-            0.25f + ((float)i - level_width_ * 0.5f) * 0.5f,    // x Pos
-            -0.25f + ((float)j - level_height_* 0.5f) * -0.5f,  // y Pos
+            texture,    // Texture image
+            cell_type,  // Cell type identified above
+            column,  // Level grid x coordinate
+            row,     // Level grid y coordinate
+            0.25f + ((float)column - level_width_ * 0.5f) * 0.5f,  // x Pos
+            -0.25f + ((float)row - level_height_* 0.5f) * -0.5f,   // y Pos
             0.5f,   // Width
             0.5f);  // Height
 
@@ -112,7 +114,7 @@ namespace octet {
       return level_width_ * level_height_;
     }
 
-    std::vector<MapCell> &LevelGrid() {  // Const will prevent external calls from mutating the map, i.e. it is read only.
+    std::vector<MapCell> &LevelGrid() {  // Const will prevent external calls from mutating the map, column.e. it is read only.
       return level_grid_;
     }
 

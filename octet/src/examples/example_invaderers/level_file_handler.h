@@ -19,9 +19,8 @@ namespace octet {
     std::vector<char> file_contents_;
 
     void ExtractFileContent(const std::string &file_location,
-      int &level_width,
-      int &level_height) {
-
+                            int &level_width,
+                            int &level_height) {
       std::ifstream input_file(file_location);  // Open file
       if (input_file.bad()) {  // Check if file loaded
         printf("ERROR: File was not loaded successfully.");
@@ -42,6 +41,7 @@ namespace octet {
           printf("Level height: %d \n", level_height);
         }
         level_width = (int)file_contents_.size() / level_height;  // TODO Can this divide be avoided? 
+        printf("Level width: %d \n", level_width);
 
         /* // DEBUG
         for (int i = 0; i < file_contents_.size(); i++) {
