@@ -36,7 +36,7 @@ Some core understandings:
   - Use std::vector<T> rather than other grouped data types as it is high
     efficacy and has mutable length. But don't have a vector of vectors!
   - Use std::shared_ptr (memory managed; multiple owners of an object where the
-    last one standing has authority to delete the object when the pointer itself 
+    last one standing has authority to delete the object when the pointer itself
     is deleted)
     and std::unique_ptr (assumes it is the sole owner and thus always has
     authority to delete object when the pointer itself is destroyed),
@@ -90,3 +90,11 @@ Simple menu
 Change imported language from choice at start
 Save and load?
 Guards can move?
+
+
+Door & Switch Ideas:
+- Suffix number eg. D1 and T1 would link together
+- Use a set of letters as doors and have Uppercase and Lowercase relate to door and switch pairs (Thanks to Luke Sanderson for this idea)
+
+Discoveries:
+- 

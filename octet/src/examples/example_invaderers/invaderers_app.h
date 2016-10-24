@@ -17,296 +17,14 @@
 //   Audio
 //
 
-#include <iostream> // Will I need this one too?
-#include <fstream>
-#include <string>
-#include <vector>
-
 namespace octet {
-
-  class sprite {
-  public: // TODO remove this public temp fix
-    // where is our sprite (overkill for a 2D game!)
-    mat4t modelToWorld;
-
-    // half the width of the sprite
-    float halfWidth;
-
-    // half the height of the sprite
-    float halfHeight;
-
-    // what texture is on our sprite
-    int texture;
-
-    // true if this sprite is enabled.
-    bool enabled;
-  
-  public:
-    sprite() {
-      texture = 0;
-      enabled = true;
-    }
-
-    /// <summary>
-    /// Initialises into the scene the texture represented by a GLuint from get_texture_handle.
-    /// x and y floats set the starting coords and w and h floats specify the size on screen.
-    /// </summary>
-    void init(int _texture, float x, float y, float w, float h) {
-      modelToWorld.loadIdentity();
-      modelToWorld.translate(x, y, 0);
-      halfWidth = w * 0.5f;
-      halfHeight = h * 0.5f;
-      texture = _texture;
-      enabled = true;
-    }
-
-    void render(texture_shader &shader, mat4t &cameraToWorld) {
-      // invisible sprite... used for gameplay.
-      if (!texture) return;
-
-      // build a projection matrix: model -> world -> camera -> projection
-      // the projection space is the cube -1 <= x/w, y/w, z/w <= 1
-      mat4t modelToProjection = mat4t::build_projection_matrix(modelToWorld, cameraToWorld);
-
-      // set up opengl to draw textured triangles using sampler 0 (GL_TEXTURE0)
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, texture);
-
-      // use "old skool" rendering
-      //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-      //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      shader.render(modelToProjection, 0);
-
-      // this is an array of the positions of the corners of the sprite in 3D
-      // a straight "float" here means this array is being generated here at runtime.
-      float vertices[] = {
-        -halfWidth, -halfHeight, 0,
-        halfWidth, -halfHeight, 0,
-        halfWidth,  halfHeight, 0,
-        -halfWidth,  halfHeight, 0,
-      };
-
-      // attribute_pos (=0) is position of each corner
-      // each corner has 3 floats (x, y, z)
-      // there is no gap between the 3 floats and hence the stride is 3*sizeof(float)
-      glVertexAttribPointer(attribute_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)vertices);
-      glEnableVertexAttribArray(attribute_pos);
-
-      // this is an array of the positions of the corners of the texture in 2D
-      static const float uvs[] = {
-        0,  0,
-        1,  0,
-        1,  1,
-        0,  1,
-      };
-
-      // attribute_uv is position in the texture of each corner
-      // each corner (vertex) has 2 floats (x, y)
-      // there is no gap between the 2 floats and hence the stride is 2*sizeof(float)
-      glVertexAttribPointer(attribute_uv, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)uvs);
-      glEnableVertexAttribArray(attribute_uv);
-
-      // finally, draw the sprite (4 vertices)
-      glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-    }
-
-    // move the object
-    void translate(float x, float y) {
-      modelToWorld.translate(x, y, 0);
-    }
-
-    // Added: Rotate the object
-    void rotate(float z)
-    {
-      modelToWorld.rotateZ(z);
-    }
-
-    // position the object relative to another.
-    void set_relative(sprite &rhs, float x, float y) {
-      modelToWorld = rhs.modelToWorld;
-      modelToWorld.translate(x, y, 0);
-    }
-
-    // return true if this sprite collides with another.
-    // note the "const"s which say we do not modify either sprite
-    bool collides_with(const sprite &rhs) const {
-      float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
-      float dy = rhs.modelToWorld[3][1] - modelToWorld[3][1];
-
-      // both distances have to be under the sum of the halfwidths
-      // for a collision
-      return
-        (fabsf(dx) < halfWidth + rhs.halfWidth) &&
-        (fabsf(dy) < halfHeight + rhs.halfHeight)
-        ;
-    }
-
-    bool is_above(const sprite &rhs, float margin) const {
-      float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
-
-      return
-        (fabsf(dx) < halfWidth + margin)
-        ;
-    }
-
-    bool &is_enabled() {
-      return enabled;
-    }
-  };
-
-  class map_cell : public sprite {
-  
-  public: static const enum cell_type {
-    start,
-    goal,
-    path,
-    wall,
-    bush,
-    fence
-  };
-
-  private:
-    cell_type cell_type_;
-
-  public:
-
-    map_cell() {
-      cell_type_ = path;
-
-      texture = 0;
-      enabled = true;
-    }
-
-    void init(int _texture,
-              map_cell::cell_type cell_type,
-              float x, float y,
-              float w, float h) {
-      cell_type_ = cell_type;
-      // TODO why cant I access parent class vars without making them public?
-      modelToWorld.loadIdentity();
-      modelToWorld.translate(x, y, 0);
-      halfWidth = w * 0.5f;
-      halfHeight = h * 0.5f;
-      texture = _texture;
-      enabled = true;
-    }
-
-  };
-
-  class level {
-
-    int level_width = 0;
-    int level_height = 0;
-    // std::string level_name = "No Level Loaded";
-    
-    level_file_handler level_file_handler_; // Assistant module to read the level design file. 
-
-    std::vector<map_cell> level_grid_; // Stores grid of map sprites.
-
-    // Construct the level map.
-    void build_level() {
-
-      // Load map textures
-      static GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/start.gif");
-      static GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/goal.gif");
-      static GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/path.gif");
-      static GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/wall.gif");
-      static GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/bush.gif");
-      static GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/fence_vertical.gif");
-      static GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/fence_horizontal.gif");
-          
-      // TODO Remove these hard coded numbers and replace with reading the map to calculate width and height.
-      level_width = 15;
-      level_height = 15;
-      level_grid_.resize(level_width * level_height);
-
-      // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
-      for (int j = 0; j != level_height; ++j) { // For each row...
-        //printf("%s %i %s", "J loop ", j, "\n"); // DEBUG
-        for (int i = 0; i != level_width; ++i) { // ...and each coll in that row
-          //printf("%s%i%s", "I loop ", i, "\n"); // DEBUG
-
-          // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
-          int current_cell = i + (j * level_width); // Calculate index of current cell
-          GLuint* texture_p = &path_texture; // Store texture ref here
-          map_cell::cell_type _cell_type = map_cell::path; // Store enum type here
-          switch (level_file_handler_.get_design_symbol(current_cell, "Resources/level.txt")) {
-
-          case '.': // Path (already pointed to)
-            _cell_type = map_cell::path;
-            break;
-          case 'x': // fallthrough
-          case 'X': // Wall
-            texture_p = &wall_texture;
-            _cell_type = map_cell::wall;
-            break;
-          case 'I': // Fence vertical
-            texture_p = &fence_verti_texture;
-            _cell_type = map_cell::fence;
-            break;
-          case 'H': // Fence horizontal
-            texture_p = &fence_horiz_texture;
-            _cell_type = map_cell::fence;
-            break;
-          case 'b': // Bush
-            texture_p = &bush_texture;
-            _cell_type = map_cell::bush;
-            break;
-          case 'S': // Start
-            texture_p = &start_texture;
-            _cell_type = map_cell::start;
-            break;
-          case 'G': // Goal
-            texture_p = &goal_texture;
-            _cell_type = map_cell::goal;
-            break;
-          case NULL:
-            std::cout << "Map gen reading in: Null";
-            break;
-          default:
-            std::cout << "Map gen reading in: Unknown char";
-            break;
-          }
-
-          // Use the stored texture and type to instantiate the cell
-          level_grid_[current_cell].init(
-              *texture_p, // Texture image
-              _cell_type, // Cell type identified
-              0.25f + ((float)i - level_width * 0.5f) * 0.5f, // x Pos
-              -0.25f + ((float)j - level_height* 0.5) * -0.5, // y Pos
-              0.5f, // Width
-              0.5f); // Height
-          
-          // Loop until map filled.
-        }
-      }
-    }
-
-  public:
-    void load_level(int level_num) { // TODO make argument load specific level from file.
-      build_level();
-    }
-
-    int level_size() {
-      return level_width * level_height;
-    }
-
-    std::vector<map_cell> &level_grid() {
-      return level_grid_;
-    }
-
-  };
 
   class invaderers_app : public octet::app {
    
-    level level_;
+    Level level_;
+
+    bool load_new_level = false;
+    bool game_over = false ;
 
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
@@ -315,6 +33,7 @@ namespace octet {
     // shader to draw a textured triangle
     texture_shader texture_shader_;
 
+    /*
     enum {
       num_sound_sources = 8,
       num_rows = 5,
@@ -606,7 +325,8 @@ namespace octet {
       }
       return false;
     }
-
+    
+    
     void draw_text(texture_shader &shader, float x, float y, float scale, const char *text) {
       mat4t modelToWorld;
       modelToWorld.loadIdentity();
@@ -614,12 +334,12 @@ namespace octet {
       modelToWorld.scale(scale, scale, 1);
       mat4t modelToProjection = mat4t::build_projection_matrix(modelToWorld, cameraToWorld);
 
-      /*mat4t tmp;
-      glLoadIdentity();
-      glTranslatef(x, y, 0);
-      glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&tmp);
-      glScalef(scale, scale, 1);
-      glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&tmp);*/
+      //mat4t tmp;
+      //glLoadIdentity();
+      //glTranslatef(x, y, 0);
+      //glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&tmp);
+      //glScalef(scale, scale, 1);
+      //glGetFloatv(GL_MODELVIEW_MATRIX, (float*)&tmp);
 
       enum { max_quads = 32 };
       bitmap_font::vertex vertices[max_quads * 4];
@@ -639,11 +359,12 @@ namespace octet {
 
       glDrawElements(GL_TRIANGLES, num_quads * 6, GL_UNSIGNED_INT, indices);
     }
+    */
 
   public:
 
     // this is called when we construct the class
-    invaderers_app(int argc, char **argv) : app(argc, argv), font(512, 256, "assets/big.fnt") {
+    invaderers_app(int argc, char **argv) : app(argc, argv) {//, font(512, 256, "assets/big.fnt") {
     }
 
     // this is called once OpenGL is initialized
@@ -651,12 +372,13 @@ namespace octet {
       // set up the shader
       texture_shader_.init();
 
+      level_.LoadLevel(1);
+
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
       cameraToWorld.translate(0, 0, 4);
 
-      level_.load_level(1);
-
+      /*
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
 
       GLuint ship = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/ship.gif");
@@ -674,7 +396,6 @@ namespace octet {
 
       GLuint dog = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/dog.jpg");
       sprites[dog_sprite].init(dog, 2, 2, 0.5f, 0.5f);
-
 
       // set the border to white for clarity
       GLuint white = resource_dict::get_texture_handle(GL_RGB, "#ffffff");
@@ -713,6 +434,7 @@ namespace octet {
       num_lives = 3;
       game_over = false;
       score = 0;
+      */
     }
 
     // called every frame to move things
@@ -721,6 +443,7 @@ namespace octet {
         return;
       }
 
+      /*
       move_ship();
 
       move_dog();
@@ -741,6 +464,12 @@ namespace octet {
       if (invaders_collide(border)) {
         invader_velocity = -invader_velocity;
         move_invaders(invader_velocity, -0.1f);
+      }
+      */
+
+      if (load_new_level == true) {
+        level_.LoadLevel(1);
+        cameraToWorld.translate(0, 0, 4);
       }
 
     }
@@ -764,8 +493,8 @@ namespace octet {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       // Draw the map
-      for (int i = 0; i != level_.level_size(); ++i) {
-        level_.level_grid().at(i).render(texture_shader_, cameraToWorld);
+      for (int i = 0; i != level_.size(); ++i) {
+        level_.LevelGrid().at(i).Sprite().render(texture_shader_, cameraToWorld);
       }
 
       /*
