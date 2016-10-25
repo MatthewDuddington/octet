@@ -11,6 +11,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "sprite.h"  // Andy's sprite class moved to its own header.
 

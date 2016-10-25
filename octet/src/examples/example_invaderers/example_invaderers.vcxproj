@@ -221,6 +221,7 @@
     <ClInclude Include="level.h" />
     <ClInclude Include="level_file_handler.h" />
     <ClInclude Include="map_cell.h" />
+    <ClInclude Include="sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\README.md" />

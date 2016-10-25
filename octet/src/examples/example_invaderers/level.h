@@ -7,6 +7,9 @@ namespace octet {
 
   class Level {
 
+    static Level& current_level_;
+    //std::unique_ptr<Level> current_level_;  // TODO Would it be better to use these?
+
     int level_width_ = 0;
     int level_height_ = 0;
     // std::string level_name = "Level name goes here";  // TODO extract level name from file and display onscreen.
@@ -39,7 +42,7 @@ namespace octet {
       // TODO add way to load level from int rather than hard coded address.
       level_file_handler.Init("Resources/level.txt", level_width_, level_height_);
       // Prepare level grid vector with the sizes calculated during level file buffering.
-      level_grid_.resize(size());
+      level_grid_.resize(Size());
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
       for (int row = 0; row != level_height_; ++row) {            // For each row...
@@ -106,16 +109,41 @@ namespace octet {
     }
 
   public:
-    void LoadLevel(int level_num) {  // TODO make argument load specific level from file.
-      BuildLevel();
+    Level() {
+      current_level_ = *(this);
     }
 
-    const int size() {
+    // Way to access functions of the current level
+    static Level& CurrentLevel() {
+      return current_level_;
+    }
+
+    const int Size() {
       return level_width_ * level_height_;
     }
 
-    std::vector<MapCell> &LevelGrid() {  // Const will prevent external calls from mutating the map, column.e. it is read only.
+    const int Width() {
+      return level_width_;
+    }
+
+    const int Height() {
+      return level_height_;
+    }
+
+    std::vector<MapCell>& LevelGrid() {
       return level_grid_;
+    }
+
+    void AddActor(Actor actor) {
+      actors.push_back(actor);
+    }
+
+    Actor& Actors(int actor_index) {
+      return actors.at(actor_index);
+    }
+    
+    void LoadLevel(int level_num) {  // TODO make argument load specific level from file.
+      BuildLevel();
     }
 
   };

@@ -21,6 +21,10 @@ namespace octet {
 
   class invaderers_app : public octet::app {
    
+    static app& game_app_;
+    
+    bool waiting_for_input_ = false;
+
     Level level_;
 
     bool load_new_level = false;
@@ -363,8 +367,16 @@ namespace octet {
 
   public:
 
+    // Way to access functions of the main app. e.g. key presses
+    static app& GameApp() {
+      return game_app_;
+    }
+
+    // static key (* key_down) {}  // TODO function pointers to register awarenes of button presses in other classes?
+
     // this is called when we construct the class
     invaderers_app(int argc, char **argv) : app(argc, argv) {//, font(512, 256, "assets/big.fnt") {
+      game_app_ = *(this);
     }
 
     // this is called once OpenGL is initialized
@@ -493,7 +505,7 @@ namespace octet {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       // Draw the map
-      for (int i = 0; i != level_.size(); ++i) {
+      for (int i = 0; i != level_.Size(); ++i) {
         level_.LevelGrid().at(i).Sprite().render(texture_shader_, cameraToWorld);
       }
 

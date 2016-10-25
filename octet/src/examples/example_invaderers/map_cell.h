@@ -103,6 +103,42 @@ namespace octet {
       return IsInLineWithMe(map_cell, direction, 1);
     }
 
+    MapCell& Above() {
+      if (cell_row_ != 0) {
+        int index = ((cell_row_ - 1) * Level::CurrentLevel().Width()) + cell_column_;
+        return Level::CurrentLevel().LevelGrid().at(index);
+      }
+      printf("Out of grid error.");
+      return;
+    }
+
+    MapCell& Below() {
+      if (cell_row_ != Level::CurrentLevel().Height() - 1) {
+        int index = ((cell_row_ + 1) * Level::CurrentLevel().Width()) + cell_column_;
+        return Level::CurrentLevel().LevelGrid().at(index);
+      }
+      printf("Out of grid error.");
+      return;
+    }
+
+    MapCell& Left() {
+      if (cell_column_ != 0) {
+        int index = (cell_row_ * Level::CurrentLevel().Width()) + cell_column_ - 1;
+        return Level::CurrentLevel().LevelGrid().at(index);
+      }
+      printf("Out of grid error.");
+      return;
+    }
+
+    MapCell& Right() {
+      if (cell_column_ != Level::CurrentLevel().Width() - 1) {
+        int index = (cell_row_ * Level::Level().Width()) + cell_column_ + 1;
+        return Level::CurrentLevel().LevelGrid().at(index);
+      }
+      printf("Out of grid error.");
+      return;
+    }
+
   };
 
 }
