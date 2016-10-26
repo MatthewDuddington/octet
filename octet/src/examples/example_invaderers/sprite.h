@@ -1,5 +1,7 @@
 /*
 Moved from invaiderers_app
+Have not refactored formatting to match my own code.
+However, any added sections are consistant with my own modules.
 */
 
 #ifndef sprite_h
@@ -24,13 +26,14 @@ namespace octet {
     bool enabled;
 
   public:
-    enum Direction { NORTH, EAST, SOUTH, WEST };
+    enum Direction { NORTH, EAST, SOUTH, WEST };  // Most appropriate place for this seems to be here as the sprite class holds the 'transform' functionality.
     
     sprite() {
       texture = 0;
       enabled = true;
     }
 
+    // Testing out a summary.
     /// <summary>
     /// Initialises into the scene the texture represented by a GLuint from get_texture_handle.
     /// x and y floats set the starting coords and w and h floats specify the size on screen.

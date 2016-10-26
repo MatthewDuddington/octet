@@ -26,6 +26,7 @@ namespace octet {
     bool waiting_for_input_ = false;
 
     Level level_;
+    Actor player_;
 
     bool load_new_level = false;
     bool game_over = false ;
@@ -384,11 +385,15 @@ namespace octet {
       // set up the shader
       texture_shader_.init();
 
+      player_.Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
       level_.LoadLevel(1);
+
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
       cameraToWorld.translate(0, 0, 4);
+
+      waiting_for_input_ = true;
 
       /*
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
@@ -482,6 +487,11 @@ namespace octet {
       if (load_new_level == true) {
         level_.LoadLevel(1);
         cameraToWorld.translate(0, 0, 4);
+      }
+
+      if (waiting_for_input_) {
+        for (int i = 0; i < Level::CurrentLevel().Actors())
+        Level::CurrentLevel().Actors().Update();
       }
 
     }

@@ -7,7 +7,7 @@ namespace octet {
 
   class Level {
 
-    static Level& current_level_;
+    static Level* current_level_;
     //std::unique_ptr<Level> current_level_;  // TODO Would it be better to use these?
 
     int level_width_ = 0;
@@ -15,28 +15,26 @@ namespace octet {
     // std::string level_name = "Level name goes here";  // TODO extract level name from file and display onscreen.
 
     std::vector<MapCell> level_grid_;  // Stores grid of map sprites.
-    std::vector<Actor> actors;  // Stores 
 
+    // Load map textures
+    const GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/start.gif");
+    const GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/goal.gif");
+    const GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/path.gif");
+    const GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/wall.gif");
+    const GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/bush.gif");
+    const GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/fence_vertical.gif");
+    const GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/fence_horizontal.gif");
+    
     // Construct the level map.
     void BuildLevel() {
       
-      // Load map textures
-      // TODO Should I be looping over a text file to import these, or would this create a problem with needing to declare new GLuints?
-      static GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/start.gif");
-      static GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/goal.gif");
-      static GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/path.gif");
-      static GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/wall.gif");
-      static GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/bush.gif");
-      static GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/fence_vertical.gif");
-      static GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
-        "assets/invaderers/fence_horizontal.gif");
-
       // Load level design and set level specific information.
       LevelFileHandler level_file_handler;  // Assistant module to read the level design file. 
       // TODO add way to load level from int rather than hard coded address.
@@ -48,14 +46,16 @@ namespace octet {
       for (int row = 0; row != level_height_; ++row) {            // For each row...
         printf("%s %d \n", "J loop ", row);  // DEBUG
         for (int column = 0; column != level_width_; ++column) {  // ...and each column in that row
-        printf("%s %d \n", "I loop ", column);  // DEBUG
+          printf("%s %d \n", "I loop ", column);  // DEBUG
 
-          // Check the level design file for the symbol that matches this cell's index and store the texture and type in temp variables. 
-          int current_cell = column + (row * level_width_);  // Calculate index of current cell
-          GLuint texture = path_texture;  // Switch will store the texture to be applied here
+          int texture = path_texture;  // Switch will store the texture to be applied here
           MapCell::CellType cell_type = MapCell::PATH;  // Switch will store enum type here
+          float x_pos = 0.25f + ((float)column - level_width_ * 0.5f) * 0.5f;
+          float y_pos = -0.25f + ((float)row - level_height_* 0.5f) * -0.5f;
+         
+          // Check the level design file for the symbol that matches this cell's index and determine the texture and type. 
+          int current_cell = column + (row * level_width_);  // Calculate index of current cell
           switch (level_file_handler.GetDesignSymbol(current_cell)) {
-
           case '.':  // Path (already pointed to)
             cell_type = MapCell::PATH;
             break;
@@ -79,43 +79,48 @@ namespace octet {
           case 'S':  // Start
             texture = start_texture;
             cell_type = MapCell::START;
+            SetupPlayer(x_pos, y_pos);
             break;
           case 'G':  // Goal
             texture = goal_texture;
             cell_type = MapCell::GOAL;
             break;
           case NULL:
-            std::cout << "Map gen reading in: Null";
+            printf("Map gen reading in: Null");
             break;
           default:
-            std::cout << "Map gen reading in: Unknown char";
+            printf("Map gen reading in: Unknown char");
             break;
           }
 
-          // Use the stored texture and type to instantiate the cell
+          // Use the texture and type refrences to instantiate the cell.
           level_grid_[current_cell].Init(
             texture,    // Texture image
             cell_type,  // Cell type identified above
             column,  // Level grid x coordinate
             row,     // Level grid y coordinate
-            0.25f + ((float)column - level_width_ * 0.5f) * 0.5f,  // x Pos
-            -0.25f + ((float)row - level_height_* 0.5f) * -0.5f,   // y Pos
-            0.5f,   // Width
-            0.5f);  // Height
+            x_pos,   // x Pos
+            y_pos,   // y Pos
+            0.5f,    // Width
+            0.5f);   // Height
 
           // Loop until map filled.
         }
       }
     }
 
+   void SetupPlayer(float x_pos, float y_pos) {
+     Actor::Player().GetSprite().translate(x_pos, y_pos);
+   }
+
   public:
     Level() {
-      current_level_ = *(this);
+      current_level_ = this;
     }
 
     // Way to access functions of the current level
     static Level& CurrentLevel() {
-      return current_level_;
+      return *current_level_;
     }
 
     const int Size() {
@@ -132,14 +137,6 @@ namespace octet {
 
     std::vector<MapCell>& LevelGrid() {
       return level_grid_;
-    }
-
-    void AddActor(Actor actor) {
-      actors.push_back(actor);
-    }
-
-    Actor& Actors(int actor_index) {
-      return actors.at(actor_index);
     }
     
     void LoadLevel(int level_num) {  // TODO make argument load specific level from file.

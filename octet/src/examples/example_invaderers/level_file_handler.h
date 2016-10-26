@@ -31,6 +31,7 @@ namespace octet {
 
         while (!input_file.eof()) {  // Stop at end of file
           std::getline(input_file, line_buffer); // Extract a line
+         
           // Add each char from the current line to the vector
           for (int i = 0; i < line_buffer.length(); i++) {
             file_contents_.push_back(line_buffer.at(i));
@@ -38,10 +39,10 @@ namespace octet {
           // Update the level size parameters
           // level_width = line_buffer.length();  // TODO Is this less efficient than calculating after the loop as below?
           level_height++;
-          printf("Level height: %d \n", level_height);
+          printf("Level height: %d \n", level_height);  // DEBUG
         }
         level_width = (int)file_contents_.size() / level_height;  // TODO Can this divide be avoided? 
-        printf("Level width: %d \n", level_width);
+        printf("Level width: %d \n", level_width);  // DEBUG
 
         /* // DEBUG
         for (int i = 0; i < file_contents_.size(); i++) {

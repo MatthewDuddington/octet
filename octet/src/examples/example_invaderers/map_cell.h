@@ -7,7 +7,7 @@ namespace octet {
 
   class MapCell {
 
-  public: static const enum CellType {
+  public: enum CellType {
     START,
     GOAL,
     PATH,
@@ -109,7 +109,7 @@ namespace octet {
         return Level::CurrentLevel().LevelGrid().at(index);
       }
       printf("Out of grid error.");
-      return;
+      return *(this);
     }
 
     MapCell& Below() {
@@ -118,7 +118,7 @@ namespace octet {
         return Level::CurrentLevel().LevelGrid().at(index);
       }
       printf("Out of grid error.");
-      return;
+      return *(this);
     }
 
     MapCell& Left() {
@@ -127,7 +127,7 @@ namespace octet {
         return Level::CurrentLevel().LevelGrid().at(index);
       }
       printf("Out of grid error.");
-      return;
+      return *(this);
     }
 
     MapCell& Right() {
@@ -136,7 +136,7 @@ namespace octet {
         return Level::CurrentLevel().LevelGrid().at(index);
       }
       printf("Out of grid error.");
-      return;
+      return *(this);
     }
 
   };

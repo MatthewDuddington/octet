@@ -91,6 +91,18 @@ Change imported language from choice at start
 Save and load?
 Guards can move?
 
+Wednesday 26th, spent almost all day with assisting others rather than working on my own code oops!
+Assisted Pablo with debugging level instatiation loops and explained concept of arrays and indexes. Also assisted Pablo with interpreting and altering Nick's random positioning code to differentiate where the player, traps, guards and goal would be positioned at instantiation. I also helped him to work through the start of some code to read a few numbers form a text file.
+
+Assisted Delainey with debugging her file input loop.
+
+Nick assisted me by explaining overview of how to add new properties to a shader.
+
+TODO List (final 10 days)
+- Complete spawn of player and player movement
+- Spawn guards
+- Apply line of sight check to guards (basic functionality already within map cell)
+
 
 Door & Switch Ideas:
 - Suffix number eg. D1 and T1 would link together
