@@ -12,7 +12,7 @@ namespace octet {
     sprite sprite_;
     MapCell cell_occupied_;
 
-    std::vector<Actor> actors_;  // Stores the player and NPCs.
+    static std::vector<Actor> actors_;  // Stores the player and NPCs.
 
     const GLuint player_texture = resource_dict::get_texture_handle(GL_RGBA,
       "assets/invaderers/player.gif");
@@ -49,19 +49,19 @@ namespace octet {
 
     void Update() {
       if (invaderers_app::GameApp().is_key_down(key_W)) {
-        MapCell destination_cell = cell_occupied_.Above();
+        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(NORTH));
         sprite_.set_relative(destination_cell.Sprite(), 0, 0);
       }
       if (invaderers_app::GameApp().is_key_down(key_S)) {
-        MapCell destination_cell = cell_occupied_.Below();
+        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(SOUTH));
         sprite_.set_relative(destination_cell.Sprite(), 0, 0);
       }
       if (invaderers_app::GameApp().is_key_down(key_A)) {
-        MapCell destination_cell = cell_occupied_.Left();
+        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(WEST));
         sprite_.set_relative(destination_cell.Sprite(), 0, 0);
       }
       if (invaderers_app::GameApp().is_key_down(key_D)) {
-        MapCell destination_cell = cell_occupied_.Right();
+        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(EAST));
         sprite_.set_relative(destination_cell.Sprite(), 0, 0);
       }
     }
@@ -70,8 +70,12 @@ namespace octet {
       return *player_;
     }
 
-    Actor& Actors(int actor_index) {
+    static Actor& GetActor(int actor_index) {
       return actors_.at(actor_index);
+    }
+
+    static const std::vector<Actor>& Actors() {
+      return actors_;
     }
 
     // Adds the given actor object to the end of the Actors array.

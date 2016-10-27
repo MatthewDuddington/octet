@@ -490,8 +490,8 @@ namespace octet {
       }
 
       if (waiting_for_input_) {
-        for (int i = 0; i < Level::CurrentLevel().Actors())
-        Level::CurrentLevel().Actors().Update();
+        for (int i = 0; i < Actor::Actors().size(); i++)
+        Actor::GetActor(i).Update();
       }
 
     }

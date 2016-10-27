@@ -3,6 +3,12 @@
 #ifndef map_cell_h
 #define map_cell_h
 
+/*
+class Level {  // Circular dependency solver???
+  virtual Level& CurrentLevel();
+};
+*/
+
 namespace octet {
 
   class MapCell {
@@ -22,6 +28,12 @@ namespace octet {
 
     int cell_column_;
     int cell_row_;
+
+    // Vars for circular dependency fix
+    int my_index;
+    static int& current_level_width;
+    static int& current_level_height;
+    // End of fix
 
     const CellType passable_[3] = { PATH, START, GOAL };
 
@@ -62,10 +74,10 @@ namespace octet {
       return false;
     }
 
-    bool IsInLineWithMe(MapCell map_cell, sprite::Direction direction, int distance) {
+    bool IsInLineWithMe(MapCell map_cell, Direction direction, int distance) {
       if (direction % 2 == 0) {  // If direction is North or South
         if (map_cell.Coords().x() == cell_column_) {  // Is cell in the same column as this
-          if (direction == sprite::NORTH &&
+          if (direction == NORTH &&
               cell_row_ - map_cell.Coords().y() - distance <= 0) { // Is within the distance cells
             return true;
           } 
@@ -77,7 +89,7 @@ namespace octet {
       }
       else {  // Assume direction == East or West
         if (map_cell.Coords().y() == cell_row_) {  // Is cell in same row as this
-          if (direction == sprite::EAST &&
+          if (direction == EAST &&
               map_cell.Coords().x() - cell_column_ - distance <= 0) {
             return true;
           }
@@ -90,19 +102,20 @@ namespace octet {
     }
 
     bool IsAdjacentToMe(MapCell map_cell) {
-      if (IsInLineWithMe(map_cell, sprite::NORTH, 1) ||
-          IsInLineWithMe(map_cell, sprite::EAST,  1) ||
-          IsInLineWithMe(map_cell, sprite::SOUTH, 1) ||
-          IsInLineWithMe(map_cell, sprite::WEST,  1)) {
+      if (IsInLineWithMe(map_cell, NORTH, 1) ||
+          IsInLineWithMe(map_cell, EAST,  1) ||
+          IsInLineWithMe(map_cell, SOUTH, 1) ||
+          IsInLineWithMe(map_cell, WEST,  1)) {
         return true;
       }
       return false;
     }
 
-    bool IsAdjacentToMe(MapCell map_cell, sprite::Direction direction) {
+    bool IsAdjacentToMe(MapCell map_cell, Direction direction) {
       return IsInLineWithMe(map_cell, direction, 1);
     }
 
+    /* Creates circular dependency because Level.h hasn't been read yet, but also contains references to MapCell in itself.
     MapCell& Above() {
       if (cell_row_ != 0) {
         int index = ((cell_row_ - 1) * Level::CurrentLevel().Width()) + cell_column_;
@@ -138,6 +151,43 @@ namespace octet {
       printf("Out of grid error.");
       return *(this);
     }
+    */
+
+    // Alternate functions as fix for circular dependency
+
+    static void ProvideClassWithLevelSizes(int width, int height) {  // This is a horrible way of having to do this. TODO Avoid having to do this!
+      current_level_width = width;
+      current_level_height = height;
+    }
+
+    // Calculates index of neighbour
+    int AdjacentCellIndex(Direction direction) {
+      int index = -1;
+      if (direction == NORTH) {
+        if (cell_row_ != 0) {
+          index = ((cell_row_ - 1) * current_level_width) + cell_column_;
+        }
+      }
+      else if (direction == SOUTH) {
+        if (cell_row_ < current_level_height - 1) {
+          index = ((cell_row_ + 1) * current_level_width) + cell_column_;
+        }
+      }
+      else if (direction == WEST) {
+        if (cell_column_ != 0) {
+          index = (cell_row_ * current_level_width) + cell_column_ - 1;
+        }
+      }
+      else if (cell_column_ < current_level_width - 1) {  // Can assume EAST
+        index = (cell_row_ * current_level_width) + cell_column_ + 1;
+      }
+      if (index == -1) {
+        printf("Cell requested is outside of grid. \n");
+        return my_index;
+      }
+      return index;
+    }
+    // End of alternate functions
 
   };
 

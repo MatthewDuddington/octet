@@ -9,6 +9,8 @@ However, any added sections are consistant with my own modules.
 
 namespace octet {
 
+    enum Direction { NORTH, EAST, SOUTH, WEST };  // Most appropriate place for this seems to be here as the sprite class holds the 'transform' functionality.
+
   class sprite {
     // where is our sprite (overkill for a 2D game!)
     mat4t modelToWorld;
@@ -26,7 +28,6 @@ namespace octet {
     bool enabled;
 
   public:
-    enum Direction { NORTH, EAST, SOUTH, WEST };  // Most appropriate place for this seems to be here as the sprite class holds the 'transform' functionality.
     
     sprite() {
       texture = 0;
