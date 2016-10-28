@@ -41,7 +41,6 @@ namespace octet {
       level_file_handler.Init("Resources/level.txt", level_width_, level_height_);
       // Prepare level grid vector with the sizes calculated during level file buffering.
       level_grid_.resize(Size());
-      MapCell::ProvideClassWithLevelSizes(level_width_, level_height_);  // Part of fix for circular dependency. TODO Avoid having to do this!
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for that cell
       for (int row = 0; row != level_height_; ++row) {            // For each row...
@@ -100,6 +99,10 @@ namespace octet {
             cell_type,  // Cell type identified above
             column,  // Level grid x coordinate
             row,     // Level grid y coordinate
+            level_grid_,
+            current_cell,
+            level_width_,
+            level_height_,
             x_pos,   // x Pos
             y_pos,   // y Pos
             0.5f,    // Width

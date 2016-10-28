@@ -98,6 +98,8 @@ Assisted Delainey with debugging her file input loop.
 
 Nick assisted me by explaining overview of how to add new properties to a shader.
 
+Suggestion from Jack to store neighbours in MapCell so dont need to calculate each time.
+
 TODO List (final 10 days)
 - Complete spawn of player and player movement
 - Spawn guards

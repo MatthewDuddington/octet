@@ -74,7 +74,7 @@ namespace octet {
   };
 
   class app_common {
-    bitset<256> keys;
+    static bitset<256> keys;
     bitset<256> prev_keys;
     int mouse_x;
     int mouse_y;
@@ -118,7 +118,7 @@ namespace octet {
     virtual void app_init() = 0;
 
     /// returns true if a key is down
-    bool is_key_down(unsigned key) {
+    static bool is_key_down(unsigned key) {
       return keys[key & 0xff] != 0;
     }
 

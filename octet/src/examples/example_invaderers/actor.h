@@ -48,21 +48,29 @@ namespace octet {
     }
 
     void Update() {
-      if (invaderers_app::GameApp().is_key_down(key_W)) {
-        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(NORTH));
-        sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+      if (app_common::is_key_down(key_W)) {
+        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(NORTH);
+        if (destination_cell.IsWalkable()) {
+          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+        }
       }
-      if (invaderers_app::GameApp().is_key_down(key_S)) {
-        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(SOUTH));
-        sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+      if (app_common::is_key_down(key_S)) {
+        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(SOUTH);
+        if (destination_cell.IsWalkable()) {
+          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+        }
       }
-      if (invaderers_app::GameApp().is_key_down(key_A)) {
-        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(WEST));
-        sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+      if (app_common::is_key_down(key_A)) {
+        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(WEST);
+        if (destination_cell.IsWalkable()) {
+          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+        }
       }
-      if (invaderers_app::GameApp().is_key_down(key_D)) {
-        MapCell destination_cell = Level::CurrentLevel().LevelGrid().at(cell_occupied_.AdjacentCellIndex(EAST));
-        sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+      if (app_common::is_key_down(key_D)) {
+        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(EAST);
+        if (destination_cell.IsWalkable()) {
+          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+        }
       }
     }
 
@@ -78,11 +86,6 @@ namespace octet {
       return actors_;
     }
 
-    // Adds the given actor object to the end of the Actors array.
-    int AddActor(Actor actor) {
-      actors_.push_back(actor);
-      return actors_.size() - 1; // Return index of added actor.
-    }
   };
 
 

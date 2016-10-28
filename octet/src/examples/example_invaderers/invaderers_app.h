@@ -29,7 +29,9 @@ namespace octet {
     Actor player_;
 
     bool load_new_level = false;
-    bool game_over = false ;
+    bool game_over = false;
+
+    void KeyPress();
 
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
