@@ -62,29 +62,33 @@ namespace octet {
     }
 
     void Update() {
+      // Else ifs because player is not aloud to move diagonally.
       if (app_common::is_key_down(key_W)) {
         MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
-        if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
-        }
+          MoveToCell(destination_cell);
       }
-      if (app_common::is_key_down(key_S)) {
+      else if (app_common::is_key_down(key_S)) {
         MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
-        if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
-        }
+          MoveToCell(destination_cell);
       }
-      if (app_common::is_key_down(key_A)) {
+      else if (app_common::is_key_down(key_A)) {
         MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
-        if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
-        }
+          MoveToCell(destination_cell);
       }
-      if (app_common::is_key_down(key_D)) {
+      else if (app_common::is_key_down(key_D)) {
         MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
-        if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
-        }
+        MoveToCell(destination_cell);
+      }
+    }
+
+    void MoveToCell(MapCell& destination_cell) {
+      if (destination_cell.IsWalkable()) {
+        sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
+        OccupiedCell(&destination_cell);
+      }
+      else {
+        printf("Cant walk there.\n");
+        // TODO sound effect
       }
     }
 

@@ -120,7 +120,7 @@ namespace octet {
 
    void SetupPlayer(float x_pos, float y_pos, int current_cell) {
      Actor::Player().GetSprite().translate(x_pos, y_pos);
-     Actor::Player().CellOccupied(&level_grid_.at(current_cell));
+     Actor::Player().OccupiedCell(&level_grid_.at(current_cell));
    }
 
   public:
