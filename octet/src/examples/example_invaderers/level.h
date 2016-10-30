@@ -84,7 +84,7 @@ namespace octet {
           case 'S':  // Start
             texture = start_texture;
             cell_type = MapCell::START;
-            SetupPlayer(x_pos, y_pos);
+            SetupPlayer(x_pos, y_pos, current_cell);
             break;
           case 'G':  // Goal
             texture = goal_texture;
@@ -118,8 +118,9 @@ namespace octet {
       }
     }
 
-   void SetupPlayer(float x_pos, float y_pos) {
+   void SetupPlayer(float x_pos, float y_pos, int current_cell) {
      Actor::Player().GetSprite().translate(x_pos, y_pos);
+     Actor::Player().CellOccupied(&level_grid_.at(current_cell));
    }
 
   public:

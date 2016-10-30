@@ -482,8 +482,9 @@ namespace octet {
       }
 
       if (waiting_for_input_) {
-        for (int i = 0; i < Actor::Actors().size(); i++)
-        Actor::GetActor(i).Update();
+        //for (int i = 0; i < Actor::Actors().size(); i++)
+        //Actor::GetActor(i).Update();
+        player_.Update();
       }
 
     }
@@ -507,9 +508,14 @@ namespace octet {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       // Draw the map
-      for (int i = 0; i != level_.Size(); ++i) {
-        level_.LevelGrid().at(i).Sprite().render(texture_shader_, cameraToWorld);
+      for (int i = 0; i < level_.Size(); ++i) {
+        level_.LevelGrid().at(i).GetSprite().render(texture_shader_, cameraToWorld);
       }
+      // Draw actors
+      for (int i = 0; i < player_.Actors().size(); i++) {
+        player_.Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
+      }
+      player_.GetSprite().render(texture_shader_, cameraToWorld);
 
       /*
       // draw all the sprites

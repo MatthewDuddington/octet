@@ -21,12 +21,11 @@ namespace octet {
     //Actor* Actor::player_ = NULL;  // Can't define a static member var in a .h file, but without initialising the static pointer player_ it creates a compalation linking error.
 
     sprite sprite_;
-    MapCell cell_occupied_;
+    MapCell* occupied_cell_;
 
     
     static std::vector<Actor>& actors_() { static std::vector<Actor> actors_; return actors_; };
     //static std::vector<Actor> actors_;  // Stores the player and NPCs.
-
 
   public:
     enum ActorType {
@@ -64,27 +63,27 @@ namespace octet {
 
     void Update() {
       if (app_common::is_key_down(key_W)) {
-        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(NORTH);
+        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
         if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
         }
       }
       if (app_common::is_key_down(key_S)) {
-        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(SOUTH);
+        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
         if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
         }
       }
       if (app_common::is_key_down(key_A)) {
-        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(WEST);
+        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
         if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
         }
       }
       if (app_common::is_key_down(key_D)) {
-        MapCell& destination_cell = cell_occupied_.GetAdjacentCell(EAST);
+        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
         if (destination_cell.IsWalkable()) {
-          sprite_.set_relative(destination_cell.Sprite(), 0, 0);
+          sprite_.set_relative(destination_cell.GetSprite(), 0, 0);
         }
       }
     }
@@ -97,8 +96,15 @@ namespace octet {
       return actors_().at(actor_index);
     }
 
-    static const std::vector<Actor>& Actors() {
+    static std::vector<Actor>& Actors() {
       return actors_();
+    }
+
+    MapCell& OccupiedCell(MapCell* set_cell = NULL) {
+      if (set_cell != NULL) {
+        occupied_cell_ = set_cell;
+      }
+      return *occupied_cell_;
     }
 
   };

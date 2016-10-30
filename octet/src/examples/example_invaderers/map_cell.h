@@ -63,7 +63,7 @@ namespace octet {
       sprite_.init(_texture, x, y, w, h);
     }
 
-    sprite& Sprite() {
+    sprite& GetSprite() {
       return sprite_;
     }
 
@@ -106,6 +106,10 @@ namespace octet {
     }
 
     MapCell& GetAdjacentCell(Direction direction) {
+      if (adjacent_cells_[direction] == NULL)
+      {
+        printf("asking for NULL cell pointer");
+      }
       return *adjacent_cells_[direction];
     }
 
