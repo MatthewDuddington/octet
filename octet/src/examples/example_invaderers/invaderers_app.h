@@ -28,6 +28,8 @@ namespace octet {
 
     bool load_new_level = false;
     bool game_over = false;
+    int input_wait = 0.3f * 30; // Sec * FPS
+    int input_wait_counter = input_wait;
 
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
@@ -380,7 +382,6 @@ namespace octet {
       player_.Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
       level_.LoadLevel(1);
 
-
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
       cameraToWorld.translate(0, 0, 4);
@@ -484,7 +485,18 @@ namespace octet {
       if (waiting_for_input_) {
         //for (int i = 0; i < Actor::Actors().size(); i++)
         //Actor::GetActor(i).Update();
-        player_.Update();
+        if (player_.Update() == 1) {
+          waiting_for_input_ = false;
+          input_wait_counter = input_wait;
+        }
+      }
+      else {
+        if (input_wait_counter > 0) {
+          input_wait_counter--;
+        }
+        else {
+          waiting_for_input_ = true;
+        }
       }
 
     }
