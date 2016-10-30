@@ -7,17 +7,26 @@ namespace octet {
 
   class Actor {
  
-    static Actor* player_;
+    // In order to have static class variables, they need to be initialised, which can only be done in the .cpp file as you can't double declare in a header. As we're working with 'header only' I needed a workaround.
+    // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf
+    // http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
+    // Suggested answer is to use a static function which returns it's own static variable of the type desired. 
+    static Actor*& player_(Actor* player_object = NULL) {
+      static Actor* player_ = NULL;
+      if (player_object != NULL) {
+        player_ = player_object;
+      }
+      return player_;
+    }
+    //Actor* Actor::player_ = NULL;  // Can't define a static member var in a .h file, but without initialising the static pointer player_ it creates a compalation linking error.
 
     sprite sprite_;
     MapCell cell_occupied_;
 
-    static std::vector<Actor> actors_;  // Stores the player and NPCs.
+    
+    static std::vector<Actor>& actors_() { static std::vector<Actor> actors_; return actors_; };
+    //static std::vector<Actor> actors_;  // Stores the player and NPCs.
 
-    const GLuint player_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/player.gif");
-    const GLuint guard_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/guard.gif");
 
   public:
     enum ActorType {
@@ -26,7 +35,7 @@ namespace octet {
     };
 
     Actor() {
-      actors_.push_back(*this);
+      actors_().push_back(*this);
     }
 
     sprite& GetSprite() {
@@ -36,10 +45,16 @@ namespace octet {
     void Init(ActorType type,
               float x, float y,
               float w, float h) {
+      // Actor textures
+      GLuint player_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/player.gif");
+      GLuint guard_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/guard.gif");
+      
       int _texture;
       if (type == PLAYER) {
         _texture = player_texture;
-        player_ = this;
+        player_(this);
       }
       else if (type == GUARD) {
         _texture = guard_texture;
@@ -75,15 +90,15 @@ namespace octet {
     }
 
     static Actor& Player() {
-      return *player_;
+      return *player_();
     }
 
     static Actor& GetActor(int actor_index) {
-      return actors_.at(actor_index);
+      return actors_().at(actor_index);
     }
 
     static const std::vector<Actor>& Actors() {
-      return actors_;
+      return actors_();
     }
 
   };

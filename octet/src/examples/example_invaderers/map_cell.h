@@ -3,12 +3,6 @@
 #ifndef map_cell_h
 #define map_cell_h
 
-/*
-class Level {  // Circular dependency solver???
-  virtual Level& CurrentLevel();
-};
-*/
-
 namespace octet {
 
   class MapCell {
@@ -41,7 +35,7 @@ namespace octet {
       if (cell_column < level_width - 1) {  // Cell to the right
         adjacent_cells_[EAST] = &level_grid[level_grid_index + 1];
       } 
-      if (cell_column < level_height - 1) {  // Cell in row below
+      if (cell_row < level_height - 1) {  // Cell in row below
         adjacent_cells_[SOUTH] = &level_grid[level_grid_index + level_width];
       }
       if (cell_column > 0) {  // Cell to the left

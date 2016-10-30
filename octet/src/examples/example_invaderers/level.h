@@ -7,8 +7,13 @@ namespace octet {
 
   class Level {
 
-    static Level* current_level_;
-    //std::unique_ptr<Level> current_level_;  // TODO Would it be better to use these?
+    static Level*& current_level_(Level* level_object = NULL) {
+      static Level* current_level_ = NULL;
+      if (level_object != NULL) {
+        current_level_ = level_object;
+      }
+      return current_level_;
+    };
 
     int level_width_ = 0;
     int level_height_ = 0;
@@ -16,24 +21,24 @@ namespace octet {
 
     std::vector<MapCell> level_grid_;  // Stores grid of map sprites.
 
-    // Load map textures
-    const GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/start.gif");
-    const GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/goal.gif");
-    const GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/path.gif");
-    const GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/wall.gif");
-    const GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/bush.gif");
-    const GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/fence_vertical.gif");
-    const GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/fence_horizontal.gif");
-    
     // Construct the level map.
     void BuildLevel() {
+   
+      // Load map textures
+      GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/start.gif");
+      GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/goal.gif");
+      GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/path.gif");
+      GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/wall.gif");
+      GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/bush.gif");
+      GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/fence_vertical.gif");
+      GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
+      "assets/invaderers/fence_horizontal.gif");
       
       // Load level design and set level specific information.
       LevelFileHandler level_file_handler;  // Assistant module to read the level design file. 
@@ -119,12 +124,12 @@ namespace octet {
 
   public:
     Level() {
-      current_level_ = this;
+      current_level_(this);
     }
 
     // Way to access functions of the current level
     static Level& CurrentLevel() {
-      return *current_level_;
+      return *current_level_();
     }
 
     const int Size() {

@@ -20,8 +20,6 @@
 namespace octet {
 
   class invaderers_app : public octet::app {
-   
-    static app& game_app_;
     
     bool waiting_for_input_ = false;
 
@@ -30,8 +28,6 @@ namespace octet {
 
     bool load_new_level = false;
     bool game_over = false;
-
-    void KeyPress();
 
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
@@ -370,16 +366,10 @@ namespace octet {
 
   public:
 
-    // Way to access functions of the main app. e.g. key presses
-    static app& GameApp() {
-      return game_app_;
-    }
-
     // static key (* key_down) {}  // TODO function pointers to register awarenes of button presses in other classes?
 
     // this is called when we construct the class
     invaderers_app(int argc, char **argv) : app(argc, argv) {//, font(512, 256, "assets/big.fnt") {
-      game_app_ = *(this);
     }
 
     // this is called once OpenGL is initialized

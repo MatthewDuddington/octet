@@ -28,17 +28,18 @@ namespace octet {
   };
 
   enum key {
-    // keys with ascii equivalent, eg. space, esc, enter have their ascii code.
-    key_backspace = 8,
-    key_tab = 9,
-    key_esc = 27,
-    key_space = 32,
-
     // Added:
     key_A = 0x41,
     key_D = 0x44,
     key_W = 0x57,
     key_S = 0x53,
+
+    // keys with ascii equivalent, eg. space, esc, enter have their ascii code.
+    
+    key_backspace = 8,
+    key_tab = 9,
+    key_esc = 27,
+    key_space = 32,
 
     // other keys have the following codes:
     key_f1 = 0x80,
@@ -74,7 +75,7 @@ namespace octet {
   };
 
   class app_common {
-    static bitset<256> keys;
+    static bitset<256>& keys() { static bitset<256> keys; return keys; };
     bitset<256> prev_keys;
     int mouse_x;
     int mouse_y;
@@ -92,7 +93,7 @@ namespace octet {
 
   public:
     app_common() {
-      keys.clear();
+      keys().clear();
       prev_keys.clear();
       // this memset writes 0 to every byte of keys[]
       mouse_x = mouse_y = 0;
@@ -111,7 +112,7 @@ namespace octet {
     }
 
     void end_frame() {
-      prev_keys = keys;
+      prev_keys = keys();
     }
 
     virtual void draw_world(int x, int y, int w, int h) = 0;
@@ -119,22 +120,22 @@ namespace octet {
 
     /// returns true if a key is down
     static bool is_key_down(unsigned key) {
-      return keys[key & 0xff] != 0;
+      return keys()[key & 0xff] != 0;
     }
 
     /// returns true if a key has gone down this frame
     bool is_key_going_down(unsigned key) {
-      return keys[key & 0xff] != 0 && prev_keys[key & 0xff] == 0;
+      return keys()[key & 0xff] != 0 && prev_keys[key & 0xff] == 0;
     }
 
     /// returns true if a key has gone down this frame
     bool is_key_going_up(unsigned key) {
-      return keys[key & 0xff] != 0 && prev_keys[key & 0xff] == 0;
+      return keys()[key & 0xff] != 0 && prev_keys[key & 0xff] == 0;
     }
 
     /// return the current set of keys down.
     bitset<256> get_keys() const {
-      return keys;
+      return keys();
     }
 
     /// return the previous set of keys down
@@ -144,12 +145,12 @@ namespace octet {
 
     /// return the previous set of keys down
     bitset<256> get_keys_going_down() const {
-      return keys & ~prev_keys;
+      return keys() & ~prev_keys;
     }
 
     /// return the previous set of keys down
     bitset<256> get_keys_going_up() const {
-      return ~keys & prev_keys;
+      return ~keys() & prev_keys;
     }
 
     void get_mouse_pos(int &x, int &y) {
@@ -185,9 +186,9 @@ namespace octet {
     // used by the platform to set a key
     void set_key(unsigned key, bool is_down) {
       if (is_down) {
-        keys.setbit(key & 0xff);
+        keys().setbit(key & 0xff);
       } else {
-        keys.clearbit(key & 0xff);
+        keys().clearbit(key & 0xff);
       }
     }
 
