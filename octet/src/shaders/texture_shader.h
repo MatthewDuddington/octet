@@ -14,7 +14,9 @@ namespace octet { namespace shaders {
       NORMAL,    // No blend, just pass through regular values.
       MULTIPLY,  // Results in a darker blend.
       SCREEN,    // Results in a brighter blend.
-      OVERLAY    // Multiply on brighter parts and screen on darker parts.
+      OVERLAY,   // Multiply on brighter parts and screen on darker parts.
+
+      GRASS      // Override for randomised grass creator.
     };
   
 
@@ -76,6 +78,13 @@ namespace octet { namespace shaders {
             else {
               return 1 - (2 * (1 - texture2D(sampler, uv_)) * (1 - colour_uniform));
             }
+            break;
+          case 4:  // GRASS
+            //std::default_random_engine generator;
+            //std::normal_distribution<float> distribution(0.3,1.7);
+            vec4 random_green = vec4( 0.4, 0.5, 0.2, 1 );
+            //random_green * distribution(generator);
+            return texture2D(sampler, uv_) * random_green;
             break;
           case 0:  // NORMAL (Fall through)
           default:

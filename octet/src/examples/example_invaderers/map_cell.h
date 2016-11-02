@@ -80,6 +80,10 @@ namespace octet {
       return false;
     }
 
+    CellType GetType() {
+      return cell_type_;
+    }
+
     // Returns True if the passed MapCell is located within the passed distance (number of cells to check each side) and direction.
     bool IsInLineWithMe(MapCell& map_cell, Direction direction, int distance) {
       MapCell* test_cell = this;

@@ -63,7 +63,7 @@ namespace octet {
 
     void render(texture_shader &shader,
                 mat4t &cameraToWorld,
-                vec4 tint_colour = { 0.2f, 0.6f, 0.7f, 1 },
+                vec4 tint_colour = { 1, 1, 1, 1 },
                 texture_shader::BlendMode blend_mode = texture_shader::NORMAL)
     {
       // invisible sprite... used for gameplay.
