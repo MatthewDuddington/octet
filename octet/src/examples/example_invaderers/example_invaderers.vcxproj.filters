@@ -451,6 +451,9 @@
     <ClInclude Include="sprite.h">
       <Filter>Source Files\Greenlands</Filter>
     </ClInclude>
+    <ClInclude Include="sound_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl">

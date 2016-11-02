@@ -28,7 +28,6 @@ namespace octet { namespace shaders {
 
   public:
     void init() {
-      // TODO enable a 2nd texture to drive the blend rather than a pure colour.
       //GLuint mix_texture_ = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/clouds.gif");
       
       // this is the vertex shader.
@@ -55,8 +54,7 @@ namespace octet { namespace shaders {
         uniform sampler2D sampler;
         uniform vec4 colour_uniform;  // Added: (2) Uniform which holds tint colour.
         uniform int blend_mode;
- 
-        // TODO Function to randomly assign green tones to each fragment randomly (and with reference to the greens around it?)
+
 
         // Equations for calculating blend types referenced from: https://en.wikipedia.org/wiki/Blend_modes
         vec4 BlendTextureWithTint() {

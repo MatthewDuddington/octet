@@ -1,7 +1,9 @@
 /*
-Moved from invaiderers_app
-Have not refactored formatting to match my own code.
-However, any added sections are consistant with my own modules.
+Octet Framework (c) Andy Thomason 2012-2014.
+
+Extracted 'sprite' class from invaiderers_app.
+
+Additional and modified code (c) Matthew Duddington 2016.
 */
 
 #ifndef sprite_h
@@ -12,20 +14,11 @@ namespace octet {
     enum Direction { NORTH, EAST, SOUTH, WEST };  // Most appropriate place for this seems to be here as the sprite class holds the 'transform' functionality.
 
   class sprite {
-    // where is our sprite (overkill for a 2D game!)
-    mat4t modelToWorld;
-
-    // half the width of the sprite
-    float halfWidth;
-
-    // half the height of the sprite
-    float halfHeight;
-
-    // what texture is on our sprite
-    int texture;
-
-    // true if this sprite is enabled.
-    bool enabled;
+    mat4t modelToWorld;  // where is our sprite (overkill for a 2D game!)
+    float halfWidth;     // half the width of the sprite
+    float halfHeight;    // half the height of the sprite
+    int texture;         // what texture is on our sprite
+    bool enabled;        // true if this sprite is enabled.
 
     // this is an array of the positions of the corners of the texture in 2D
     float uvs[8] = {
@@ -35,7 +28,9 @@ namespace octet {
       0,  1,
     };
 
-    // Moves the uv rectangle to a new position on the texture.
+    int animation_frame_counter = 0;  // Added: Keeps track of which frame of the currently playing animation the sequence is on.
+
+    // Added: Moves the uv rectangle to a new position on the texture.
     void ChangeUVPosition(float lower_left_x, float lower_left_y) {
       float offset_x = lower_left_x - uvs[0];
       float offset_y = lower_left_y - uvs[1];
@@ -45,10 +40,8 @@ namespace octet {
       }
     }
 
-    int animation_frame_counter = 0;  // Keeps track of which frame of the currently playing animation the sequence is on.
 
   public:
-    
     sprite() {
       texture = 0;
       enabled = true;
@@ -155,20 +148,19 @@ namespace octet {
 
     bool is_above(const sprite &rhs, float margin) const {
       float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
-
-      return
-        (fabsf(dx) < halfWidth + margin)
-        ;
+      return (fabsf(dx) < halfWidth + margin);
     }
 
     bool &is_enabled() {
       return enabled;
     }
 
+    // Added:
     enum AnimationName {
       walk
     };
 
+    // Added: 
     int Animate(AnimationName animation_name) {  // TODO Replace with an 'Animation' class object which contains a series of steps to carry out enabling compound behaviours.
       int number_of_frames;
       vec2 sprite_size;

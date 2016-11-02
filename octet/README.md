@@ -40,8 +40,8 @@ Some core understandings:
     is deleted)
     and std::unique_ptr (assumes it is the sole owner and thus always has
     authority to delete object when the pointer itself is destroyed),
-    rather than raw pointers
-  - N.B. I have 16GB of RAM and four 2.6GHz cores :)
+    rather than raw pointers.
+  - N.B. In this laptop there is 16GB of RAM and four 2.6GHz cores. (^_^)/
   - Classes should expose the smallest practical public area. This keeps their
     interface as simple as possible and reduces the chance of unexpected uses.
   - When in doubt return a reference to the function's class instance using
@@ -110,11 +110,17 @@ Door & Switch Ideas:
 - Suffix number e.g. D1 and T1 would link together
 - Use a set of letters as doors and have Uppercase and Lowercase relate to door and switch pairs (Thanks to Luke Sanderson for this idea)
 
-Discoveries:
+--------------------------------------------------------------------------------
+
+Additional Discoveries:
+
 - Static class member variables must be initialised with a value (otherwise Visual Studio returns a generic compilation linking error (LNK2001) pointing to line 1). However, such variables cannot be initialised in a header, which causes a problem for Header Only C++ methodology. One solution is to 
 - Shaders don't appear to allow code to run inside them in the same way as conventional C++ (it is procedural, so declaration order matters! Also it cannot read class member variables outside the scope of the shader structure - hence the declaration and setting of uniforms). An invalid result creates a white square only.
+- Resources must be loaded to the resource dictionary within a function and cannot simply be kept as class members otherwise out of range error occours during runtime.
 
-Additional Acknowledge:
+--------------------------------------------------------------------------------
+
+Additional Acknowledgements:
 
 Basis for textures:
 (all applicable licences permit reuse and modification)
@@ -122,3 +128,4 @@ Grass 512x512 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clove
 Concrete 509x512 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/
 Wire mesh https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/
 Bush http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html
+Clouds https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/

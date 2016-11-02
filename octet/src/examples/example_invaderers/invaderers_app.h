@@ -20,18 +20,12 @@
 namespace octet {
 
   class invaderers_app : public octet::app {
-  public: enum Sounds {
-      sfx_wrong,
-      
-      num_sound_sources
-    };
-    
 
-  private:
     bool waiting_for_input_ = false;
 
+    SoundManager sound_manager_;
     Level level_;
-    Actor player_;
+    Actor* player_;
 
     bool load_new_level = false;
     bool game_over = false;
@@ -45,17 +39,9 @@ namespace octet {
     // shader to draw a textured triangle
     texture_shader texture_shader_;
 
-
-    // sounds
-    ALuint wrong;
-    unsigned cur_source;
-    ALuint sources[num_sound_sources];
-    ALuint get_sound_source() { return sources[cur_source++ % num_sound_sources]; }
-
-
     /*
     enum {
-      num_sound_sources = 8,
+      NUM_SOUND_SOURCES = 8,
       num_rows = 5,
       num_cols = 10,
       num_missiles = 2,
@@ -106,7 +92,7 @@ namespace octet {
     ALuint whoosh;
     ALuint bang;
     unsigned cur_source;
-    ALuint sources[num_sound_sources];
+    ALuint sources[NUM_SOUND_SOURCES];
 
     // big array of sprites
     sprite sprites[num_sprites]; // Cool so because the count starts at 0 the num_sprites adds 1 to the total by being present itself, so it actually represents the right total intrinsically!
@@ -120,7 +106,7 @@ namespace octet {
     // information for our text
     bitmap_font font;
 
-    ALuint get_sound_source() { return sources[cur_source++ % num_sound_sources]; }
+    ALuint get_sound_source() { return sources[cur_source++ % NUM_SOUND_SOURCES]; }
 
     // called when we hit an enemy
     void on_hit_invaderer() {
@@ -381,6 +367,7 @@ namespace octet {
     }
     */
 
+
   public:
 
     // static key (* key_down) {}  // TODO function pointers to register awareness of button presses in other classes?
@@ -394,13 +381,19 @@ namespace octet {
       // set up the shader
       texture_shader_.init();
 
-      player_.Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
+      // Create player and get pointer.
+      Actor::Actors().resize(15);
+      player_ = &Actor::Player();
+      player_->Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
+
+      // Load the opening level.
       level_.LoadLevel(1);
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
       cameraToWorld.translate(0, 0, 4);
 
+      // Start to accept player key-presses.
       waiting_for_input_ = true;
 
       /*
@@ -449,7 +442,7 @@ namespace octet {
       whoosh = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/whoosh.wav");
       bang = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/bang.wav");
       cur_source = 0;
-      alGenSources(num_sound_sources, sources);
+      alGenSources(NUM_SOUND_SOURCES, sources);
 
       // sundry counters and game state.
       missiles_disabled = 0;
@@ -461,18 +454,9 @@ namespace octet {
       score = 0;
       */
 
-      // Sounds
-      wrong = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
-      cur_source = 0;
-      alGenSources(num_sound_sources, sources);
     }
 
-    void PlaySoundx(Sounds sound) {
-      ALuint source = get_sound_source();
-      alSourcei(source, AL_BUFFER, sound);
-      alSourcePlay(source);
-    }
-
+    
     // called every frame to move things
     void simulate() {
       if (game_over) {
@@ -511,7 +495,7 @@ namespace octet {
       if (waiting_for_input_) {
         //for (int i = 0; i < Actor::Actors().size(); i++)
         //Actor::GetActor(i).Update();
-        if (player_.Update() == 1) {  // Returns 1 to indicate a valid player button has been pressed.
+        if (player_->Update() == 1) {  // Returns 1 to indicate a valid player button has been pressed.
           waiting_for_input_ = false;
           input_wait_counter = input_wait;
         }
@@ -550,10 +534,10 @@ namespace octet {
         level_.LevelGrid().at(i).GetSprite().render(texture_shader_, cameraToWorld);
       }
       // Draw actors
-      for (int i = 0; i < player_.Actors().size(); i++) {
-        player_.Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
+      for (int i = 0; i < player_->Actors().size(); i++) {
+        player_->Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
       }
-      player_.GetSprite().render(texture_shader_, cameraToWorld);
+      player_->GetSprite().render(texture_shader_, cameraToWorld);
 
       /*
       // draw all the sprites

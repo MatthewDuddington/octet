@@ -50,7 +50,7 @@ namespace octet {
       cell_type_ = PATH;
     }
 
-    // TODO The init is rather overloaded on function, consider splitting into seperate inits or rather just get the MapCell init caller to reach in to the sprite's init function directly.
+    // TODO The init is rather overloaded on function, consider splitting into separate inits or rather just get the MapCell init caller to reach in to the sprite's init function directly.
     void Init(MapCell::CellType CellType,
               std::vector<MapCell>& level_grid,
               int level_grid_index,
@@ -69,7 +69,7 @@ namespace octet {
       return sprite_;
     }
 
-    // Returns true if this MapCell can be ocupied by an actor.
+    // Returns true if this MapCell can be occupied by an actor.
     bool IsWalkable() {
       if (cell_type_ == PATH  ||
           cell_type_ == START ||

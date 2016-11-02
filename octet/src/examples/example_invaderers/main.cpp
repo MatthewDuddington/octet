@@ -15,6 +15,7 @@
 
 #include "sprite.h"  // Andy's sprite class moved to its own header.
 
+#include "sound_manager.h"
 #include "map_cell.h"
 #include "level_file_handler.h"
 #include "actor.h"
