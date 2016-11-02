@@ -98,7 +98,7 @@ Assisted Delainey with debugging her file input loop.
 
 Nick assisted me by explaining overview of how to add new properties to a shader.
 
-Suggestion from Jack to store neighbours in MapCell so dont need to calculate each time.
+Suggestion from Jack to store neighbours in MapCell so don't need to calculate each time.
 
 TODO List (final 10 days)
 - Complete spawn of player and player movement
@@ -107,9 +107,18 @@ TODO List (final 10 days)
 
 
 Door & Switch Ideas:
-- Suffix number eg. D1 and T1 would link together
+- Suffix number e.g. D1 and T1 would link together
 - Use a set of letters as doors and have Uppercase and Lowercase relate to door and switch pairs (Thanks to Luke Sanderson for this idea)
 
 Discoveries:
 - Static class member variables must be initialised with a value (otherwise Visual Studio returns a generic compilation linking error (LNK2001) pointing to line 1). However, such variables cannot be initialised in a header, which causes a problem for Header Only C++ methodology. One solution is to 
-- Shaders don't appear to allow code to run inside them in the same way as conventional C++. An invalid result creates a white square only.
+- Shaders don't appear to allow code to run inside them in the same way as conventional C++ (it is procedural, so declaration order matters! Also it cannot read class member variables outside the scope of the shader structure - hence the declaration and setting of uniforms). An invalid result creates a white square only.
+
+Additional Acknowledge:
+
+Basis for textures:
+(all applicable licences permit reuse and modification)
+Grass 512x512 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/
+Concrete 509x512 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/
+Wire mesh https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/
+Bush http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html

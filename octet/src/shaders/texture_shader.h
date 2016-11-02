@@ -23,12 +23,14 @@ namespace octet { namespace shaders {
     GLuint modelToProjectionIndex_;  // index for model space to projection space matrix
     GLuint samplerIndex_;            // index for texture sampler
     GLuint colour_index_;            // Added: (1) Index to set a specific colour directly. Set at 3, used at 4.
-
-    BlendMode blend_mode_ = NORMAL;
+    GLuint blend_mode_index_;
 
 
   public:
     void init() {
+      GLuint mix_texture_ = resource_dict::get_texture_handle(GL_RGBA,
+        "assets/invaderers/cloud.gif");
+      
       // this is the vertex shader.
       // it is called for each corner of each triangle
       // it inputs pos and uv from each corner
@@ -52,32 +54,38 @@ namespace octet { namespace shaders {
         varying vec2 uv_;
         uniform sampler2D sampler;
         uniform vec4 colour_uniform;  // Added: (2) Uniform which holds tint colour.
-        uniform vec4 blend_result;
+        uniform int blend_mode;
 
-        void main() {
-          if (NORMAL == NORMAL) {}  // Using elements from outside the shader seems to break it.
-          gl_FragColor = texture2D(sampler, uv_);
-        }
 
-        /*
+        // Equations for calculating blend types referenced from: https://en.wikipedia.org/wiki/Blend_modes
         vec4 BlendTextureWithTint() {
-          switch (1 == 1)
+          switch (blend_mode)
           {
-            case MULTIPLY:
-              blend_result = texture2D(sampler, uv_) * colour_uniform;
-              break;
-            case SCREEN:
-              blend_result = 1 - (1 - texture2D(sampler, uv_)) * (1 - colour_uniform);
-              break;
-            case OVERLAY:
-              break;
-            case NORMAL:  // Fall through
-            default:
-              blend_result = texture2D(sampler, uv_) * colour_uniform;
+          case 1:  // MULTIPLY
+            return texture2D(sampler, uv_) * colour_uniform;
+            break;
+          case 2:  // SCREEN
+            return 1 - ((1 - texture2D(sampler, uv_)) * (1 - colour_uniform));
+            break;
+          case 3:  // OVERLAY
+            vec4 a = texture2D(sampler, uv_);
+            if ((a.x + a.y + a.z) / 3 < 0.5) {
+              return 2 * texture2D(sampler, uv_) * colour_uniform;
+            }
+            else {
+              return 1 - (2 * (1 - texture2D(sampler, uv_)) * (1 - colour_uniform));
+            }
+            break;
+          case 0:  // NORMAL (Fall through)
+          default:
+            return texture2D(sampler, uv_) * colour_uniform;
             break;
           }
         }
-        */
+
+        void main() {
+          gl_FragColor = BlendTextureWithTint();
+        }
       );
 
       // use the common shader code to compile and link the shaders
@@ -88,6 +96,7 @@ namespace octet { namespace shaders {
       modelToProjectionIndex_ = glGetUniformLocation(program(), "modelToProjection");
       samplerIndex_ = glGetUniformLocation(program(), "sampler");
       colour_index_ = glGetUniformLocation(program(), "colour_uniform");  // Added: (3) Set GLuint to relevant fragment shader uniform index.
+      blend_mode_index_ = glGetUniformLocation(program(), "blend_mode");
     }
 
     void render(const mat4t &modelToProjection,
@@ -101,9 +110,9 @@ namespace octet { namespace shaders {
       // customize the program with uniforms
       glUniform1i(samplerIndex_, sampler);
       
-      blend_mode_ = blend_mode;
       float tint_colour_[4] = { tint_colour.x(), tint_colour.y(), tint_colour.z(), tint_colour.w() };
       glUniform4fv(colour_index_, 1, tint_colour_);  // Added: (4) Passes input arguments into the glUniform type at 2. 4fv specifies its a vector4 type, the count of 1 says it's not an array of vectors, i.e. there is only 1.
+      glUniform1i(blend_mode_index_, blend_mode);
 
       glUniformMatrix4fv(modelToProjectionIndex_, 1, GL_FALSE, modelToProjection.get());
     }

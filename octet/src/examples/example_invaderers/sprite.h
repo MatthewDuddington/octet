@@ -37,9 +37,9 @@ namespace octet {
 
     // Moves the uv rectangle to a new position on the texture.
     void ChangeUVPosition(float lower_left_x, float lower_left_y) {
-      int offset_x = lower_left_x - uvs[0];
-      int offset_y = lower_left_y - uvs[1];
-      for (int i = 0; i < 8; i + 2) {
+      float offset_x = lower_left_x - uvs[0];
+      float offset_y = lower_left_y - uvs[1];
+      for (int i = 0; i < 8; i += 2) {
         uvs[i] = uvs[i] + offset_x;
         uvs[i + 1] = uvs[i + 1] + offset_y;
       }
@@ -70,7 +70,7 @@ namespace octet {
 
     void render(texture_shader &shader,
                 mat4t &cameraToWorld,
-                vec4 tint_colour = { 1, 1, 1, 1 },
+                vec4 tint_colour = { 0.2f, 0.6f, 0.7f, 1 },
                 texture_shader::BlendMode blend_mode = texture_shader::NORMAL)
     {
       // invisible sprite... used for gameplay.
