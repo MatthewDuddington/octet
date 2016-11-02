@@ -100,18 +100,14 @@ namespace octet {
 
           // Use the texture and type refrences to instantiate the cell.
           level_grid_[current_cell].Init(
-            texture,    // Texture image
-            cell_type,  // Cell type identified above
-            column,  // Level grid x coordinate
-            row,     // Level grid y coordinate
+            cell_type,     // Cell type identified above
             level_grid_,
-            current_cell,
-            level_width_,
-            level_height_,
-            x_pos,   // x Pos
-            y_pos,   // y Pos
-            0.5f,    // Width
-            0.5f);   // Height
+            current_cell,  // Index of cell in grid
+            level_width_, level_height_,  
+            column, row,   // Level grid x and y coordinates
+            texture,       // Texture image
+            x_pos, y_pos,  // x and y positions of sprite
+            0.5f, 0.5f);   // Width and height of sprite
 
           // Loop until map filled.
         }
@@ -122,6 +118,7 @@ namespace octet {
      Actor::Player().GetSprite().translate(x_pos, y_pos);
      Actor::Player().OccupiedCell(&level_grid_.at(current_cell));
    }
+
 
   public:
     Level() {

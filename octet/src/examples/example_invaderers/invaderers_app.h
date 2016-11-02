@@ -28,7 +28,7 @@ namespace octet {
 
     bool load_new_level = false;
     bool game_over = false;
-    int input_wait = 0.3f * 30; // Sec * FPS
+    int input_wait = 0.25f * 30; // Sec * FPS
     int input_wait_counter = input_wait;
 
     // Matrix to transform points in our camera space to the world.
@@ -485,7 +485,7 @@ namespace octet {
       if (waiting_for_input_) {
         //for (int i = 0; i < Actor::Actors().size(); i++)
         //Actor::GetActor(i).Update();
-        if (player_.Update() == 1) {
+        if (player_.Update() == 1) {  // Returns 1 to indicate a valid player button has been pressed.
           waiting_for_input_ = false;
           input_wait_counter = input_wait;
         }

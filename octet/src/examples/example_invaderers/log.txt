@@ -1,0 +1,13 @@
+Fragment shader error:
+0(1) : error C1008: undefined variable "NORMAL"
+0(1) : error C1008: undefined variable "NORMAL"
+
+varying vec2 uv_; uniform sampler2D sampler; uniform vec4 colour_uniform; uniform vec4 blend_result; void main() { if (NORMAL == NORMAL) {} gl_FragColor = texture2D(sampler, uv_); }
+
+
+
+program errors during linking
+Fragment info
+-------------
+0(1) : error C1008: undefined variable "NORMAL"
+0(1) : error C1008: undefined variable "NORMAL"

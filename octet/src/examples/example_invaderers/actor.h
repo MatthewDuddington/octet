@@ -7,11 +7,12 @@ namespace octet {
 
   class Actor {
  
-    //Actor* Actor::player_ = NULL;  // Can't define a static member var in a .h file, but without initialising the static pointer player_ it creates a compalation linking error.
+    //static Actor* player_ = NULL;
+    // Can't define a static member var in a .h file, but without initialising the static pointer player_ it creates a compilation linking error (LNK2001).
     // In order to have static class variables, they need to be initialised, which can only be done in the .cpp file as you can't double declare in a header. As we're working with 'header only' I needed a workaround.
     // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf
     // http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
-    // Suggested answer is to use a static function which returns it's own static variable of the type desired. I have modified the example to enable Set and Get behaviour within the same funtion.
+    // Suggested answer is to use a static function which returns it's own static variable of the type desired. I have modified the example to enable Set and Get behaviour within the same function.
     static Actor*& player_(Actor* player_object = NULL) {
       static Actor* player_ = NULL;
       if (player_object != NULL) {

@@ -111,4 +111,5 @@ Door & Switch Ideas:
 - Use a set of letters as doors and have Uppercase and Lowercase relate to door and switch pairs (Thanks to Luke Sanderson for this idea)
 
 Discoveries:
-- 
+- Static class member variables must be initialised with a value (otherwise Visual Studio returns a generic compilation linking error (LNK2001) pointing to line 1). However, such variables cannot be initialised in a header, which causes a problem for Header Only C++ methodology. One solution is to 
+- Shaders don't appear to allow code to run inside them in the same way as conventional C++. An invalid result creates a white square only.

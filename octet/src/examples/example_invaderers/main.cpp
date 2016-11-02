@@ -12,11 +12,9 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <algorithm>
 
 #include "sprite.h"  // Andy's sprite class moved to its own header.
 
-//#include "input.h"
 #include "map_cell.h"
 #include "level_file_handler.h"
 #include "actor.h"

@@ -6,7 +6,6 @@
 namespace octet {
 
   class MapCell {
-
   public: enum CellType {
     START,
     GOAL,
@@ -15,6 +14,7 @@ namespace octet {
     BUSH,
     FENCE
   };
+
 
   private:
     sprite sprite_;
@@ -27,7 +27,8 @@ namespace octet {
 
     void SetupAdjacentCells(std::vector<MapCell>& level_grid, int level_grid_index,
                             int level_width, int level_height,
-                            int cell_column, int cell_row) {
+                            int cell_column, int cell_row)
+    {
       my_index = level_grid_index;
       if (cell_row > 0) {  // Cell in row above
         adjacent_cells_[NORTH] = &level_grid[level_grid_index - level_width];
@@ -43,23 +44,24 @@ namespace octet {
       }
     }
 
-  public:
 
+  public:
     MapCell() {
       cell_type_ = PATH;
     }
 
-    void Init(int _texture,
-              MapCell::CellType CellType,
-              int column, int row,
-              std::vector<MapCell>& level_grid, int level_grid_index,
+    // TODO The init is rather overloaded on function, consider splitting into seperate inits or rather just get the MapCell init caller to reach in to the sprite's init function directly.
+    void Init(MapCell::CellType CellType,
+              std::vector<MapCell>& level_grid,
+              int level_grid_index,
               int level_width, int level_height,
+              int column, int row,
+              int _texture,
               float x, float y,
-              float w, float h) {
+              float w, float h)
+    {
       cell_type_ = CellType;
-      SetupAdjacentCells(level_grid, level_grid_index,
-                         level_width, level_height,
-                         column, row);
+      SetupAdjacentCells(level_grid, level_grid_index, level_width, level_height, column, row);
       sprite_.init(_texture, x, y, w, h);
     }
 
@@ -71,7 +73,8 @@ namespace octet {
     bool IsWalkable() {
       if (cell_type_ == PATH  ||
           cell_type_ == START ||
-          cell_type_ == GOAL) {
+          cell_type_ == GOAL)
+      {
         return true;
       }
       return false;
@@ -95,7 +98,8 @@ namespace octet {
       if (IsInLineWithMe(map_cell, NORTH, 1) ||
           IsInLineWithMe(map_cell, EAST,  1) ||
           IsInLineWithMe(map_cell, SOUTH, 1) ||
-          IsInLineWithMe(map_cell, WEST,  1)) {
+          IsInLineWithMe(map_cell, WEST,  1))
+      {
         return true;
       }
       return false;
@@ -106,8 +110,7 @@ namespace octet {
     }
 
     MapCell& GetAdjacentCell(Direction direction) {
-      if (adjacent_cells_[direction] == NULL)
-      {
+      if (adjacent_cells_[direction] == NULL) {
         printf("asking for NULL cell pointer");
       }
       return *adjacent_cells_[direction];

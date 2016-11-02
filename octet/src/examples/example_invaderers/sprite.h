@@ -27,6 +27,26 @@ namespace octet {
     // true if this sprite is enabled.
     bool enabled;
 
+    // this is an array of the positions of the corners of the texture in 2D
+    float uvs[8] = {
+      0,  0,
+      1,  0,
+      1,  1,
+      0,  1,
+    };
+
+    // Moves the uv rectangle to a new position on the texture.
+    void ChangeUVPosition(float lower_left_x, float lower_left_y) {
+      int offset_x = lower_left_x - uvs[0];
+      int offset_y = lower_left_y - uvs[1];
+      for (int i = 0; i < 8; i + 2) {
+        uvs[i] = uvs[i] + offset_x;
+        uvs[i + 1] = uvs[i + 1] + offset_y;
+      }
+    }
+
+    int animation_frame_counter = 0;  // Keeps track of which frame of the currently playing animation the sequence is on.
+
   public:
     
     sprite() {
@@ -48,7 +68,11 @@ namespace octet {
       enabled = true;
     }
 
-    void render(texture_shader &shader, mat4t &cameraToWorld) {
+    void render(texture_shader &shader,
+                mat4t &cameraToWorld,
+                vec4 tint_colour = { 1, 1, 1, 1 },
+                texture_shader::BlendMode blend_mode = texture_shader::NORMAL)
+    {
       // invisible sprite... used for gameplay.
       if (!texture) return;
 
@@ -63,7 +87,7 @@ namespace octet {
       // use "old skool" rendering
       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      shader.render(modelToProjection, 0);
+      shader.render(modelToProjection, 0, tint_colour, blend_mode);
 
       // this is an array of the positions of the corners of the sprite in 3D
       // a straight "float" here means this array is being generated here at runtime.
@@ -79,14 +103,6 @@ namespace octet {
       // there is no gap between the 3 floats and hence the stride is 3*sizeof(float)
       glVertexAttribPointer(attribute_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)vertices);
       glEnableVertexAttribArray(attribute_pos);
-
-      // this is an array of the positions of the corners of the texture in 2D
-      static const float uvs[] = {
-        0,  0,
-        1,  0,
-        1,  1,
-        0,  1,
-      };
 
       // attribute_uv is position in the texture of each corner
       // each corner (vertex) has 2 floats (x, y)
@@ -147,6 +163,25 @@ namespace octet {
 
     bool &is_enabled() {
       return enabled;
+    }
+
+    enum AnimationName {
+      walk
+    };
+
+    int Animate(AnimationName animation_name) {  // TODO Replace with an 'Animation' class object which contains a series of steps to carry out enabling compound behaviours.
+      int number_of_frames;
+      vec2 sprite_size;
+      switch (animation_name)
+      {
+      case walk:
+        number_of_frames = 8;
+        sprite_size = (0.2f, 0.2f);
+        break;
+      default:
+        break;
+      }
+      ChangeUVPosition(sprite_size.x() * (1 + animation_frame_counter), sprite_size.y() * (1 + animation_frame_counter));
     }
   };
 
