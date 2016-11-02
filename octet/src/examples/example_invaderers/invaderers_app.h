@@ -20,7 +20,14 @@
 namespace octet {
 
   class invaderers_app : public octet::app {
+  public: enum Sounds {
+      sfx_wrong,
+      
+      num_sound_sources
+    };
     
+
+  private:
     bool waiting_for_input_ = false;
 
     Level level_;
@@ -28,7 +35,7 @@ namespace octet {
 
     bool load_new_level = false;
     bool game_over = false;
-    int input_wait = 0.25f * 30; // Sec * FPS
+    int input_wait = (int)(0.25f * 30); // Sec * FPS
     int input_wait_counter = input_wait;
 
     // Matrix to transform points in our camera space to the world.
@@ -37,6 +44,14 @@ namespace octet {
 
     // shader to draw a textured triangle
     texture_shader texture_shader_;
+
+
+    // sounds
+    ALuint wrong;
+    unsigned cur_source;
+    ALuint sources[num_sound_sources];
+    ALuint get_sound_source() { return sources[cur_source++ % num_sound_sources]; }
+
 
     /*
     enum {
@@ -368,7 +383,7 @@ namespace octet {
 
   public:
 
-    // static key (* key_down) {}  // TODO function pointers to register awarenes of button presses in other classes?
+    // static key (* key_down) {}  // TODO function pointers to register awareness of button presses in other classes?
 
     // this is called when we construct the class
     invaderers_app(int argc, char **argv) : app(argc, argv) {//, font(512, 256, "assets/big.fnt") {
@@ -445,6 +460,17 @@ namespace octet {
       game_over = false;
       score = 0;
       */
+
+      // Sounds
+      wrong = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
+      cur_source = 0;
+      alGenSources(num_sound_sources, sources);
+    }
+
+    void PlaySoundx(Sounds sound) {
+      ALuint source = get_sound_source();
+      alSourcei(source, AL_BUFFER, sound);
+      alSourcePlay(source);
     }
 
     // called every frame to move things

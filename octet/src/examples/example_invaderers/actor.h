@@ -109,6 +109,7 @@ namespace octet {
         return 1;
       }
       else {
+
         printf("Cant walk there.\n");
         return 0;
       }
