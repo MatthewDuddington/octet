@@ -22,7 +22,9 @@ namespace octet {
     CellType cell_type_;
     const CellType passable_[3] = { PATH, START, GOAL };
 
-    MapCell* adjacent_cells_[4] = { NULL, NULL, NULL, NULL };
+    // Stores pointers to the adjacent North, South, East and West cells.
+    // Thanks to Jack Evans for the suggestion of storing these rather than recalcualting each time.
+    MapCell* adjacent_cells_[4] = { NULL, NULL, NULL, NULL };  
     int my_index;
 
     void SetupAdjacentCells(std::vector<MapCell>& level_grid, int level_grid_index,
