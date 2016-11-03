@@ -19,7 +19,7 @@ Unity, my goals for this first assignment are at present:
 
 --------------------------------------------------------------------------------
 
-Some core understandings:
+Some core learning points from lectures:
 
   - Headerless C++ (advisory approach), wherein code is limited to as few .cpp
     modules as possible, with variables and objects aggregated into classes.
@@ -91,6 +91,8 @@ Change imported language from choice at start
 Save and load?
 Guards can move?
 
+Using unstable branches as part of github useage.
+
 Wednesday 26th, spent almost all day with assisting others rather than working on my own code oops!
 Assisted Pablo with debugging level instatiation loops and explained concept of arrays and indexes. Also assisted Pablo with interpreting and altering Nick's random positioning code to differentiate where the player, traps, guards and goal would be positioned at instantiation. I also helped him to work through the start of some code to read a few numbers form a text file.
 
@@ -99,6 +101,8 @@ Assisted Delainey with debugging her file input loop.
 Nick assisted me by explaining overview of how to add new properties to a shader.
 
 Suggestion from Jack to store neighbours in MapCell so don't need to calculate each time.
+
+Robert Doig showed me a Shader Sandbox example he had discovered which implemented the kind of procedual pixel field effect I was looking for.
 
 TODO List (final 10 days)
 - Complete spawn of player and player movement
@@ -129,3 +133,7 @@ Concrete 509x512 https://sftextures.com/2015/04/27/concrete-road-block-squared-b
 Wire mesh https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/
 Bush http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html
 Clouds https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/
+
+Sounds:
+(all applicable licences permit reuse and modification)
+Sfx_Wrong https://www.freesound.org/people/Isaac200000/sounds/188013/

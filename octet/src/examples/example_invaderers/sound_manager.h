@@ -29,10 +29,13 @@ namespace octet {
       return sound_manager_;
     }
 
-    ALuint wrong;
-    unsigned current_source;
+    ALuint sound_ALuints[NUM_SOUND_SOURCES];
     ALuint sources[NUM_SOUND_SOURCES];
-    ALuint get_sound_source() { return sources[current_source++ % NUM_SOUND_SOURCES]; }
+    unsigned current_source;
+    
+    ALuint get_sound_source() {
+      return sources[current_source++ % NUM_SOUND_SOURCES]; // Get the next available source but % will wrap around value if run out of array.
+    }
 
 
   public:
@@ -47,7 +50,7 @@ namespace octet {
 
     void Init() {
       // Add sound files to resource dictionary.
-      wrong = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/bang.wav");
+      sound_ALuints[SFX_WRONG] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
 
       current_source = 0;
       alGenSources(NUM_SOUND_SOURCES, sources);
@@ -55,7 +58,7 @@ namespace octet {
 
     void PlaySoundx(Sounds sound) {
       ALuint source = get_sound_source();
-      alSourcei(source, AL_BUFFER, sound);
+      alSourcei(source, AL_BUFFER, sound_ALuints[sound]);
       alSourcePlay(source);
     }
   };
