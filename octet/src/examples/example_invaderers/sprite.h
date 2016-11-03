@@ -28,6 +28,8 @@ namespace octet {
       0,  1,
     };
 
+    int local_rotation_ = 0;
+
     int animation_frame_counter = 0;  // Added: Keeps track of which frame of the currently playing animation the sequence is on.
 
     // Added: Moves the uv rectangle to a new position on the texture.
@@ -122,14 +124,31 @@ namespace octet {
     }
 
     // Added: Rotate the object
-    void rotate(float z) {
-      modelToWorld.rotateZ(z);
+    void Rotate(int degrees_z) {
+      modelToWorld.rotateZ((float)degrees_z);
+      local_rotation_ += degrees_z;
+    }
+
+    void RotateTo(int degrees_z) {
+      Rotate(degrees_z - local_rotation_);
+    }
+
+    void SetLocalRotation(int degrees_z) {
+      int destination_local_rotation_ = degrees_z % 360;
+      RotateTo(destination_local_rotation_);
     }
 
     // position the object relative to another.
     void set_relative(sprite &rhs, float x, float y) {
       modelToWorld = rhs.modelToWorld;
       modelToWorld.translate(x, y, 0);
+      local_rotation_ = 0; 
+    }
+
+    void set_relative_pos(sprite &rhs, float x, float y) {
+      int temp_local_rotation = local_rotation_;
+      set_relative(rhs, x, y);
+      RotateTo(temp_local_rotation);  // Reapply any rotations after moving.
     }
 
     // return true if this sprite collides with another.

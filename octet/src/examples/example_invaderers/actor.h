@@ -85,19 +85,27 @@ namespace octet {
       if (actor_type_ == PLAYER) {
         if (app_common::is_key_down(key_W)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
-          return MoveToCell(destination_cell);
+          MoveToCell(destination_cell);
+          GetSprite().SetLocalRotation(90);
+          return 1;
         }
         else if (app_common::is_key_down(key_S)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
-          return MoveToCell(destination_cell);
+          MoveToCell(destination_cell);
+          GetSprite().SetLocalRotation(270);
+          return 1;
         }
         else if (app_common::is_key_down(key_A)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
-          return MoveToCell(destination_cell);
+          MoveToCell(destination_cell);
+          GetSprite().SetLocalRotation(180);
+          return 1;
         }
         else if (app_common::is_key_down(key_D)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
-          return MoveToCell(destination_cell);
+          MoveToCell(destination_cell);
+          GetSprite().SetLocalRotation(0);
+          return 1;
         }
       }
       return 0;
