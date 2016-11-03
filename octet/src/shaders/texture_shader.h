@@ -54,7 +54,6 @@ namespace octet { namespace shaders {
         uniform sampler2D sampler;
         uniform vec4 colour_uniform;  // Added: (2) Uniform which holds tint colour.
         uniform int blend_mode;
-        uniform float random_green;
  
         // TODO Function to randomly assign green tones to each fragment randomly (and with reference to the greens around it?)
 
@@ -78,10 +77,8 @@ namespace octet { namespace shaders {
             }
             break;
           case 4:  // GRASS
-            //random_num = rand() % 0.7 - 0.5;
-            //random_green = { 0.4 * random_num, 0.5 * random_num, 0.2 * random_num, 1 };
-            random_green = 0.5;
-            return texture2D(sampler, uv_) *= vec4{ 1, random_green, 1, 1 };
+            colour_uniform.y = fract(sin(length(floor(gl_FragCoord.xy / 1.0)))*1e3);
+            return texture2D(sampler, uv_) * colour_uniform;
             break;
           case 0:  // NORMAL (Fall through)
           default:

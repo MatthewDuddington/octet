@@ -29,6 +29,8 @@ namespace octet {
 
     static sprite background;
 
+
+
     // Construct the level map.
     void BuildLevel() {
    
