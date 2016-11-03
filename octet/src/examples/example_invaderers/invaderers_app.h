@@ -531,13 +531,7 @@ namespace octet {
 
       // Draw the map
       for (int i = 0; i < level_.Size(); ++i) {
-        if (level_.LevelGrid().at(i).GetType() != MapCell::WALL)
-        {
-          level_.LevelGrid().at(i).GetSprite().render(texture_shader_, cameraToWorld, vec4{ 1,1,1,1 }, texture_shader::GRASS);
-        }
-        else {
           level_.LevelGrid().at(i).GetSprite().render(texture_shader_, cameraToWorld);
-        }
       }
       // Draw actors
       for (int i = 0; i < player_->Actors().size(); i++) {

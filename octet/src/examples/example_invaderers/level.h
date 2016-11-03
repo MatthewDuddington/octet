@@ -27,6 +27,8 @@ namespace octet {
 
     std::vector<MapCell> level_grid_;  // Stores grid of map sprites.
 
+    static sprite background;
+
     // Construct the level map.
     void BuildLevel() {
    

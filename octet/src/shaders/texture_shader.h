@@ -26,14 +26,10 @@ namespace octet { namespace shaders {
     GLuint samplerIndex_;            // index for texture sampler
     GLuint colour_index_;            // Added: (1) Index to set a specific colour directly. Set at 3, used at 4.
     GLuint blend_mode_index_;
-    GLuint random_green_index_;
 
 
   public:
-    void init() {
-      // TODO enable a 2nd texture to drive the blend rather than a pure colour.
-      //GLuint mix_texture_ = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/clouds.gif");
-      
+    void init() { 
       // this is the vertex shader.
       // it is called for each corner of each triangle
       // it inputs pos and uv from each corner
@@ -58,7 +54,7 @@ namespace octet { namespace shaders {
         uniform sampler2D sampler;
         uniform vec4 colour_uniform;  // Added: (2) Uniform which holds tint colour.
         uniform int blend_mode;
-        uniform vec4 random_green;
+        uniform float random_green;
  
         // TODO Function to randomly assign green tones to each fragment randomly (and with reference to the greens around it?)
 
@@ -82,7 +78,10 @@ namespace octet { namespace shaders {
             }
             break;
           case 4:  // GRASS
-            return texture2D(sampler, uv_) * random_green;
+            //random_num = rand() % 0.7 - 0.5;
+            //random_green = { 0.4 * random_num, 0.5 * random_num, 0.2 * random_num, 1 };
+            random_green = 0.5;
+            return texture2D(sampler, uv_) *= vec4{ 1, random_green, 1, 1 };
             break;
           case 0:  // NORMAL (Fall through)
           default:
@@ -105,7 +104,6 @@ namespace octet { namespace shaders {
       samplerIndex_ = glGetUniformLocation(program(), "sampler");
       colour_index_ = glGetUniformLocation(program(), "colour_uniform");  // Added: (3) Set GLuint to relevant fragment shader uniform index.
       blend_mode_index_ = glGetUniformLocation(program(), "blend_mode");
-      random_green_index_ = glGetUniformLocation(program(), "random_green");
     }
 
     void render(const mat4t &modelToProjection,
@@ -115,15 +113,6 @@ namespace octet { namespace shaders {
     {
       // tell openGL to use the program
       shader::render();
-
-      if (blend_mode == GRASS) {
-        //std::default_random_engine generator;
-        //std::normal_distribution<float> distribution(0.3, 1.7);
-        //float random_num = distribution(generator);
-        float random_num = rand() % 2 - -1;
-        float random_green[4] = { 0.4 * random_num, 0.5 * random_num, 0.2 * random_num, 1 };
-        glUniform4fv(random_green_index_, 1, random_green);
-      }
 
       // customize the program with uniforms
       glUniform1i(samplerIndex_, sampler);

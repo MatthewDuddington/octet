@@ -6,6 +6,14 @@
 namespace octet {
 
   class Actor {
+  public: enum ActorType {
+      PLAYER,
+      GUARD
+    };
+
+
+  private:
+    ActorType actor_type_;
 
     sprite sprite_;
 
@@ -20,11 +28,8 @@ namespace octet {
     // Function Pointers
     void(*PlaySoundx)(SoundManager::Sounds sound);  // TODO Don't need this now?
 
+
   public:
-    enum ActorType {
-      PLAYER,
-      GUARD
-    };
 
     Actor() {
       actors_().push_back(*this);  // When actors are created, add them to the actors list. TODO This doesn't work right now? Is a duplicate being pushed into the vector?
@@ -55,9 +60,11 @@ namespace octet {
       int _texture;
       if (type == PLAYER) {
         _texture = player_texture;
+        actor_type_ = PLAYER;
       }
       else if (type == GUARD) {
         _texture = guard_texture;
+        actor_type_ = GUARD;
       }
       sprite_.init(_texture, x, y, w, h);
     }
@@ -74,22 +81,24 @@ namespace octet {
     }
 
     int Update() {
-      // Else ifs because player is not aloud to move diagonally.
-      if (app_common::is_key_down(key_W)) {
-        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
-        return MoveToCell(destination_cell);
-      }
-      else if (app_common::is_key_down(key_S)) {
-        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
-        return MoveToCell(destination_cell);
-      }
-      else if (app_common::is_key_down(key_A)) {
-        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
-        return MoveToCell(destination_cell);
-      }
-      else if (app_common::is_key_down(key_D)) {
-        MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
-        return MoveToCell(destination_cell);
+      // Else ifs because player is not allowed to move diagonally.
+      if (actor_type_ == PLAYER) {
+        if (app_common::is_key_down(key_W)) {
+          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
+          return MoveToCell(destination_cell);
+        }
+        else if (app_common::is_key_down(key_S)) {
+          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
+          return MoveToCell(destination_cell);
+        }
+        else if (app_common::is_key_down(key_A)) {
+          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
+          return MoveToCell(destination_cell);
+        }
+        else if (app_common::is_key_down(key_D)) {
+          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
+          return MoveToCell(destination_cell);
+        }
       }
       return 0;
     }

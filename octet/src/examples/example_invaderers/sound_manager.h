@@ -47,7 +47,7 @@ namespace octet {
 
     void Init() {
       // Add sound files to resource dictionary.
-      wrong = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
+      wrong = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/bang.wav");
 
       current_source = 0;
       alGenSources(NUM_SOUND_SOURCES, sources);
