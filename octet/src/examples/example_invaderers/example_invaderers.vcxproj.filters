@@ -448,6 +448,12 @@
     <ClInclude Include="actor.h">
       <Filter>Source Files\Greenlands</Filter>
     </ClInclude>
+    <ClInclude Include="sprite.h">
+      <Filter>Source Files\Greenlands</Filter>
+    </ClInclude>
+    <ClInclude Include="sound_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl">
@@ -461,7 +467,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\level.txt">
+    <Text Include="Resources\level2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\level1.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

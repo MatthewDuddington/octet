@@ -20,11 +20,19 @@
 namespace octet {
 
   class invaderers_app : public octet::app {
-   
+
+    bool waiting_for_input_ = false;
+
+    SoundManager sound_manager_;
     Level level_;
+    int number_of_levels_ = 2;
+    int current_level_num_ = 0;
+    Actor* player_;
 
     bool load_new_level = false;
-    bool game_over = false ;
+    bool game_over = false;
+    int input_wait = (int)(0.25f * 30); // Sec * FPS
+    int input_wait_counter = input_wait;
 
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
@@ -35,7 +43,7 @@ namespace octet {
 
     /*
     enum {
-      num_sound_sources = 8,
+      NUM_SOUND_SOURCES = 8,
       num_rows = 5,
       num_cols = 10,
       num_missiles = 2,
@@ -86,7 +94,7 @@ namespace octet {
     ALuint whoosh;
     ALuint bang;
     unsigned cur_source;
-    ALuint sources[num_sound_sources];
+    ALuint sources[NUM_SOUND_SOURCES];
 
     // big array of sprites
     sprite sprites[num_sprites]; // Cool so because the count starts at 0 the num_sprites adds 1 to the total by being present itself, so it actually represents the right total intrinsically!
@@ -100,7 +108,7 @@ namespace octet {
     // information for our text
     bitmap_font font;
 
-    ALuint get_sound_source() { return sources[cur_source++ % num_sound_sources]; }
+    ALuint get_sound_source() { return sources[cur_source++ % NUM_SOUND_SOURCES]; }
 
     // called when we hit an enemy
     void on_hit_invaderer() {
@@ -361,7 +369,10 @@ namespace octet {
     }
     */
 
+
   public:
+
+    // static key (* key_down) {}  // TODO function pointers to register awareness of button presses in other classes?
 
     // this is called when we construct the class
     invaderers_app(int argc, char **argv) : app(argc, argv) {//, font(512, 256, "assets/big.fnt") {
@@ -372,11 +383,21 @@ namespace octet {
       // set up the shader
       texture_shader_.init();
 
-      level_.LoadLevel(1);
+      // Create player and get pointer.
+      Actor::Actors().resize(15);
+      player_ = &Actor::Player();
+      player_->Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
+
+      // Load the opening level.
+      current_level_num_ = 1;
+      level_.LoadLevel(current_level_num_);
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
       cameraToWorld.translate(0, 0, 4);
+
+      // Start to accept player key-presses.
+      waiting_for_input_ = true;
 
       /*
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
@@ -424,7 +445,7 @@ namespace octet {
       whoosh = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/whoosh.wav");
       bang = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/bang.wav");
       cur_source = 0;
-      alGenSources(num_sound_sources, sources);
+      alGenSources(NUM_SOUND_SOURCES, sources);
 
       // sundry counters and game state.
       missiles_disabled = 0;
@@ -435,8 +456,10 @@ namespace octet {
       game_over = false;
       score = 0;
       */
+
     }
 
+    
     // called every frame to move things
     void simulate() {
       if (game_over) {
@@ -472,6 +495,40 @@ namespace octet {
         cameraToWorld.translate(0, 0, 4);
       }
 
+      if (waiting_for_input_) {
+        //for (int i = 0; i < Actor::Actors().size(); i++)
+        //Actor::GetActor(i).Update();
+        switch (player_->Update()) {  
+        case 1:  // A button has been pressed.
+          waiting_for_input_ = false;
+          input_wait_counter = input_wait;
+          break;
+        case 10:
+          if (current_level_num_ != number_of_levels_) {
+            waiting_for_input_ = false;
+            SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WIN);
+            current_level_num_++;
+            Level::CurrentLevel().LoadLevel(current_level_num_);
+            // Messy fix for player not reseting position of visual sprite.
+            //player_->MoveToCell(player_->OccupiedCell().GetAdjacentCell(NORTH));
+            //player_->MoveToCell(player_->OccupiedCell().GetAdjacentCell(SOUTH));
+            // TODO Why does the player sprite not reset to the new location before moving first time?
+          }
+          printf("GAME OVER!");
+          break;
+        default:
+          break;
+        }
+      }
+      else {
+        if (input_wait_counter > 0) {
+          input_wait_counter--;
+        }
+        else {
+          waiting_for_input_ = true;
+        }
+      }
+
     }
 
     // this is called to draw the world
@@ -493,9 +550,13 @@ namespace octet {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       // Draw the map
-      for (int i = 0; i != level_.size(); ++i) {
-        level_.LevelGrid().at(i).Sprite().render(texture_shader_, cameraToWorld);
+      level_.RenderMap(texture_shader_, cameraToWorld);
+      
+      // Draw actors
+      for (int i = 0; i < player_->Actors().size(); i++) {
+        player_->Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
       }
+      player_->GetSprite().render(texture_shader_, cameraToWorld);
 
       /*
       // draw all the sprites

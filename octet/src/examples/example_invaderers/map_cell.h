@@ -6,101 +6,121 @@
 namespace octet {
 
   class MapCell {
+  public: enum CellType {
+      START,
+      GOAL,
+      PATH,
+      WALL,
+      BUSH,
+      FENCE
+    };
 
-  public: static const enum CellType {
-    START,
-    GOAL,
-    PATH,
-    WALL,
-    BUSH,
-    FENCE
-  };
 
   private:
     sprite sprite_;
+    
     CellType cell_type_;
-
-    int cell_column_;
-    int cell_row_;
-
     const CellType passable_[3] = { PATH, START, GOAL };
 
-  public:
+    // Stores pointers to the adjacent North, South, East and West cells.
+    // Thanks to Jack Evans for the suggestion of storing these rather than recalcualting each time.
+    MapCell* adjacent_cells_[4] = { NULL, NULL, NULL, NULL };  
+    int my_index;
 
+    void SetupAdjacentCells(std::vector<MapCell>& level_grid,
+                            int level_grid_index,
+                            int level_width, int level_height,
+                            int cell_column, int cell_row)
+    {
+      my_index = level_grid_index;
+      if (cell_row > 0) {  // Cell in row above
+        adjacent_cells_[NORTH] = &level_grid[level_grid_index - level_width];
+      }
+      if (cell_column < level_width - 1) {  // Cell to the right
+        adjacent_cells_[EAST] = &level_grid[level_grid_index + 1];
+      } 
+      if (cell_row < level_height - 1) {  // Cell in row below
+        adjacent_cells_[SOUTH] = &level_grid[level_grid_index + level_width];
+      }
+      if (cell_column > 0) {  // Cell to the left
+        adjacent_cells_[WEST] = &level_grid[level_grid_index - 1];
+      }
+    }
+
+
+  public:
     MapCell() {
       cell_type_ = PATH;
     }
 
-    void Init(int _texture,
-              MapCell::CellType CellType,
+    // TODO The init is rather overloaded on function, consider splitting into separate inits or rather just get the MapCell init caller to reach in to the sprite's init function directly.
+    void Init(MapCell::CellType CellType,
+              std::vector<MapCell>& level_grid,
+              int level_grid_index,
+              int level_width, int level_height,
               int column, int row,
+              int _texture,
               float x, float y,
-              float w, float h) {
+              float w, float h)
+    {
       cell_type_ = CellType;
-      cell_column_ = column;
-      cell_row_ = row;
+      SetupAdjacentCells(level_grid, level_grid_index, level_width, level_height, column, row);
       sprite_.init(_texture, x, y, w, h);
     }
 
-    sprite& Sprite() {
+    sprite& GetSprite() {
       return sprite_;
     }
 
-    vec2 Coords() {
-      vec2 coords;
-      coords.x() = (float)cell_column_;
-      coords.y() = (float)cell_row_;
-      return coords;
-    }
-
-    bool IsPassable() {
+    // Returns true if this MapCell can be occupied by an actor.
+    bool IsWalkable() {
       if (cell_type_ == PATH  ||
           cell_type_ == START ||
-          cell_type_ == GOAL) {
+          cell_type_ == GOAL)
+      {
         return true;
       }
       return false;
     }
 
-    bool IsInLineWithMe(MapCell map_cell, sprite::Direction direction, int distance) {
-      if (direction % 2 == 0) {  // If direction is North or South
-        if (map_cell.Coords().x() == cell_column_) {  // Is cell in the same column as this
-          if (direction == sprite::NORTH &&
-              cell_row_ - map_cell.Coords().y() - distance <= 0) { // Is within the distance cells
-            return true;
-          } 
-          else if (map_cell.Coords().y() - cell_row_ - distance <= 0) {  // Assume direction == South
-            return true;
-          }
-          return false;  // Else
-        }
+    CellType GetType() {
+      return cell_type_;
+    }
+
+    // Returns True if the passed MapCell is located within the passed distance (number of cells to check each side) and direction.
+    bool IsInLineWithMe(MapCell& map_cell, Direction direction, int distance) {
+      MapCell* test_cell = this;
+      for (int i = 0; i < distance; i++) {
+        test_cell = &test_cell->GetAdjacentCell(direction);
       }
-      else {  // Assume direction == East or West
-        if (map_cell.Coords().y() == cell_row_) {  // Is cell in same row as this
-          if (direction == sprite::EAST &&
-              map_cell.Coords().x() - cell_column_ - distance <= 0) {
-            return true;
-          }
-          else if (cell_column_ - map_cell.Coords().x() - distance <= 0) {  // Assume direction == West
-            return true;
-          }
-          return false;  // Else
-        }
+      if (test_cell == &map_cell) {
+        printf("In line");
+        return true;
       }
+      printf("Not in line with me");
+      return false;
     }
 
     bool IsAdjacentToMe(MapCell map_cell) {
-      if (IsInLineWithMe(map_cell, sprite::NORTH, 1) ||
-          IsInLineWithMe(map_cell, sprite::EAST,  1) ||
-          IsInLineWithMe(map_cell, sprite::SOUTH, 1) ||
-          IsInLineWithMe(map_cell, sprite::WEST,  1)) {
+      if (IsInLineWithMe(map_cell, NORTH, 1) ||
+          IsInLineWithMe(map_cell, EAST,  1) ||
+          IsInLineWithMe(map_cell, SOUTH, 1) ||
+          IsInLineWithMe(map_cell, WEST,  1))
+      {
         return true;
       }
       return false;
     }
 
-    bool IsAdjacentToMe(MapCell map_cell, sprite::Direction direction) {
+    bool IsAdjacentToMe(MapCell map_cell, Direction direction) {
       return IsInLineWithMe(map_cell, direction, 1);
+    }
+
+    MapCell& GetAdjacentCell(Direction direction) {
+      if (adjacent_cells_[direction] == NULL) {
+        printf("asking for NULL cell pointer");
+      }
+      return *adjacent_cells_[direction];
     }
 
   };

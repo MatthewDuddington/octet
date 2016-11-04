@@ -221,6 +221,8 @@
     <ClInclude Include="level.h" />
     <ClInclude Include="level_file_handler.h" />
     <ClInclude Include="map_cell.h" />
+    <ClInclude Include="sound_manager.h" />
+    <ClInclude Include="sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\README.md" />
@@ -228,7 +230,8 @@
     <None Include="..\..\resources\resources.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\level.txt" />
+    <Text Include="Resources\level1.txt" />
+    <Text Include="Resources\level2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

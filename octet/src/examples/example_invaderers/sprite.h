@@ -1,5 +1,9 @@
 /*
-Moved from invaiderers_app
+Octet Framework (c) Andy Thomason 2012-2014.
+
+Extracted 'sprite' class from invaiderers_app.
+
+Additional and modified code (c) Matthew Duddington 2016.
 */
 
 #ifndef sprite_h
@@ -7,30 +11,45 @@ Moved from invaiderers_app
 
 namespace octet {
 
+    enum Direction { NORTH, EAST, SOUTH, WEST };  // Most appropriate place for this seems to be here as the sprite class holds the 'transform' functionality.
+
   class sprite {
-    // where is our sprite (overkill for a 2D game!)
-    mat4t modelToWorld;
+    mat4t modelToWorld;  // where is our sprite (overkill for a 2D game!)
+    float halfWidth;     // half the width of the sprite
+    float halfHeight;    // half the height of the sprite
+    int texture;         // what texture is on our sprite
+    bool enabled;        // true if this sprite is enabled.
 
-    // half the width of the sprite
-    float halfWidth;
+    // this is an array of the positions of the corners of the texture in 2D
+    float uvs[8] = {
+      0,  0,
+      1,  0,
+      1,  1,
+      0,  1,
+    };
 
-    // half the height of the sprite
-    float halfHeight;
+    int local_rotation_ = 0;
 
-    // what texture is on our sprite
-    int texture;
+    int animation_frame_counter = 0;  // Added: Keeps track of which frame of the currently playing animation the sequence is on.
 
-    // true if this sprite is enabled.
-    bool enabled;
+    // Added: Moves the uv rectangle to a new position on the texture.
+    void ChangeUVPosition(float lower_left_x, float lower_left_y) {
+      float offset_x = lower_left_x - uvs[0];
+      float offset_y = lower_left_y - uvs[1];
+      for (int i = 0; i < 8; i += 2) {
+        uvs[i] = uvs[i] + offset_x;
+        uvs[i + 1] = uvs[i + 1] + offset_y;
+      }
+    }
+
 
   public:
-    enum Direction { NORTH, EAST, SOUTH, WEST };
-    
     sprite() {
       texture = 0;
       enabled = true;
     }
 
+    // Testing out a summary.
     /// <summary>
     /// Initialises into the scene the texture represented by a GLuint from get_texture_handle.
     /// x and y floats set the starting coords and w and h floats specify the size on screen.
@@ -44,7 +63,11 @@ namespace octet {
       enabled = true;
     }
 
-    void render(texture_shader &shader, mat4t &cameraToWorld) {
+    void render(texture_shader &shader,
+                mat4t &cameraToWorld,
+                vec4 tint_colour = { 1, 1, 1, 1 },
+                texture_shader::BlendMode blend_mode = texture_shader::NORMAL)
+    {
       // invisible sprite... used for gameplay.
       if (!texture) return;
 
@@ -59,7 +82,7 @@ namespace octet {
       // use "old skool" rendering
       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
       //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      shader.render(modelToProjection, 0);
+      shader.render(modelToProjection, 0, tint_colour, blend_mode);
 
       // this is an array of the positions of the corners of the sprite in 3D
       // a straight "float" here means this array is being generated here at runtime.
@@ -75,14 +98,6 @@ namespace octet {
       // there is no gap between the 3 floats and hence the stride is 3*sizeof(float)
       glVertexAttribPointer(attribute_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)vertices);
       glEnableVertexAttribArray(attribute_pos);
-
-      // this is an array of the positions of the corners of the texture in 2D
-      static const float uvs[] = {
-        0,  0,
-        1,  0,
-        1,  1,
-        0,  1,
-      };
 
       // attribute_uv is position in the texture of each corner
       // each corner (vertex) has 2 floats (x, y)
@@ -109,14 +124,31 @@ namespace octet {
     }
 
     // Added: Rotate the object
-    void rotate(float z) {
-      modelToWorld.rotateZ(z);
+    void Rotate(int degrees_z) {
+      modelToWorld.rotateZ((float)degrees_z);
+      local_rotation_ += degrees_z;
+    }
+
+    void RotateTo(int degrees_z) {
+      Rotate(degrees_z - local_rotation_);
+    }
+
+    void SetLocalRotation(int degrees_z) {
+      int destination_local_rotation_ = degrees_z % 360;
+      RotateTo(destination_local_rotation_);
     }
 
     // position the object relative to another.
     void set_relative(sprite &rhs, float x, float y) {
       modelToWorld = rhs.modelToWorld;
       modelToWorld.translate(x, y, 0);
+      local_rotation_ = 0; 
+    }
+
+    void set_relative_pos(sprite &rhs, float x, float y) {
+      int temp_local_rotation = local_rotation_;
+      set_relative(rhs, x, y);
+      RotateTo(temp_local_rotation);  // Reapply any rotations after moving.
     }
 
     // return true if this sprite collides with another.
@@ -135,14 +167,32 @@ namespace octet {
 
     bool is_above(const sprite &rhs, float margin) const {
       float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
-
-      return
-        (fabsf(dx) < halfWidth + margin)
-        ;
+      return (fabsf(dx) < halfWidth + margin);
     }
 
     bool &is_enabled() {
       return enabled;
+    }
+
+    // Added:
+    enum AnimationName {
+      walk
+    };
+
+    // Added: 
+    int Animate(AnimationName animation_name) {  // TODO Replace with an 'Animation' class object which contains a series of steps to carry out enabling compound behaviours.
+      int number_of_frames;
+      vec2 sprite_size;
+      switch (animation_name)
+      {
+      case walk:
+        number_of_frames = 8;
+        sprite_size = (0.2f, 0.2f);
+        break;
+      default:
+        break;
+      }
+      ChangeUVPosition(sprite_size.x() * (1 + animation_frame_counter), sprite_size.y() * (1 + animation_frame_counter));
     }
   };
 

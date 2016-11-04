@@ -11,12 +11,15 @@
 
 #include <string>
 #include <vector>
+#include <memory>
+#include <random>
 
 #include "sprite.h"  // Andy's sprite class moved to its own header.
 
+#include "sound_manager.h"
 #include "map_cell.h"
-#include "actor.h"
 #include "level_file_handler.h"
+#include "actor.h"
 #include "level.h"
 
 #include "invaderers_app.h"
