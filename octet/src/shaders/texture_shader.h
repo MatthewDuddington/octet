@@ -78,7 +78,8 @@ namespace octet { namespace shaders {
             break;
           case 4:  // GRASS
             // Adapted from example at: http://glslsandbox.com/e#36439.0
-            // Thanks to Robert Doig for pointing me towards this.
+            // Thanks to Robert Doig for pointing me towards the above example.
+            // TODO Explain this to show understanding.
             colour_uniform.y = fract(sin(length(floor(gl_FragCoord.xy / 1.0)))*1e3);
             return texture2D(sampler, uv_) * colour_uniform;
             break;

@@ -467,7 +467,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\level.txt">
+    <Text Include="Resources\level2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\level1.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

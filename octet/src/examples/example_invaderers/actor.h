@@ -26,7 +26,7 @@ namespace octet {
     };
 
     // Function Pointers
-    void(*PlaySoundx)(SoundManager::Sounds sound);  // TODO Don't need this now?
+    void(*PlaySoundfx)(SoundManager::Sounds sound);  // TODO Don't need this now?
 
 
   public:
@@ -83,6 +83,9 @@ namespace octet {
     int Update() {
       // Else ifs because player is not allowed to move diagonally.
       if (actor_type_ == PLAYER) {
+        if (OccupiedCell().GetType() == MapCell::GOAL) {
+          return 10;
+        }
         if (app_common::is_key_down(key_W)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
           MoveToCell(destination_cell);
@@ -119,7 +122,7 @@ namespace octet {
         return 1;
       }
       else {
-        SoundManager::GameSound().PlaySoundx(SoundManager::SFX_WRONG);
+        SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WRONG);
         printf("Cant walk there.\n");
         return 0;
       }

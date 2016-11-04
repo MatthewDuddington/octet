@@ -27,7 +27,8 @@ namespace octet {
     MapCell* adjacent_cells_[4] = { NULL, NULL, NULL, NULL };  
     int my_index;
 
-    void SetupAdjacentCells(std::vector<MapCell>& level_grid, int level_grid_index,
+    void SetupAdjacentCells(std::vector<MapCell>& level_grid,
+                            int level_grid_index,
                             int level_width, int level_height,
                             int cell_column, int cell_row)
     {

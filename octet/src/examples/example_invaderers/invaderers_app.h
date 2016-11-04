@@ -25,6 +25,8 @@ namespace octet {
 
     SoundManager sound_manager_;
     Level level_;
+    int number_of_levels_ = 2;
+    int current_level_num_ = 0;
     Actor* player_;
 
     bool load_new_level = false;
@@ -387,7 +389,8 @@ namespace octet {
       player_->Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
 
       // Load the opening level.
-      level_.LoadLevel(1);
+      current_level_num_ = 1;
+      level_.LoadLevel(current_level_num_);
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
@@ -495,9 +498,26 @@ namespace octet {
       if (waiting_for_input_) {
         //for (int i = 0; i < Actor::Actors().size(); i++)
         //Actor::GetActor(i).Update();
-        if (player_->Update() == 1) {  // Returns 1 to indicate a valid player button has been pressed.
+        switch (player_->Update()) {  
+        case 1:  // A button has been pressed.
           waiting_for_input_ = false;
           input_wait_counter = input_wait;
+          break;
+        case 10:
+          if (current_level_num_ != number_of_levels_) {
+            waiting_for_input_ = false;
+            SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WIN);
+            current_level_num_++;
+            Level::CurrentLevel().LoadLevel(current_level_num_);
+            // Messy fix for player not reseting position of visual sprite.
+            //player_->MoveToCell(player_->OccupiedCell().GetAdjacentCell(NORTH));
+            //player_->MoveToCell(player_->OccupiedCell().GetAdjacentCell(SOUTH));
+            // TODO Why does the player sprite not reset to the new location before moving first time?
+          }
+          printf("GAME OVER!");
+          break;
+        default:
+          break;
         }
       }
       else {
@@ -530,9 +550,8 @@ namespace octet {
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
       // Draw the map
-      for (int i = 0; i < level_.Size(); ++i) {
-        level_.LevelGrid().at(i).GetSprite().render(texture_shader_, cameraToWorld, vec4{ 1,1,1,1 }, texture_shader::GRASS);
-      }
+      level_.RenderMap(texture_shader_, cameraToWorld);
+      
       // Draw actors
       for (int i = 0; i < player_->Actors().size(); i++) {
         player_->Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);

@@ -6,7 +6,7 @@
 namespace octet {
 
   class Level {
-    
+
     // static Level* current_level_ = NULL;
     // Can't define a static member var in a .h file, but without initialising the static pointer player_ it creates a compilation linking error (LNK2001).
     // In order to have static class variables, they need to be initialised, which can only be done in the .cpp file as you can't double declare in a header. As we're working with 'header only' I needed a workaround.
@@ -26,35 +26,32 @@ namespace octet {
     // std::string level_name = "Level name goes here";  // TODO extract level name from file and display onscreen.
 
     std::vector<MapCell> level_grid_;  // Stores grid of map sprites.
-
-    static sprite background;
-
+    sprite map_background_;
 
 
     // Construct the level map.
-    void BuildLevel() {
-   
+    void BuildLevel(std::string level_file_location = "Auto") {
+
       // Load map textures
-      GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/start.gif");
-      GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/goal.gif");
-      GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/path.gif");
-      GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/wall.gif");
-      GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/bush.gif");
-      GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/fence_vertical.gif");
-      GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA,
-      "assets/invaderers/fence_horizontal.gif");
-      
+      GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/start.gif");
+      GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/goal.gif");
+      //GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/path.gif");
+      GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/wall.gif");
+      GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush_t.gif");
+      GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical_t.gif");
+      GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal_t.gif");
+
       // Load level design and set level specific information.
-      
-      LevelFileHandler level_file_handler;  // Assistant module to read the level design file. 
-      level_file_handler.Init("Resources/level.txt", level_width_, level_height_);  // TODO add way to load level from int rather than hard coded address.
+
+      LevelFileHandler level_file_handler;  // Assistant module to read the level design file.
+      level_file_handler.Init(level_file_location, level_width_, level_height_);  // TODO add way to load level from int rather than hard coded address.
       level_grid_.resize(Size());  // Prepare level grid vector with the sizes calculated during level file buffering.
+
+      map_background_.init(0,
+        0.5f + ((float)-level_width_ * 0.5f) *0.5f,
+        -0.5f + ((float)-level_height_ * 0.5f) * -0.5f,
+        level_width_ - 0.5f,
+        level_height_ - 0.5f);
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for each cell
       for (int row = 0; row != level_height_; ++row) {            // For each row...
@@ -62,15 +59,15 @@ namespace octet {
         for (int column = 0; column != level_width_; ++column) {  // ...and each column in that row
           //printf("%s %d \n", "I loop ", column);  // DEBUG
 
-          int texture = path_texture;  // Switch will store the texture to be applied here
+          int texture = 0;  // Switch will store the texture to be applied here
           MapCell::CellType cell_type = MapCell::PATH;  // Switch will store enum type here
           float x_pos = 0.25f + ((float)column - level_width_ * 0.5f) * 0.5f;
           float y_pos = -0.25f + ((float)row - level_height_* 0.5f) * -0.5f;
-         
+
           // Check the level design file for the symbol that matches this cell's index and determine the texture and type. 
           int current_cell = column + (row * level_width_);  // Calculate index of current cell
           switch (level_file_handler.GetDesignSymbol(current_cell)) {
-          case '.':  // Path (already pointed to)
+          case '.':  // Path
             cell_type = MapCell::PATH;
             break;
           case 'x':  // fall through to
@@ -112,7 +109,7 @@ namespace octet {
             cell_type,     // Cell type identified above
             level_grid_,
             current_cell,  // Index of cell in grid
-            level_width_, level_height_,  
+            level_width_, level_height_,
             column, row,   // Level grid x and y coordinates
             texture,       // Texture image
             x_pos, y_pos,  // x and y positions of sprite
@@ -125,8 +122,10 @@ namespace octet {
 
     // Sets up the player in the given position.
     void SetupPlayer(float x_pos, float y_pos, int current_cell) {
-      Actor::Player().GetSprite().translate(x_pos, y_pos);
+      //Actor::Player().GetSprite().translate(x_pos, y_pos);
       Actor::Player().OccupiedCell(&level_grid_.at(current_cell));
+      Actor::Player().GetSprite().set_relative(level_grid_.at(current_cell-1).GetSprite(), 0.5f, 0); // Start is never in column 0 so this is safe to assume.
+      Actor::Player().GetSprite().SetLocalRotation(270);
     }
 
 
@@ -155,9 +154,22 @@ namespace octet {
     std::vector<MapCell>& LevelGrid() {
       return level_grid_;
     }
-    
-    void LoadLevel(int level_num) {  // TODO make argument load specific level from file.
+
+    void LoadLevel() {  // Builds procedural level.
       BuildLevel();
+    }
+
+    void LoadLevel(int level_num) {  // Builds level from .txt file design.
+      std::string level_file_location = "Resources/level" + std::to_string(level_num) + ".txt";  // Construct file path as string.
+      BuildLevel(level_file_location);
+    }
+
+
+    void RenderMap(texture_shader& texture_shader, mat4t cameraToWorld) {
+      map_background_.render(texture_shader, cameraToWorld, vec4{ 0.2f, 1, 0.4f, 1 }, texture_shader::GRASS);
+      for (int i = 0; i < Size(); ++i) {
+        LevelGrid().at(i).GetSprite().render(texture_shader, cameraToWorld);
+      }
     }
 
   };

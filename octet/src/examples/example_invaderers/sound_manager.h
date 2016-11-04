@@ -15,6 +15,7 @@ namespace octet {
 
   public: enum Sounds {
       SFX_WRONG,
+      SFX_WIN,
 
       NUM_SOUND_SOURCES
     };
@@ -40,7 +41,7 @@ namespace octet {
 
   public:
     SoundManager() {
-      sound_manager_ (this);
+      sound_manager_(this);
       GameSound().Init();
     }
 
@@ -51,12 +52,13 @@ namespace octet {
     void Init() {
       // Add sound files to resource dictionary.
       sound_ALuints[SFX_WRONG] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
+      sound_ALuints[SFX_WIN] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
 
       current_source = 0;
       alGenSources(NUM_SOUND_SOURCES, sources);
     }
 
-    void PlaySoundx(Sounds sound) {
+    void PlaySoundfx(Sounds sound) {  // Can't use PlaySound because of namespace clash.
       ALuint source = get_sound_source();
       alSourcei(source, AL_BUFFER, sound_ALuints[sound]);
       alSourcePlay(source);

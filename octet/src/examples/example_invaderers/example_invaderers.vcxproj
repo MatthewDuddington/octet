@@ -230,7 +230,8 @@
     <None Include="..\..\resources\resources.inl" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\level.txt" />
+    <Text Include="Resources\level1.txt" />
+    <Text Include="Resources\level2.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
