@@ -80,8 +80,11 @@ namespace octet { namespace shaders {
             // Adapted from example at: http://glslsandbox.com/e#36439.0
             // Thanks to Robert Doig for pointing me towards the above example.
             // TODO Explain this to show understanding.
-            colour_uniform.y = fract(sin(length(floor(gl_FragCoord.xy / 1.0)))*1e3);
-            return texture2D(sampler, uv_) * colour_uniform;
+            float fract_num_a = fract(sin(length(floor(gl_FragCoord.xy / 1.0)))*1e6);
+            float fract_num_b = fract(sin(length(floor(gl_FragCoord.xy / 1.5)))*1e5);
+            colour_uniform = (colour_uniform * fract_num_a) + (colour_uniform / 2 * fract_num_b);
+            colour_uniform.w = 1;
+            return colour_uniform;
             break;
           case 0:  // NORMAL (Fall through)
           default:

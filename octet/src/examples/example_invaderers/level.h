@@ -24,6 +24,7 @@ namespace octet {
     int level_width_ = 0;
     int level_height_ = 0;
     // std::string level_name = "Level name goes here";  // TODO extract level name from file and display onscreen.
+    float cell_size_ = 0.5f;
 
     std::vector<MapCell> level_grid_;  // Stores grid of map sprites.
     sprite map_background_;
@@ -47,11 +48,8 @@ namespace octet {
       level_file_handler.Init(level_file_location, level_width_, level_height_);  // TODO add way to load level from int rather than hard coded address.
       level_grid_.resize(Size());  // Prepare level grid vector with the sizes calculated during level file buffering.
 
-      map_background_.init(0,
-        0.5f + ((float)-level_width_ * 0.5f) *0.5f,
-        -0.5f + ((float)-level_height_ * 0.5f) * -0.5f,
-        level_width_ - 0.5f,
-        level_height_ - 0.5f);
+      // Create a big background tile for the grass.
+      map_background_.init(wall_texture, 0, 0, (level_width_ / 2) + cell_size_, (level_height_ / 2) + cell_size_);
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for each cell
       for (int row = 0; row != level_height_; ++row) {            // For each row...
@@ -61,8 +59,8 @@ namespace octet {
 
           int texture = 0;  // Switch will store the texture to be applied here
           MapCell::CellType cell_type = MapCell::PATH;  // Switch will store enum type here
-          float x_pos = 0.25f + ((float)column - level_width_ * 0.5f) * 0.5f;
-          float y_pos = -0.25f + ((float)row - level_height_* 0.5f) * -0.5f;
+          float x_pos = 0.25f + ((float)column - level_width_ * cell_size_) * 0.5f;
+          float y_pos = -0.25f + ((float)row - level_height_* cell_size_) * -0.5f;
 
           // Check the level design file for the symbol that matches this cell's index and determine the texture and type. 
           int current_cell = column + (row * level_width_);  // Calculate index of current cell
@@ -113,7 +111,7 @@ namespace octet {
             column, row,   // Level grid x and y coordinates
             texture,       // Texture image
             x_pos, y_pos,  // x and y positions of sprite
-            0.5f, 0.5f);   // Width and height of sprite
+            cell_size_, cell_size_);   // Width and height of sprite
 
           // Loop until map filled.
         }
@@ -124,7 +122,7 @@ namespace octet {
     void SetupPlayer(float x_pos, float y_pos, int current_cell) {
       //Actor::Player().GetSprite().translate(x_pos, y_pos);
       Actor::Player().OccupiedCell(&level_grid_.at(current_cell));
-      Actor::Player().GetSprite().set_relative(level_grid_.at(current_cell-1).GetSprite(), 0.5f, 0); // Start is never in column 0 so this is safe to assume.
+      Actor::Player().GetSprite().set_relative(level_grid_.at(current_cell-1).GetSprite(), cell_size_, 0); // Because current cell hasn't been initialised with its position yet, need to offset from previous cell. 'Start' type cell is never in column 0 so it is safe to assume previous index cell is always to the left.
       Actor::Player().GetSprite().SetLocalRotation(270);
     }
 
@@ -164,9 +162,8 @@ namespace octet {
       BuildLevel(level_file_location);
     }
 
-
     void RenderMap(texture_shader& texture_shader, mat4t cameraToWorld) {
-      map_background_.render(texture_shader, cameraToWorld, vec4{ 0.2f, 1, 0.4f, 1 }, texture_shader::GRASS);
+      map_background_.render(texture_shader, cameraToWorld, vec4{ 0.6f, 0.9f, 0.4f, 1 }, texture_shader::GRASS);
       for (int i = 0; i < Size(); ++i) {
         LevelGrid().at(i).GetSprite().render(texture_shader, cameraToWorld);
       }

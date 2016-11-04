@@ -7,13 +7,13 @@ namespace octet {
 
   class MapCell {
   public: enum CellType {
-    START,
-    GOAL,
-    PATH,
-    WALL,
-    BUSH,
-    FENCE
-  };
+      START,
+      GOAL,
+      PATH,
+      WALL,
+      BUSH,
+      FENCE
+    };
 
 
   private:
