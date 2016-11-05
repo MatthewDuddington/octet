@@ -21,17 +21,25 @@ namespace octet {
 
   class invaderers_app : public octet::app {
 
+    enum GameState {
+      MENU,
+      GAME
+    };
+
+    int fps_ = 30;  // Assuming 30fps?
+    unsigned long frames_since_start_ = 0;  // Used for timing
+
     bool waiting_for_input_ = false;
 
     SoundManager sound_manager_;
     Level level_;
-    int number_of_levels_ = 2;
+    int number_of_levels_ = 3;  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
     int current_level_num_ = 0;
     Actor* player_;
 
     bool load_new_level = false;
     bool game_over = false;
-    int input_wait = (int)(0.25f * 30); // Sec * FPS
+    int input_wait = (int)(0.25f * fps_); // Sec * FPS to nearest frame
     int input_wait_counter = input_wait;
 
     // Matrix to transform points in our camera space to the world.
@@ -394,7 +402,7 @@ namespace octet {
 
       // set up the matrices with a camera 5 units from the origin
       cameraToWorld.loadIdentity();
-      cameraToWorld.translate(0, 0, 4);
+      ResetCamera();
 
       // Start to accept player key-presses.
       waiting_for_input_ = true;
@@ -459,6 +467,50 @@ namespace octet {
 
     }
 
+    const unsigned long& FrameTime() {
+      return frames_since_start_;
+    }
+
+    void TransformCamera(float x = 0, float y = 0, int z = 0) {
+      cameraToWorld.translate(x, y, (float)z);
+    }
+
+    // Used for repositioning for each level size
+    void ResetCamera() {
+      int current_z = (int)cameraToWorld[3][2];
+      TransformCamera(0, 0, ((int)level_.LargestSideSize() / 3)-current_z);
+    }
+
+    void SlideCameraToPlayer() {
+      for (int i = 0; i < 2; i++) {
+        float camera_pos = cameraToWorld[3][i];
+        float player_pos = player_->GetSprite().ModelToWorld()[3][i];
+        float difference_in_pos = camera_pos - player_pos;
+        if (difference_in_pos > 0.5f || difference_in_pos < -0.5f) {
+          switch (i) {
+          case 0:
+            TransformCamera(-difference_in_pos / (fps_ * 2), 0, 0);
+            break;
+          case 1:
+            TransformCamera(0, -difference_in_pos / (fps_ * 2), 0);
+            break;
+          }
+        }
+      }
+      /*
+      float time = 1;
+      float x = Lerp(cameraToWorld[3][0], player_->GetSprite().ModelToWorld()[3][0], time);
+      float y = Lerp(cameraToWorld[3][1], player_->GetSprite().ModelToWorld()[3][1], time);
+      TransformCamera(x, y, 0);
+      */
+    }
+
+    // Returns the value some distance between start and end.
+    float Lerp(float start, float end, float distance) {
+      // General format for Linear Interpolation from:
+      // http://answers.unity3d.com/questions/533465/explanation-of-lerp.html
+      return (1 - distance) * start + distance * end;
+    }
     
     // called every frame to move things
     void simulate() {
@@ -490,44 +542,39 @@ namespace octet {
       }
       */
 
-      if (load_new_level == true) {
-        level_.LoadLevel(1);
-        cameraToWorld.translate(0, 0, 4);
-      }
-
       if (waiting_for_input_) {
         //for (int i = 0; i < Actor::Actors().size(); i++)
         //Actor::GetActor(i).Update();
-        switch (player_->Update()) {  
-        case 1:  // A button has been pressed.
-          waiting_for_input_ = false;
-          input_wait_counter = input_wait;
-          break;
-        case 10:
+        int player_update_return = player_->Update();
+        if (player_update_return < 4) {     // A button has been pressed.
+          waiting_for_input_ = false;       // Stop listening for input.
+          input_wait_counter = input_wait;  // Reset wait counter.
+          // Move camera to centre on players new location. TODO Make this smoothly stepped.
+          //if (player_update_return == NORTH) { TransformCamera(0, level_.CellSize(), 0); }
+          //else if (player_update_return == SOUTH) { TransformCamera(0, -level_.CellSize(), 0); }
+          //else if (player_update_return == EAST) { TransformCamera(level_.CellSize(), 0, 0); }
+          //else if (player_update_return == WEST) { TransformCamera(-level_.CellSize(), 0, 0); }
+        }
+        else if (player_update_return == 10) {
           if (current_level_num_ != number_of_levels_) {
-            waiting_for_input_ = false;
             SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WIN);
             current_level_num_++;
             Level::CurrentLevel().LoadLevel(current_level_num_);
-            // Messy fix for player not reseting position of visual sprite.
-            //player_->MoveToCell(player_->OccupiedCell().GetAdjacentCell(NORTH));
-            //player_->MoveToCell(player_->OccupiedCell().GetAdjacentCell(SOUTH));
-            // TODO Why does the player sprite not reset to the new location before moving first time?
+            //ResetCamera();
           }
-          printf("GAME OVER!");
-          break;
-        default:
-          break;
+          else { printf("GAME OVER!"); }
         }
       }
-      else {
+      else {  // Ignore input while counting down wait time.
         if (input_wait_counter > 0) {
           input_wait_counter--;
         }
-        else {
+        else {  // Once time is over, start listing for input again.
           waiting_for_input_ = true;
         }
       }
+
+      SlideCameraToPlayer();
 
     }
 
@@ -572,6 +619,8 @@ namespace octet {
       // move the listener with the camera
       vec4 &cpos = cameraToWorld.w();
       alListener3f(AL_POSITION, cpos.x(), cpos.y(), cpos.z());
+
+      frames_since_start_++; // Increment frame counter;
     }
   };
 }

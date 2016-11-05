@@ -1,0 +1,14 @@
+xxxxxxxxxxxxxxxxxxxx
+I.S.xxx............x
+x...xxx..bb........x
+x....b.......xxxx..x
+xxx.......b..xxxx..x
+xxxb.bb......xxxx..x
+xxx.b........xxb...x
+x.....xxxxxxxxxbbbbx
+x.....xxxxxxxxx....I
+x..b.bxxx.........GI
+x.....xxx..........I
+xb..b.xxx....bb....x
+x............bb....x
+xxxxxxxxxxxxxxxxxxxx

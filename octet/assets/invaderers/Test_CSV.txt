@@ -1,4 +1,0 @@
-Name;Occupation;Age;
-Fred;Doctor;35;
-Simon;Socerer;28;
-Becky;MassiveTD;27

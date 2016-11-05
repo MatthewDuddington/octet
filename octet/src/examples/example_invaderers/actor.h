@@ -90,28 +90,28 @@ namespace octet {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
           MoveToCell(destination_cell);
           GetSprite().SetLocalRotation(90);
-          return 1;
+          return NORTH;
         }
         else if (app_common::is_key_down(key_S)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
           MoveToCell(destination_cell);
           GetSprite().SetLocalRotation(270);
-          return 1;
+          return SOUTH;
         }
         else if (app_common::is_key_down(key_A)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
           MoveToCell(destination_cell);
           GetSprite().SetLocalRotation(180);
-          return 1;
+          return WEST;
         }
         else if (app_common::is_key_down(key_D)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
           MoveToCell(destination_cell);
           GetSprite().SetLocalRotation(0);
-          return 1;
+          return EAST;
         }
       }
-      return 0;
+      return 4;
     }
 
     // Moves the actor to the new cell, so long as cell is walkable.

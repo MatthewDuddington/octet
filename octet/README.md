@@ -1,4 +1,5 @@
-# Introduction to Programming 2016 - Assignment 1 - Matthew Duddington
+# Introduction to Programming 2016 - Assignment 1  
+# Matthew Duddington
 
 --------------------------------------------------------------------------------
 
@@ -13,8 +14,8 @@ Structure / Approach:
   Reading of level design files (see File Reading below) - level_file_handler.h  
   Core maintenance functionality and master loop remain in invaderers_app.h  
 
-  - Extracted sprite class and sound functionality into separate modules.  
-    (sprite.h and sound_manager.h respectively)
+  - Extracted existing sprite class and sound functionality into separate
+    modules (sprite.h and sound_manager.h respectively) and expanded upon these.
 
 - Relatively frequent use of 'static' variables and functions, often including
   pointers, to enable cross module access and more encapsulated responsibility.  
@@ -36,7 +37,7 @@ Structure / Approach:
   inadvertently breaking non-obvious calls.  
   (Thus, I apologise for the resultant mixed formatting in some modules!)
 
-  - Similarly, I diverge with teh Google style where I have multiple long
+  - Similarly, I diverge with the Google style where I have multiple long
     parameters or arguments. I split these to new lines and carry the opening
     brace, as this makes it clearer for me to read back.  
     (Rule #1 - readability and clarity is king)
@@ -47,7 +48,7 @@ Gameplay:
   directions within a grid based level.  
   (Using W,A,S,D key paradigm)
 
-- Successfully navigating to a 'goal' point activates the next level.
+- Successfully navigating to a 'goal' type map cell activates the next level.
 
 - Walls, bushes, fences etc. cannot be passed through (via cell identity
   checking rather than collision detection) and so a path must be found through
@@ -225,15 +226,25 @@ Door & Switch Ideas:
 
 **|| Additional discoveries worth remembering ||**
 
-- Static class member variables must be initialised with a value (otherwise Visual Studio returns a generic compilation linking error (LNK2001) pointing to line 1). However, such variables cannot be initialised in a header, which causes a problem for Header Only C++ methodology.  
+- Static class member variables must be initialised with a value (otherwise 
+  Visual Studio returns a generic compilation linking error (LNK2001 pointing to
+  line 1). However, such variables cannot be initialised in a header, which
+  causes a problem for Header Only C++ methodology.  
   http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf  
   http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header  
-  One solution is to create a static function which contains a static variable of the type desired - as the variable can be declared and initialised at the same time within function scope.
+  One solution is to create a static function which contains a static variable
+  of the type desired - as the variable can be declared and initialised at the
+  same time within function scope.
 
-- Shaders don't appear to allow all C++ code to run inside them in the same way as conventional .h files (Declaration order matters more so. Also it cannot read class member variables outside the scope of the shader structure - hence some of the reason for the multi-step declaration and setting of uniforms).  
+- Shaders don't appear to allow all C++ code to run inside them in the same way 
+  as conventional .h files (Declaration order matters more so. Also it cannot 
+  read class member variables outside the scope of the shader structure - hence 
+  some of the reason for the multi-step declaration and setting of uniforms).  
   An invalid result creates a white square only.
 
-- Resources (such as textures and sounds) must be loaded to the resource dictionary within a function and cannot simply be kept as class members otherwise an out of range error occurs during runtime.
+- Resources (such as textures and sounds) must be loaded to the resource 
+  dictionary within a function and cannot simply be kept as class members 
+  otherwise an out of range error occurs during runtime.
 
 --------------------------------------------------------------------------------
 
@@ -241,12 +252,20 @@ Door & Switch Ideas:
 
 Basis for textures:  
 (all applicable licences permit reuse and modification)  
-Grass 512x512 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/  
-Concrete 509x512 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/  
-Wire mesh https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/  
-Bush http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html  
-Clouds (unused) https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/  
+Grass 512x512  
+https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/  
+Concrete 509x512  
+https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/  
+Wire mesh  
+https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/  
+Bush  
+http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html  
+Clouds (unused)  
+https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/  
 
 Sounds:  
 (all applicable licences permit reuse and modification)  
-Sfx_Wrong https://www.freesound.org/people/Isaac200000/sounds/188013/  
+Sfx_Wrong  
+https://www.freesound.org/people/Isaac200000/sounds/188013/  
+Sfx_Win
+

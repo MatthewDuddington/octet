@@ -151,6 +151,10 @@ namespace octet {
       RotateTo(temp_local_rotation);  // Reapply any rotations after moving.
     }
 
+    const mat4t& ModelToWorld() {
+      return modelToWorld;
+    }
+
     // return true if this sprite collides with another.
     // note the "const"s which say we do not modify either sprite
     bool collides_with(const sprite &rhs) const {

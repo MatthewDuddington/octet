@@ -141,16 +141,24 @@ namespace octet {
       return level_width_ * level_height_;
     }
 
-    const int Width() {
+    const int& Width() {
       return level_width_;
     }
 
-    const int Height() {
+    const int& Height() {
       return level_height_;
+    }
+
+    const int LargestSideSize() {
+      return level_width_ > level_height_ ? level_width_ : level_height_;
     }
 
     std::vector<MapCell>& LevelGrid() {
       return level_grid_;
+    }
+
+    const float& CellSize() {
+      return cell_size_;
     }
 
     void LoadLevel() {  // Builds procedural level.
