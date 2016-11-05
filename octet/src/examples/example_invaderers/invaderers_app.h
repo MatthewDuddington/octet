@@ -1,20 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// (C) Andy Thomason 2012-2014
+//  (C) Andy Thomason 2012-2014
 //
-// Modular Framework for OpenGLES2 rendering on multiple platforms.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
-// invaderer example: simple game with sprites and sounds
+//  invaderer example: simple game with sprites and sounds
 //
-// Level: 1
-//
-// Demonstrates:
-//   Basic framework app
-//   Shaders
-//   Basic Matrices
-//   Simple game mechanics
-//   Texture loaded from GIF file
-//   Audio
+//  Additional code and modifications (c) Matthew Duddington 2016.
 //
 
 namespace octet {
@@ -23,22 +15,37 @@ namespace octet {
 
     enum GameState {
       MENU,
-      GAME
+      GAME,
+      GAME_OVER
     };
+
+    GameState game_state_ = MENU;
+
+    enum CameraMode {
+      ZOOM_TO_MAP,
+      JUMP_TO_PLAYER,
+      SLIDE_TO_PLAYER
+    };
+
+    CameraMode camera_mode_ = ZOOM_TO_MAP;
+
+    enum LevelGenMode {
+      TEXT_FILES,
+      FLOOD_FILL
+    };
+
+    LevelGenMode level_gen_mode_ = TEXT_FILES;
 
     int fps_ = 30;  // Assuming 30fps?
     unsigned long frames_since_start_ = 0;  // Used for timing
 
-    bool waiting_for_input_ = false;
-
     SoundManager sound_manager_;
     Level level_;
-    int number_of_levels_ = 3;  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
+    int number_of_levels_ = 4;  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
     int current_level_num_ = 0;
-    Actor* player_;
 
-    bool load_new_level = false;
     bool game_over = false;
+    bool waiting_for_input_ = false;
     int input_wait = (int)(0.25f * fps_); // Sec * FPS to nearest frame
     int input_wait_counter = input_wait;
 
@@ -48,6 +55,8 @@ namespace octet {
 
     // shader to draw a textured triangle
     texture_shader texture_shader_;
+
+    float current_camera_z_ = 1;
 
     /*
     enum {
@@ -379,9 +388,6 @@ namespace octet {
 
 
   public:
-
-    // static key (* key_down) {}  // TODO function pointers to register awareness of button presses in other classes?
-
     // this is called when we construct the class
     invaderers_app(int argc, char **argv) : app(argc, argv) {//, font(512, 256, "assets/big.fnt") {
     }
@@ -391,21 +397,11 @@ namespace octet {
       // set up the shader
       texture_shader_.init();
 
-      // Create player and get pointer.
-      Actor::Actors().resize(15);
-      player_ = &Actor::Player();
-      player_->Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
-
-      // Load the opening level.
-      current_level_num_ = 1;
-      level_.LoadLevel(current_level_num_);
-
-      // set up the matrices with a camera 5 units from the origin
+      // set up the matrices
       cameraToWorld.loadIdentity();
-      ResetCamera();
 
-      // Start to accept player key-presses.
-      waiting_for_input_ = true;
+      // Setup camera for menu.
+      TransformCamera(0, 0, current_camera_z_);
 
       /*
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
@@ -471,50 +467,111 @@ namespace octet {
       return frames_since_start_;
     }
 
-    void TransformCamera(float x = 0, float y = 0, int z = 0) {
-      cameraToWorld.translate(x, y, (float)z);
+    void TransformCamera(float x = 0, float y = 0, float z = 0) {
+      cameraToWorld.translate(x, y, z);
     }
 
     // Used for repositioning for each level size
-    void ResetCamera() {
-      int current_z = (int)cameraToWorld[3][2];
-      TransformCamera(0, 0, ((int)level_.LargestSideSize() / 3)-current_z);
+    void ZoomCameraToMap() {
+      TransformCamera(0, 0, -current_camera_z_);
+      current_camera_z_ = Level::CurrentLevel().LongestSideSize() / 4.0f;  //  Fits the camera to the edges of the longest level edge.
+      TransformCamera(0, 0, current_camera_z_);
     }
 
+    void CentreCameraOnPlayer() {
+      cameraToWorld = Actor::Player().GetSprite().ModelToWorld();
+      cameraToWorld.rotateZ((float)-Actor::Player().GetSprite().LocalRotation());  // Reset the rotation after copying the player transform matrix.
+      TransformCamera(0, -Level::CurrentLevel().CellSize(), current_camera_z_);  // Feels more comfortable offset by one cell higher than centre.
+    }
+
+    // Gradually moves the camera towards the players position minus a offset.
+    // TODO This seems needlessly complicated, review the maths.
     void SlideCameraToPlayer() {
+      float new_x_pos = 0;
+      float new_y_pos = 0;
+      bool should_move = false;
       for (int i = 0; i < 2; i++) {
         float camera_pos = cameraToWorld[3][i];
-        float player_pos = player_->GetSprite().ModelToWorld()[3][i];
+        float player_pos = Actor::Player().GetSprite().ModelToWorld()[3][i];
         float difference_in_pos = camera_pos - player_pos;
-        if (difference_in_pos > 0.5f || difference_in_pos < -0.5f) {
+        if (difference_in_pos > 0.5f || difference_in_pos < -0.5f || should_move == true) {
           switch (i) {
           case 0:
-            TransformCamera(-difference_in_pos / (fps_ * 2), 0, 0);
+            should_move = true;
+            new_x_pos = difference_in_pos / (fps_ * 2);
             break;
           case 1:
-            TransformCamera(0, -difference_in_pos / (fps_ * 2), 0);
+            should_move = true;
+            new_y_pos = Lerp(0, difference_in_pos, 0.5f / fps_);
             break;
           }
         }
       }
-      /*
-      float time = 1;
-      float x = Lerp(cameraToWorld[3][0], player_->GetSprite().ModelToWorld()[3][0], time);
-      float y = Lerp(cameraToWorld[3][1], player_->GetSprite().ModelToWorld()[3][1], time);
-      TransformCamera(x, y, 0);
-      */
+      if (should_move) {
+        TransformCamera(-new_x_pos, -new_y_pos, 0);
+      }
     }
 
-    // Returns the value some distance between start and end.
-    float Lerp(float start, float end, float distance) {
+    // Returns the y position on the line between start and end.
+    float Lerp(float y_pos_start, float y_pos_end, float t) {
       // General format for Linear Interpolation from:
       // http://answers.unity3d.com/questions/533465/explanation-of-lerp.html
-      return (1 - distance) * start + distance * end;
+      return (1 - t) * y_pos_start + t * y_pos_end;
     }
     
     // called every frame to move things
     void simulate() {
-      if (game_over) {
+      if (game_state_ == MENU) {
+        bool start_game = false;
+
+        // Check for camera option choice.
+        if (is_key_down(key::key_f1)) {
+          camera_mode_ = ZOOM_TO_MAP;
+        }
+        else if (is_key_down(key::key_f2)) {
+          camera_mode_ = JUMP_TO_PLAYER;
+        }
+        else if (is_key_down(key::key_f3)) {
+          camera_mode_ = SLIDE_TO_PLAYER;
+        }
+
+        // Check for fixed worlds or procedural
+        if (is_key_down(key::key_f5)) {
+          level_gen_mode_ = TEXT_FILES;
+        }
+        else if (is_key_down(key::key_f5)) {
+          level_gen_mode_ = FLOOD_FILL;
+        }
+
+        // Check for starting the game.
+        if (is_key_down(key::key_space)) {
+          start_game = true;
+        }
+
+        if (start_game) {
+          // Create player and get pointer.
+          Actor::Actors().resize(15);
+          Actor::Player().Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
+
+          // Load the opening level.
+          current_level_num_ = 1;
+          Level::CurrentLevel().LoadLevel(current_level_num_);
+
+          // Setup the default zoom level based on first level;
+          ZoomCameraToMap();
+          if (camera_mode_ != ZOOM_TO_MAP) {
+            CentreCameraOnPlayer();
+          }
+
+          // Start to listen for player game key-presses.
+          waiting_for_input_ = true;
+
+          // Start the game on next loop.
+          game_state_ = GAME;
+        }
+        return;
+      }
+      else if (game_state_ == GAME_OVER) {
         return;
       }
 
@@ -543,26 +600,39 @@ namespace octet {
       */
 
       if (waiting_for_input_) {
-        //for (int i = 0; i < Actor::Actors().size(); i++)
-        //Actor::GetActor(i).Update();
-        int player_update_return = player_->Update();
+        // Check player's decisions first.
+        int player_update_return = Actor::Player().Update();
         if (player_update_return < 4) {     // A button has been pressed.
+         
           waiting_for_input_ = false;       // Stop listening for input.
           input_wait_counter = input_wait;  // Reset wait counter.
-          // Move camera to centre on players new location. TODO Make this smoothly stepped.
-          //if (player_update_return == NORTH) { TransformCamera(0, level_.CellSize(), 0); }
-          //else if (player_update_return == SOUTH) { TransformCamera(0, -level_.CellSize(), 0); }
-          //else if (player_update_return == EAST) { TransformCamera(level_.CellSize(), 0, 0); }
-          //else if (player_update_return == WEST) { TransformCamera(-level_.CellSize(), 0, 0); }
+
+          // Update camera if nececery.
+          if (camera_mode_ == JUMP_TO_PLAYER) {
+            CentreCameraOnPlayer();
+          }
         }
         else if (player_update_return == 10) {
           if (current_level_num_ != number_of_levels_) {
             SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WIN);
             current_level_num_++;
-            Level::CurrentLevel().LoadLevel(current_level_num_);
-            //ResetCamera();
+            if (level_gen_mode_ == FLOOD_FILL) {
+              Level::CurrentLevel().LoadLevel();
+            }
+            else {
+              Level::CurrentLevel().LoadLevel(current_level_num_);
+            }
+            if (camera_mode_ == ZOOM_TO_MAP) {
+              ZoomCameraToMap();
+            }
+            else {
+              CentreCameraOnPlayer();
+            }
           }
-          else { printf("GAME OVER!"); }
+          else { 
+            printf("You Win!");
+            game_over = true; 
+          }
         }
       }
       else {  // Ignore input while counting down wait time.
@@ -574,8 +644,15 @@ namespace octet {
         }
       }
 
-      SlideCameraToPlayer();
+      // Check Guards' decisions.
+      //for (int i = 1; i < Actor::Actors().size(); i++) {
+      //  Actor::GetActor(i).Update();
+      //}
 
+      // Update camera if nececery.
+      if (camera_mode_ == SLIDE_TO_PLAYER) {
+        SlideCameraToPlayer();
+      }
     }
 
     // this is called to draw the world
@@ -596,14 +673,16 @@ namespace octet {
       glEnable(GL_BLEND);
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-      // Draw the map
-      level_.RenderMap(texture_shader_, cameraToWorld);
+      if (game_state_ == GAME) {
+        // Draw the map
+        Level::CurrentLevel().RenderMap(texture_shader_, cameraToWorld);
       
-      // Draw actors
-      for (int i = 0; i < player_->Actors().size(); i++) {
-        player_->Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
+        // Draw actors
+        for (int i = 0; i < Actor::Actors().size(); i++) {
+          Actor::Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
+        }
+        Actor::Player().GetSprite().render(texture_shader_, cameraToWorld);
       }
-      player_->GetSprite().render(texture_shader_, cameraToWorld);
 
       /*
       // draw all the sprites

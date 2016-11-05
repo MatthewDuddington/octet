@@ -1,4 +1,10 @@
-#pragma once
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Octet Framework (c) Andy Thomason 2012-2014.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
+//
+//  (c) Matthew Duddington 2016.
+//
 
 #ifndef map_cell_h
 #define map_cell_h
@@ -94,10 +100,10 @@ namespace octet {
         test_cell = &test_cell->GetAdjacentCell(direction);
       }
       if (test_cell == &map_cell) {
-        printf("In line");
+        printf("In line. \n");
         return true;
       }
-      printf("Not in line with me");
+      printf("Not in line with me. \n");
       return false;
     }
 
@@ -118,7 +124,7 @@ namespace octet {
 
     MapCell& GetAdjacentCell(Direction direction) {
       if (adjacent_cells_[direction] == NULL) {
-        printf("asking for NULL cell pointer");
+        printf("Asking for NULL cell pointer. \n");
       }
       return *adjacent_cells_[direction];
     }

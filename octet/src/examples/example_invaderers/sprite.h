@@ -1,17 +1,31 @@
-/*
-Octet Framework (c) Andy Thomason 2012-2014.
-
-Extracted 'sprite' class from invaiderers_app.
-
-Additional and modified code (c) Matthew Duddington 2016.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Octet Framework (c) Andy Thomason 2012-2014.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
+// 
+//  Extracted 'sprite' class from example invaiderers_app.
+//
+//  Additional code and modifications (c) Matthew Duddington 2016.
+//
 
 #ifndef sprite_h
 #define sprite_h
 
 namespace octet {
 
-    enum Direction { NORTH, EAST, SOUTH, WEST };  // Most appropriate place for this seems to be here as the sprite class holds the 'transform' functionality.
+  enum Direction {
+      // Suitible for indexes
+      NORTH,
+      EAST,
+      SOUTH,
+      WEST,
+
+      // Suitable for degree rotation values
+      R_EAST = 0,
+      R_NORTH = 90,
+      R_WEST = 180,
+      R_SOUTH = 270
+    };  
 
   class sprite {
     mat4t modelToWorld;  // where is our sprite (overkill for a 2D game!)
@@ -129,13 +143,12 @@ namespace octet {
       local_rotation_ += degrees_z;
     }
 
-    void RotateTo(int degrees_z) {
-      Rotate(degrees_z - local_rotation_);
-    }
-
-    void SetLocalRotation(int degrees_z) {
-      int destination_local_rotation_ = degrees_z % 360;
-      RotateTo(destination_local_rotation_);
+    int LocalRotation(int degrees_z = -10) {
+      if (degrees_z != -10) {
+        int destination_local_rotation_ = degrees_z % 360;
+        Rotate(destination_local_rotation_ - local_rotation_);
+      }
+      return local_rotation_;
     }
 
     // position the object relative to another.
@@ -148,7 +161,7 @@ namespace octet {
     void set_relative_pos(sprite &rhs, float x, float y) {
       int temp_local_rotation = local_rotation_;
       set_relative(rhs, x, y);
-      RotateTo(temp_local_rotation);  // Reapply any rotations after moving.
+      LocalRotation(temp_local_rotation);  // Reapply any rotations after moving.
     }
 
     const mat4t& ModelToWorld() {

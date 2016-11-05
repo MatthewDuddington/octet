@@ -1,10 +1,12 @@
-/*
-Octet Framework (c) Andy Thomason 2012-2014.
-
-Extracted sound related elements from invaiderers_app.
-
-Additional and modified code (c) Matthew Duddington 2016.
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Octet Framework (c) Andy Thomason 2012-2014.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
+// 
+//  Extracted sound related elements from example invaiderers_app.
+//
+//  Additional code and modifications (c) Matthew Duddington 2016.
+//
 
 #ifndef sound_manager_h
 #define sound_manager_h

@@ -1,4 +1,10 @@
-#pragma once
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Octet Framework (c) Andy Thomason 2012-2014.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
+//
+//  (c) Matthew Duddington 2016.
+//
 
 #ifndef actor_h
 #define actor_h
@@ -30,7 +36,6 @@ namespace octet {
 
 
   public:
-
     Actor() {
       actors_().push_back(*this);  // When actors are created, add them to the actors list. TODO This doesn't work right now? Is a duplicate being pushed into the vector?
     }
@@ -69,10 +74,12 @@ namespace octet {
       sprite_.init(_texture, x, y, w, h);
     }
 
+    // Return a reference to the Actor's sprite.
     sprite& GetSprite() {
       return sprite_;
     }
 
+    // Update or Get the map cell the Actor is currently standing in.
     MapCell& OccupiedCell(MapCell* set_cell = NULL) {
       if (set_cell != NULL) {
         occupied_cell_ = set_cell;
@@ -81,35 +88,40 @@ namespace octet {
     }
 
     int Update() {
-      // Else ifs because player is not allowed to move diagonally.
       if (actor_type_ == PLAYER) {
+        // Check for standing on goal.
         if (OccupiedCell().GetType() == MapCell::GOAL) {
           return 10;
         }
+        // Else ifs because player is not allowed to move diagonally.
         if (app_common::is_key_down(key_W)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
           MoveToCell(destination_cell);
-          GetSprite().SetLocalRotation(90);
+          GetSprite().LocalRotation(90);
           return NORTH;
         }
         else if (app_common::is_key_down(key_S)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
           MoveToCell(destination_cell);
-          GetSprite().SetLocalRotation(270);
+          GetSprite().LocalRotation(270);
           return SOUTH;
         }
         else if (app_common::is_key_down(key_A)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
           MoveToCell(destination_cell);
-          GetSprite().SetLocalRotation(180);
+          GetSprite().LocalRotation(180);
           return WEST;
         }
         else if (app_common::is_key_down(key_D)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
           MoveToCell(destination_cell);
-          GetSprite().SetLocalRotation(0);
+          GetSprite().LocalRotation(0);
           return EAST;
         }
+        return 4;
+      }
+      else {  // Actor must be a Guard
+        // TODO Do guard stuff
       }
       return 4;
     }

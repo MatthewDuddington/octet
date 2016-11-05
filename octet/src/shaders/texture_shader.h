@@ -1,11 +1,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// (C) Andy Thomason 2012-2014
+//  (C) Andy Thomason 2012-2014
 //
-// Modular Framework for OpenGLES2 rendering on multiple platforms.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
-// Single texture shader with no lighting
-// Added: An optional tint parameter
+//  Single texture shader with no lighting
+//
+//  Additional code and modifications (c) Matthew Duddington 2016.
+//
 
 namespace octet { namespace shaders {
   

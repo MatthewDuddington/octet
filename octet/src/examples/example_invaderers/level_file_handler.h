@@ -1,9 +1,14 @@
-/*
-Handles the parsing of custom level design files.
-Assumes that the file has been prepared to the same size as the array.
-
-Influenced by: https://github.com/andy-thomason/read_a_csv_file
-*/
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Octet Framework (c) Andy Thomason 2012-2014.
+//
+//  (c) Matthew Duddington 2016.
+//
+//  Handles the parsing of custom level design files.
+//  Assumes that the file has been prepared to the same size as the array.
+//
+//  Influenced by: https://github.com/andy-thomason/read_a_csv_file
+//
 
 #ifndef level_file_handler_h
 #define level_file_handler_h
@@ -50,7 +55,7 @@ namespace octet {
               int &level_width,
               int &level_height)
     {
-      if (file_location != "Auto") {
+      if (file_location != "PROCEDURAL") {
         ExtractFileContent(file_location.c_str(), level_width, level_height);
       }
       else {
@@ -62,12 +67,12 @@ namespace octet {
     // Loads the level file only once and returns the char.
     char GetDesignSymbol(int symbol_index) {
       if (level_design_.size() < symbol_index) {
-        printf("ERROR: Index requested is out of range for the loaded level design.");
+        printf("ERROR: Index requested is out of range for the loaded level design. \n");
         return NULL;
       }
       else {
         if (symbol_index == level_design_.size() - 1) {
-          printf("End of file. Level design file read complete. Clearing file content cache.");
+          printf("End of file. Level design file read complete. Clearing file content cache. \n");
           char temp_char = level_design_.at(symbol_index); // Temporarily store the return value so it doesn't get cleared.
           level_design_.clear();  // Clean up char array (also important for correct level width to be determined if previous level was a larger map)
           return temp_char;

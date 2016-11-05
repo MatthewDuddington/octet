@@ -1,6 +1,6 @@
-xxxxxxxxxxxxxxx
-X.....bI....b.X
-X.S...bI......X
+xxHxxxxxxxxxxxx
+X.S...bI....b.X
+X.....bI......X
 XHH..HHI......X
 X.........b...X
 X...b..IHHHHH.X

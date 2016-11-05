@@ -1,4 +1,10 @@
-#pragma once
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Octet Framework (c) Andy Thomason 2012-2014.
+//  Modular Framework for OpenGLES2 rendering on multiple platforms.
+//
+//  (c) Matthew Duddington 2016.
+//
 
 #ifndef level_h
 #define level_h
@@ -8,7 +14,7 @@ namespace octet {
   class Level {
 
     // static Level* current_level_ = NULL;
-    // Can't define a static member var in a .h file, but without initialising the static pointer player_ it creates a compilation linking error (LNK2001).
+    // Can't define a static member var in a .h file, but without initialising the static pointer current_level_ it creates a compilation linking error (LNK2001).
     // In order to have static class variables, they need to be initialised, which can only be done in the .cpp file as you can't double declare in a header. As we're working with 'header only' I needed a workaround.
     // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf
     // http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
@@ -31,7 +37,7 @@ namespace octet {
 
 
     // Construct the level map.
-    void BuildLevel(std::string level_file_location = "Auto") {
+    void BuildLevel(std::string level_file_location = "PROCEDURAL") {
 
       // Load map textures
       GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/start.gif");
@@ -49,7 +55,7 @@ namespace octet {
       level_grid_.resize(Size());  // Prepare level grid vector with the sizes calculated during level file buffering.
 
       // Create a big background tile for the grass.
-      map_background_.init(wall_texture, 0, 0, (level_width_ / 2) + cell_size_, (level_height_ / 2) + cell_size_);
+      map_background_.init(wall_texture, 0, 0, level_width_ / 2.0f, level_height_ / 2.0f);
 
       // Iterate through the rows and colls of a grid and instantiate the correct sprite for each cell
       for (int row = 0; row != level_height_; ++row) {            // For each row...
@@ -88,14 +94,27 @@ namespace octet {
           case 'S':  // Start
             texture = start_texture;
             cell_type = MapCell::START;
-            SetupPlayer(x_pos, y_pos, current_cell);
+            SetupActor(Actor::Player(), x_pos, y_pos, current_cell, R_SOUTH);
             break;
           case 'G':  // Goal
             texture = goal_texture;
             cell_type = MapCell::GOAL;
             break;
-          case NULL:
-            printf("Map gen reading in: Null");
+          case '^':  // Guard facing upwards
+            cell_type = MapCell::PATH;
+            SetupActor(Actor::Player(), x_pos, y_pos, current_cell, R_NORTH);
+            break;
+          case '>':  // Guard facing right
+            cell_type = MapCell::PATH;
+            SetupActor(Actor::Player(), x_pos, y_pos, current_cell, R_EAST);
+            break;
+          case 'V':  // Guard facing down
+            cell_type = MapCell::PATH;
+            SetupActor(Actor::Player(), x_pos, y_pos, current_cell, R_SOUTH);
+            break;
+          case '<':  // Guard facing left
+            cell_type = MapCell::PATH;
+            SetupActor(Actor::Player(), x_pos, y_pos, current_cell, R_WEST);
             break;
           default:
             printf("Map gen reading in: Unknown char");
@@ -119,11 +138,11 @@ namespace octet {
     }
 
     // Sets up the player in the given position.
-    void SetupPlayer(float x_pos, float y_pos, int current_cell) {
-      //Actor::Player().GetSprite().translate(x_pos, y_pos);
-      Actor::Player().OccupiedCell(&level_grid_.at(current_cell));
-      Actor::Player().GetSprite().set_relative(level_grid_.at(current_cell-1).GetSprite(), cell_size_, 0); // Because current cell hasn't been initialised with its position yet, need to offset from previous cell. 'Start' type cell is never in column 0 so it is safe to assume previous index cell is always to the left.
-      Actor::Player().GetSprite().SetLocalRotation(270);
+    // Rotation must be set using one of the 'R_' directions.
+    void SetupActor(Actor& actor, float x_pos, float y_pos, int current_cell, Direction rotation) {
+      actor.OccupiedCell(&level_grid_.at(current_cell));
+      actor.GetSprite().set_relative(level_grid_.at(current_cell-1).GetSprite(), cell_size_, 0); // Because current cell hasn't been initialised with its position yet, need to offset from previous cell. 'Start' type cell is never in column 0 so it is safe to assume previous index cell is always to the left.
+      actor.GetSprite().LocalRotation(rotation);
     }
 
 
@@ -149,7 +168,7 @@ namespace octet {
       return level_height_;
     }
 
-    const int LargestSideSize() {
+    const int LongestSideSize() {
       return level_width_ > level_height_ ? level_width_ : level_height_;
     }
 
@@ -161,13 +180,13 @@ namespace octet {
       return cell_size_;
     }
 
-    void LoadLevel() {  // Builds procedural level.
-      BuildLevel();
-    }
-
-    void LoadLevel(int level_num) {  // Builds level from .txt file design.
-      std::string level_file_location = "Resources/level" + std::to_string(level_num) + ".txt";  // Construct file path as string.
-      BuildLevel(level_file_location);
+    void LoadLevel(int level_num = 0) {
+      if (level_num != 0) {  // Builds level from .txt file design.
+        std::string level_file_location = "Resources/level" + std::to_string(level_num) + ".txt";  // Construct file path as string.
+        BuildLevel(level_file_location);
+        return;
+      }
+      BuildLevel("PROCEDURAL");
     }
 
     void RenderMap(texture_shader& texture_shader, mat4t cameraToWorld) {
