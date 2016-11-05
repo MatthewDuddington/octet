@@ -14,43 +14,31 @@ namespace octet {
 
   class LevelFileHandler {
 
-    std::vector<char> level_design_;
+    std::vector<char> level_design_;  // Stores the current level's string of map design characters.
 
     void ExtractFileContent(const char file_location[],
                             int &level_width,
                             int &level_height)
     {
-      std::ifstream input_file(file_location);  // Open file
-      if (input_file.bad()) {  // Check if file loaded
-        printf("ERROR: File was not loaded successfully.");
+      std::ifstream input_file(file_location);  // Open file.
+
+      if (input_file.bad()) {  // Check if file loaded.
+        printf("ERROR: File was not loaded successfully. \n");
       }
       else {
         std::string line_buffer;  // Store current line here
-        level_height = -1;        // Reset level height count
+        level_height = -1;        // Reset level height count (first row is 0 so start at -1)
 
-        while (!input_file.eof()) {  // Stop at end of file
-          std::getline(input_file, line_buffer); // Extract a line
+        while (!input_file.eof()) {              // Stop at end of file
+          std::getline(input_file, line_buffer); // Extract the current line to the buffer
          
-          // Add each char from the current line to the vector
+          // Add each char from the temporary buffer to the permanent vector
           for (int i = 0; i < line_buffer.length(); i++) {
             level_design_.push_back(line_buffer.at(i));
           }
-
-          // Update the level size parameters
-          // level_width = line_buffer.length();  // TODO Is this less efficient than calculating after the loop as below?
-          level_height++;
-          //printf("Level height: %d \n", level_height);  // DEBUG
-
-        }  // End of while
-
-        level_width = (int)level_design_.size() / level_height;
-        //printf("Level width: %d \n", level_width);  // DEBUG
-
-        /* // DEBUG
-        for (int i = 0; i < level_design_.size(); i++) {
-          printf("%c", level_design_.at(i));
+          level_height++;  // Determine the level height by counting each loop
         }
-        */
+        level_width = (int)level_design_.size() / level_height; // Determine the level width from total chars compared to height (assumes rectangular maps)
       }
     }
 
@@ -81,7 +69,7 @@ namespace octet {
         if (symbol_index == level_design_.size() - 1) {
           printf("End of file. Level design file read complete. Clearing file content cache.");
           char temp_char = level_design_.at(symbol_index); // Temporarily store the return value so it doesn't get cleared.
-          level_design_.clear();  // Cleanup char array
+          level_design_.clear();  // Clean up char array (also important for correct level width to be determined if previous level was a larger map)
           return temp_char;
         }
         return level_design_.at(symbol_index);

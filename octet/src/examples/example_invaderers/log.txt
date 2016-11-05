@@ -8,10 +8,14 @@ Fragment shader error:
 0(1) : warning C7011: implicit cast from "int" to "float"
 0(1) : warning C7011: implicit cast from "int" to "float"
 0(1) : warning C7011: implicit cast from "int" to "float"
+0(1) : warning C7011: implicit cast from "int" to "float"
+0(1) : warning C7563: assignment to uniform colour_uniform
+0(1) : warning C7563: assignment to uniform colour_uniform
+0(1) : warning C7011: implicit cast from "int" to "float"
 0(1) : warning C7563: assignment to uniform colour_uniform
 0(1) : warning C7563: assignment to uniform colour_uniform
 
-varying vec2 uv_; uniform sampler2D sampler; uniform vec4 colour_uniform; uniform int blend_mode; vec4 BlendTextureWithTint() { switch (blend_mode) { case 1: return texture2D(sampler, uv_) * colour_uniform; break; case 2: return 1 - ((1 - texture2D(sampler, uv_)) * (1 - colour_uniform)); break; case 3: vec4 a = texture2D(sampler, uv_); if ((a.x + a.y + a.z) / 3 < 0.5) { return 2 * texture2D(sampler, uv_) * colour_uniform; } else { return 1 - (2 * (1 - texture2D(sampler, uv_)) * (1 - colour_uniform)); } break; case 4: colour_uniform.y = fract(sin(length(floor(gl_FragCoord.xy / 1.0)))*1e3); return texture2D(sampler, uv_) * colour_uniform; break; case 0: default: return texture2D(sampler, uv_) * colour_uniform; break; } } void main() { gl_FragColor = BlendTextureWithTint(); }
+varying vec2 uv_; uniform sampler2D sampler; uniform vec4 colour_uniform; uniform int blend_mode; vec4 BlendTextureWithTint() { switch (blend_mode) { case 1: return texture2D(sampler, uv_) * colour_uniform; break; case 2: return 1 - ((1 - texture2D(sampler, uv_)) * (1 - colour_uniform)); break; case 3: vec4 a = texture2D(sampler, uv_); if ((a.x + a.y + a.z) / 3 < 0.5) { return 2 * texture2D(sampler, uv_) * colour_uniform; } else { return 1 - (2 * (1 - texture2D(sampler, uv_)) * (1 - colour_uniform)); } break; case 4: float fract_num_a = fract(sin(length(floor(gl_FragCoord.xy / 1.0)))*1e6); float fract_num_b = fract(sin(length(floor(gl_FragCoord.xy / 1.5)))*1e5); colour_uniform = (colour_uniform * fract_num_a) + (colour_uniform / 2 * fract_num_b); colour_uniform.w = 1; return colour_uniform; break; case 0: default: return texture2D(sampler, uv_) * colour_uniform; break; } } void main() { gl_FragColor = BlendTextureWithTint(); }
 
 
 
@@ -27,11 +31,17 @@ Fragment info
 0(1) : warning C7011: implicit cast from "int" to "float"
 0(1) : warning C7011: implicit cast from "int" to "float"
 0(1) : warning C7011: implicit cast from "int" to "float"
+0(1) : warning C7011: implicit cast from "int" to "float"
+0(1) : warning C7563: assignment to uniform colour_uniform
+0(1) : warning C7563: assignment to uniform colour_uniform
+0(1) : warning C7011: implicit cast from "int" to "float"
 0(1) : warning C7563: assignment to uniform colour_uniform
 0(1) : warning C7563: assignment to uniform colour_uniform
 0(1) : warning C7563: assignment to uniform colour_uniform
+0(1) : warning C7563: assignment to uniform colour_uniform
 0(1) : warning C7024: Unreachable statement in switch body
 0(1) : warning C7024: Unreachable statement in switch body
 0(1) : warning C7024: Unreachable statement in switch body
 0(1) : warning C7024: Unreachable statement in switch body
+0(1) : warning C7563: assignment to uniform colour_uniform
 0(1) : warning C7563: assignment to uniform colour_uniform

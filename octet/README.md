@@ -1,23 +1,23 @@
-# Introduction to Programming 2016 - Matthew Duddington
+# Introduction to Programming 2016 - Assignment 1 - Matthew Duddington
 
 --------------------------------------------------------------------------------
 
-Overview of game code:
+**|| Overview of game code ||**
 
 Structure / Approach:
 
-- Separation of several concepts into class modules:
-  NPCs & the player - actor.h
-  Overall game level and map - level.h
-  Individual map cell logic - map_cell.h
-  Reading of level design files (see File Reading below) - level_file_handler.h
-  Core maintenance functionality and master loop remain in invaderers_app.h
+- Separation of several concepts into class modules:  
+  NPCs & the player - actor.h  
+  Overall game level and map - level.h  
+  Individual map cell logic - map_cell.h  
+  Reading of level design files (see File Reading below) - level_file_handler.h  
+  Core maintenance functionality and master loop remain in invaderers_app.h  
 
-  - Extracted sprite class and sound functionality into separate modules.
+  - Extracted sprite class and sound functionality into separate modules.  
     (sprite.h and sound_manager.h respectively)
 
 - Relatively frequent use of 'static' variables and functions, often including
-  pointers, to enable cross module access and more encapsulated responsibility.
+  pointers, to enable cross module access and more encapsulated responsibility.  
   (Is this an appropriate pattern to be using? Statics are not always going to
   be multithread safe, depending on their function.)
 
@@ -25,20 +25,27 @@ Structure / Approach:
     are accessible to the gameplay scripting in each other module. My intention
     was to have these objects look after their respective tasks where possible.
 
-  - Sounds can be requested to be played from most modules.
+  - Sounds can be requested to be played from most modules.  
     Similarly, the is_key_down() functionality has been made available to
     modules beyond invaiderers_app.h.
 
-- Broadly, I have tried to adhere to the Google C++ layout standards.
-  Though, I have chosen to avoid refactoring any existing octet / invaiderers
-  code largely for greater clarity for what I have changed, but also to avoid
-  inadvertently breaking non-obvious links.
+- Broadly, I have tried to adhere to the Google C++ style guide.  
+  https://google.github.io/styleguide/cppguide.html  
+  Though, I have chosen to avoid refactoring any existing Octet / Invaiderers
+  code, mainly for greater clarity in what I have changed, but also to avoid
+  inadvertently breaking non-obvious calls.  
   (Thus, I apologise for the resultant mixed formatting in some modules!)
+
+  - Similarly, I diverge with teh Google style where I have multiple long
+    parameters or arguments. I split these to new lines and carry the opening
+    brace, as this makes it clearer for me to read back.  
+    (Rule #1 - readability and clarity is king)
 
 Gameplay:
 
 - Player token can be moved one square at a time in the primary N,S,E,W
-  directions within a grid based level. (Using W,A,S,D key paradigm)
+  directions within a grid based level.  
+  (Using W,A,S,D key paradigm)
 
 - Successfully navigating to a 'goal' point activates the next level.
 
@@ -82,21 +89,21 @@ Shader:
 - Created optional 'blending mode' parameter to the texture_shader with
   multiply, screen and overlay capabilities.
 
-- Generative grass background texture via the fragment shader.
+- Generative grass background texture via the fragment shader.  
   (pattern generation adapted from code from http://glslsandbox.com/e#36439.0
   - thanks to Robert Doig for pointing me towards this.)
 
 
 --------------------------------------------------------------------------------
 
-Project aims:
+**|| Project aims ||**
 
 Beginning from a background experience of being an artist trained in Animation,
 whose existing experience of code has come primarily through scripting C# within
 Unity, my aims for this first assignment are at present:
 
 1. To become familiar with some core functional differences of working with C++
-   both syntactically and in approach.
+   both syntactically and in approach.  
    (I am more confident following week 3 lecture and brief chats with Andy,
    which have pointed me to some clarifications on specific fundamentals)
 
@@ -107,7 +114,7 @@ Unity, my aims for this first assignment are at present:
 
 --------------------------------------------------------------------------------
 
-Selection of core learning points from lectures:
+**|| Selection of core learning points from lectures ||**
 
   - Headerless C++ (advisory approach), wherein code is limited to as few .cpp
     modules as possible, with variables and objects aggregated into classes.
@@ -133,7 +140,7 @@ Selection of core learning points from lectures:
 
   - Use std::shared_ptr (memory managed; multiple owners of an object where the
     last one standing has authority to delete the object when the pointer itself
-    is deleted)
+    is deleted)  
     and std::unique_ptr (assumes it is the sole owner and thus always has
     authority to delete object when the pointer itself is destroyed),
     rather than raw pointers.
@@ -149,7 +156,7 @@ Selection of core learning points from lectures:
 
 --------------------------------------------------------------------------------
 
-Record of assignment process:
+**|| Record of assignment process ||**
 
 Initial stages of this project have involved 'hacking' the example Space
 Invaiderers game to mutate it in various ways.
@@ -216,29 +223,30 @@ Door & Switch Ideas:
 
 --------------------------------------------------------------------------------
 
-Additional discoveries worth remembering:
+**|| Additional discoveries worth remembering ||**
 
-- Static class member variables must be initialised with a value (otherwise Visual Studio returns a generic compilation linking error (LNK2001) pointing to line 1). However, such variables cannot be initialised in a header, which causes a problem for Header Only C++ methodology.
-  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf
-  http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
+- Static class member variables must be initialised with a value (otherwise Visual Studio returns a generic compilation linking error (LNK2001) pointing to line 1). However, such variables cannot be initialised in a header, which causes a problem for Header Only C++ methodology.  
+  http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf  
+  http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header  
   One solution is to create a static function which contains a static variable of the type desired - as the variable can be declared and initialised at the same time within function scope.
 
-- Shaders don't appear to allow all C++ code to run inside them in the same way as conventional .h files (Declaration order matters more so. Also it cannot read class member variables outside the scope of the shader structure - hence some of the reason for the multi-step declaration and setting of uniforms). An invalid result creates a white square only.
+- Shaders don't appear to allow all C++ code to run inside them in the same way as conventional .h files (Declaration order matters more so. Also it cannot read class member variables outside the scope of the shader structure - hence some of the reason for the multi-step declaration and setting of uniforms).  
+  An invalid result creates a white square only.
 
 - Resources (such as textures and sounds) must be loaded to the resource dictionary within a function and cannot simply be kept as class members otherwise an out of range error occurs during runtime.
 
 --------------------------------------------------------------------------------
 
-Additional acknowledgements and references:
+**|| Additional acknowledgements and references ||**
 
-Basis for textures:
-(all applicable licences permit reuse and modification)
-Grass 512x512 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/
-Concrete 509x512 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/
-Wire mesh https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/
-Bush http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html
-Clouds (unused) https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/
+Basis for textures:  
+(all applicable licences permit reuse and modification)  
+Grass 512x512 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/  
+Concrete 509x512 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/  
+Wire mesh https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/  
+Bush http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html  
+Clouds (unused) https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/  
 
-Sounds:
-(all applicable licences permit reuse and modification)
-Sfx_Wrong https://www.freesound.org/people/Isaac200000/sounds/188013/
+Sounds:  
+(all applicable licences permit reuse and modification)  
+Sfx_Wrong https://www.freesound.org/people/Isaac200000/sounds/188013/  
