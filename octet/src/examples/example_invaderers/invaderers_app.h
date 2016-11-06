@@ -50,7 +50,7 @@ namespace octet {
 
     enum {
       FPS = 30,  // Assuming 30fps?
-      NUM_LEVELS = 4,  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
+      NUM_LEVELS = 5,  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
       STARTING_LEVEL = 1,  // Change to jump during testing
       GUI_CAMERA_Z = 1,
 

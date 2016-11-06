@@ -1,13 +1,19 @@
-XXXXXXXXXXXXX
-XXXXXXSXXXXXX
-I        XXXX
-I          XX
-I          XX
-IH         XX
-bI    HHHHHXX
-bIb bbbbbbbIb
-bIb b  bb bIb
-bIb        IH
-bI      bbbbb
-bIb  bbGbbbbb
-bbbbbbb bbbbb
+xxxxxxxxxxxxxxx
+x   b         x
+x>     b   b  x
+xbb   b   b  SI
+x       ^bxxxHI
+xbbb bv   xxx  
+Ibxx      xxx  
+Ibxxxx    xxxxx
+I xxxx    xxxxx
+I        <xxxxx
+I          vxxx
+IbbHHxxxx     I
+Ib   xxxx     I
+HHH    xxx HHHH
+I   bb xxx    x
+I  bb  x>I   xx
+I      xxx   xx
+xx G^        xx
+xxxHxxHHHHHHHHx

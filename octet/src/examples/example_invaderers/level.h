@@ -136,14 +136,14 @@ namespace octet {
           case '>':  // Guards, fall through
           case '^':
           case '<': 
-          case 'V':
+          case 'v':
             if (!use_noise_grass_) { texture = path_texture; }
             cell_type = MapCell::PATH;
             Direction rotation;
             if (current_design_symbol == '>') { rotation = R_EAST; }   // Guard facing right
             if (current_design_symbol == '^') { rotation = R_NORTH; }  // Guard facing upwards
             if (current_design_symbol == '<') { rotation = R_WEST; }   // Guard facing left
-            if (current_design_symbol == 'V') { rotation = R_SOUTH; }  // Guard facing down
+            if (current_design_symbol == 'v') { rotation = R_SOUTH; }  // Guard facing down
             num_of_guards_++;
             SetupActor(Actor::Actors().at(num_of_guards_), Actor::GUARD, x_pos, y_pos, current_cell, rotation);
             break;
