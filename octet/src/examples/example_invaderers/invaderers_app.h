@@ -85,9 +85,6 @@ namespace octet {
     float current_camera_z_ = GUI_CAMERA_Z;
     mat4t camera_zero_pos_;  // Used for resetting the camera for new games & gui.
 
-    // random number generator
-    class random randomizer;
-
 
   public:
     // this is called when we construct the class

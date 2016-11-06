@@ -87,7 +87,8 @@ namespace octet {
       return *occupied_cell_;
     }
 
-    int Update() {
+    int Update()
+    {
       if (actor_type_ == PLAYER)
       {
         // Check for standing on goal.

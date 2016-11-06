@@ -46,13 +46,61 @@ namespace octet {
       }
     }
 
+    int obstical_density = 0.4f;
+
     // Uses Flood Fill type algorithm
     // Influenced by example from https://www.youtube.com/watch?v=xYOG8kH2tF8
     void CreateFloodFillDesign( int &level_width, int &level_height ) {
-      //
-      //level_design_.push_back(generatedchar)
+      vec2 random_xy = RandomXY( 15, 15, 7, 7 );
+      level_width = random_xy.x;
+      level_height = random_xy.y;
+
+      // 2 dimensional array of bools to represent possible obstacle placement.
+      std::vector< std::vector<bool> > proxy_map( level_height, std::vector<bool>(level_width) );
+
+      int number_of_obsticals = (int)(level_width * level_height * obstical_density);
+      for (int i = 0; i < number_of_obsticals; i++)
+      {
+        while (!ok_position) {
+          random_xy = RandomXY(level_width - 2, level_height - 2);
+
+        }
+      }
+
+      // create random map
+
+      for ( int row = 0; row < level_height; row++ ) 
+        // Wall off top and bottom rows.
+        if ( row == 0 
+          || row == level_height - 1 )
+        { for ( int i = 0; i < level_width; i++ ) { level_design_.push_back('x'); } }
+        else 
+        { 
+          for ( int colum = 0; colum < level_width; colum++ )
+          {
+            // Wall off sides.
+            if ( colum == 0
+              || colum == level_width - 1 )
+            { level_design_.push_back('x'); }
+            else { return; }
+          }
+        }
     }
 
+    bool proxy_map_can_be_walked( std::vector< std::vector<bool> > proxy_map
+      ,                           int total_acceptable_obsitcals ) 
+    {
+
+    }
+
+
+      //level_design_.push_back(generatedchar)
+
+  vec2 RandomXY( int max_x, int max_y, int min_x = 1, int min_y = 1 )
+  {
+    random randomiser;
+    return vec2( randomiser.get(min_x, max_x), randomiser.get(min_y, max_y) );
+  }
 
   public:
     LevelFileHandler() {}
