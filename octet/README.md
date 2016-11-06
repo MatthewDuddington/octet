@@ -72,8 +72,7 @@ File Reading:
 - level_file_handler.h reads in a text file and produces a string that it will
   feed back char by char to the separate level.h module.
 
-- File path of text to be read is partially dynamic and enables the loading of
-  multiple levels.
+- File path of text to be read is partially dynamic and enables the loading of  multiple levels.
 
 Procedural Generation: // TODO
 
@@ -92,7 +91,7 @@ Shader:
 
 - Generative grass background texture via the fragment shader.  
   (pattern generation adapted from code from http://glslsandbox.com/e#36439.0
-  - thanks to Robert Doig for pointing me towards this.)
+  - thanks to **Robert Doig** (MSc) for pointing me towards this.
 
 
 --------------------------------------------------------------------------------
@@ -288,7 +287,8 @@ successfully functioning state. Likewise, was able to help **Luke Sanderson**
 as assisting him with a basic understating of where to integrate random numbers
 into his code to randomly assign positions.
 
-// IMAGE TO GO HERE OF WHITEBOARD
+![alt text](https://github.com/MatthewDuddington/octet/blob/master/octet/assets/invaderers/whiteboard_assistance_example.jpg "White board diagramming while assisting")
+*Example of white board diagramming while assiting others* 
 
 --------------------------------------------------------------------------------
 
