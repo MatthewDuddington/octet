@@ -17,8 +17,18 @@ namespace octet {
       GUARD
     };
 
+    enum UpdateReturnCodes {
+      PRESSED_EAST = EAST,
+      PRESSED_NORTH = NORTH,
+      PRESSED_WEST = WEST,
+      PRESSED_SOUTH = SOUTH,
+      ACTOR_IDLE = 4,
+      CAUGHT_BY_GUARD = 9,
+      GOAL_REACHED = 10
+    };
 
   private:
+
     ActorType actor_type_;
 
     sprite sprite_;
@@ -37,7 +47,7 @@ namespace octet {
 
   public:
     Actor() {
-      actors_().push_back(*this);  // When actors are created, add them to the actors list. TODO This doesn't work right now? Is a duplicate being pushed into the vector?
+      Actor::Actors().push_back(*this);
     }
 
     static std::vector<Actor>& Actors() {
@@ -55,7 +65,7 @@ namespace octet {
 
     void Init(ActorType type,
               float x, float y,
-              float w, float h) {
+              float s) {
       // Actor textures
       GLuint player_texture = resource_dict::get_texture_handle(GL_RGBA,
       "assets/invaderers/player.gif");
@@ -71,7 +81,7 @@ namespace octet {
         _texture = guard_texture;
         actor_type_ = GUARD;
       }
-      sprite_.init(_texture, x, y, w, h);
+      sprite_.init(_texture, x, y, s, s);
     }
 
     // Return a reference to the Actor's sprite.
@@ -91,39 +101,40 @@ namespace octet {
       if (actor_type_ == PLAYER) {
         // Check for standing on goal.
         if (OccupiedCell().GetType() == MapCell::GOAL) {
-          return 10;
+          return GOAL_REACHED;  // Informs main app player reached the goal.
         }
         // Else ifs because player is not allowed to move diagonally.
-        if (app_common::is_key_down(key_W)) {
+        if (app_common::is_key_down(key_D)) {
+          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
+          MoveToCell(destination_cell);
+          GetSprite().LocalRotation(R_EAST);
+          return PRESSED_EAST;
+        }
+        else if (app_common::is_key_down(key_W)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(NORTH);
           MoveToCell(destination_cell);
-          GetSprite().LocalRotation(90);
-          return NORTH;
-        }
-        else if (app_common::is_key_down(key_S)) {
-          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
-          MoveToCell(destination_cell);
-          GetSprite().LocalRotation(270);
-          return SOUTH;
+          GetSprite().LocalRotation(R_NORTH);
+          return PRESSED_NORTH;
         }
         else if (app_common::is_key_down(key_A)) {
           MapCell& destination_cell = occupied_cell_->GetAdjacentCell(WEST);
           MoveToCell(destination_cell);
-          GetSprite().LocalRotation(180);
-          return WEST;
+          GetSprite().LocalRotation(R_WEST);
+          return PRESSED_WEST;
         }
-        else if (app_common::is_key_down(key_D)) {
-          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(EAST);
+        else if (app_common::is_key_down(key_S)) {
+          MapCell& destination_cell = occupied_cell_->GetAdjacentCell(SOUTH);
           MoveToCell(destination_cell);
-          GetSprite().LocalRotation(0);
-          return EAST;
+          GetSprite().LocalRotation(R_SOUTH);
+          return PRESSED_SOUTH;
         }
-        return 4;
       }
       else {  // Actor must be a Guard
-        // TODO Do guard stuff
+        if (OccupiedCell().IsInLineWithMe(Actor::Player().OccupiedCell(), GetSprite().LocalRotationDirection(), 2)) {
+          return CAUGHT_BY_GUARD;  // Main app will reset level.
+        }
       }
-      return 4;
+      return ACTOR_IDLE;
     }
 
     // Moves the actor to the new cell, so long as cell is walkable.

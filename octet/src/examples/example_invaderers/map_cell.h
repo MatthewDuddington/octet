@@ -39,17 +39,17 @@ namespace octet {
                             int cell_column, int cell_row)
     {
       my_index = level_grid_index;
-      if (cell_row > 0) {  // Cell in row above
-        adjacent_cells_[NORTH] = &level_grid[level_grid_index - level_width];
-      }
       if (cell_column < level_width - 1) {  // Cell to the right
         adjacent_cells_[EAST] = &level_grid[level_grid_index + 1];
       } 
-      if (cell_row < level_height - 1) {  // Cell in row below
-        adjacent_cells_[SOUTH] = &level_grid[level_grid_index + level_width];
+      if (cell_row > 0) {  // Cell in row above
+        adjacent_cells_[NORTH] = &level_grid[level_grid_index - level_width];
       }
       if (cell_column > 0) {  // Cell to the left
         adjacent_cells_[WEST] = &level_grid[level_grid_index - 1];
+      }
+      if (cell_row < level_height - 1) {  // Cell in row below
+        adjacent_cells_[SOUTH] = &level_grid[level_grid_index + level_width];
       }
     }
 
@@ -67,15 +67,23 @@ namespace octet {
               int column, int row,
               int _texture,
               float x, float y,
-              float w, float h)
+              float s)
     {
       cell_type_ = CellType;
       SetupAdjacentCells(level_grid, level_grid_index, level_width, level_height, column, row);
-      sprite_.init(_texture, x, y, w, h);
+      sprite_.init(_texture, x, y, s, s);
     }
 
     sprite& GetSprite() {
       return sprite_;
+    }
+
+    const int GetIndex() {
+      return my_index;
+    }
+
+    CellType GetType() {
+      return cell_type_;
     }
 
     // Returns true if this MapCell can be occupied by an actor.
@@ -89,29 +97,23 @@ namespace octet {
       return false;
     }
 
-    CellType GetType() {
-      return cell_type_;
-    }
-
     // Returns True if the passed MapCell is located within the passed distance (number of cells to check each side) and direction.
     bool IsInLineWithMe(MapCell& map_cell, Direction direction, int distance) {
       MapCell* test_cell = this;
       for (int i = 0; i < distance; i++) {
         test_cell = &test_cell->GetAdjacentCell(direction);
+        if (test_cell == &map_cell) {
+          return true;
+        }
       }
-      if (test_cell == &map_cell) {
-        printf("In line. \n");
-        return true;
-      }
-      printf("Not in line with me. \n");
       return false;
     }
 
     bool IsAdjacentToMe(MapCell map_cell) {
-      if (IsInLineWithMe(map_cell, NORTH, 1) ||
-          IsInLineWithMe(map_cell, EAST,  1) ||
-          IsInLineWithMe(map_cell, SOUTH, 1) ||
-          IsInLineWithMe(map_cell, WEST,  1))
+      if (IsInLineWithMe(map_cell, EAST,  1) ||
+          IsInLineWithMe(map_cell, NORTH, 1) ||
+          IsInLineWithMe(map_cell, WEST,  1) ||
+          IsInLineWithMe(map_cell, SOUTH, 1))
       {
         return true;
       }
@@ -123,10 +125,12 @@ namespace octet {
     }
 
     MapCell& GetAdjacentCell(Direction direction) {
-      if (adjacent_cells_[direction] == NULL) {
+      int converted_direction = (direction / 90);  // In case of passing in a R_Direction.
+      if (direction < 4) { converted_direction = direction; }
+      if (adjacent_cells_[converted_direction] == NULL) {
         printf("Asking for NULL cell pointer. \n");
       }
-      return *adjacent_cells_[direction];
+      return *adjacent_cells_[converted_direction];
     }
 
   };

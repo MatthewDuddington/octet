@@ -1,7 +1,13 @@
-IHHHbHbHHHI
-Ib.b.S.b.bI
-Ib.b...b.bI
-Ib.b...b.bI
-Ib.b...b.bI
-XXXXXGXXXXX
-XXXXXXXXXXX
+XXXXXXXXXXXXX
+XXXXXXSXXXXXX
+I        XXXX
+I          XX
+I          XX
+IH         XX
+bI    HHHHHXX
+bIb bbbbbbbIb
+bIb b  bb bIb
+bIb        IH
+bI      bbbbb
+bIb  bbGbbbbb
+bbbbbbb bbbbb

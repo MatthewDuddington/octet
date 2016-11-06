@@ -16,7 +16,10 @@ namespace octet {
   class SoundManager {
 
   public: enum Sounds {
+      BGM,
       SFX_WRONG,
+      SFX_CAUGHT,
+      SFX_SUCCESS,
       SFX_WIN,
 
       NUM_SOUND_SOURCES
@@ -37,7 +40,10 @@ namespace octet {
     unsigned current_source;
     
     ALuint get_sound_source() {
-      return sources[current_source++ % NUM_SOUND_SOURCES]; // Get the next available source but % will wrap around value if run out of array.
+      // Get the next available source but % will wrap around value if run out of array.
+      ALuint next_source = sources[current_source++ % NUM_SOUND_SOURCES];
+      if (next_source == 0) { next_source = get_sound_source(); }
+      return next_source;
     }
 
 
@@ -53,11 +59,20 @@ namespace octet {
 
     void Init() {
       // Add sound files to resource dictionary.
+      sound_ALuints[BGM] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/Rising.wav");
       sound_ALuints[SFX_WRONG] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
-      sound_ALuints[SFX_WIN] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/188013__isaac200000__error.wav");
+      sound_ALuints[SFX_CAUGHT] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "assets/invaderers/60521__robinhood76__00363-voice-shouting-stop.wav");
+      //sound_ALuints[SFX_SUCCESS] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "");
+      //sound_ALuints[SFX_WIN] = resource_dict::get_sound_handle(AL_FORMAT_MONO16, "");
 
       current_source = 0;
       alGenSources(NUM_SOUND_SOURCES, sources);
+
+
+      // Play Background music. TODO Doesn't loop right now.
+      ALuint source = sources[NUM_SOUND_SOURCES];
+      alSourcei(source, AL_BUFFER, sound_ALuints[BGM]);
+      alSourcePlay(source);
     }
 
     void PlaySoundfx(Sounds sound) {  // Can't use PlaySound because of namespace clash.

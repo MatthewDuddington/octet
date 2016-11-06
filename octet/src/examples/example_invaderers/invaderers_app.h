@@ -16,6 +16,7 @@ namespace octet {
     enum GameState {
       MENU,
       GAME,
+      FAILED_LEVEL,
       GAME_OVER
     };
 
@@ -36,18 +37,33 @@ namespace octet {
 
     LevelGenMode level_gen_mode_ = TEXT_FILES;
 
-    int fps_ = 30;  // Assuming 30fps?
+    enum GrassMode {
+      NOISE,
+      FROM_FILE
+    };
+    
+    GrassMode grass_mode_ = NOISE;
+
+    enum {
+      FPS = 30,  // Assuming 30fps?
+      NUM_LEVELS = 4,  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
+
+      // Timer defaults (Sec * FPS to nearest frame)
+      INPUT_WAIT_TIME = (int)(0.25f * FPS),
+      FAIL_WAIT_TIME = (int)(1 * FPS)
+    };
+
     unsigned long frames_since_start_ = 0;  // Used for timing
 
     SoundManager sound_manager_;
     Level level_;
-    int number_of_levels_ = 4;  // TODO Count number of files in a Level directory (this functionality is apparently OS specific however).
+    sprite menu_screen;
+    
     int current_level_num_ = 0;
 
-    bool game_over = false;
     bool waiting_for_input_ = false;
-    int input_wait = (int)(0.25f * fps_); // Sec * FPS to nearest frame
-    int input_wait_counter = input_wait;
+    int input_wait_counter = INPUT_WAIT_TIME;
+    int timer = 0;
 
     // Matrix to transform points in our camera space to the world.
     // This lets us move our camera
@@ -403,6 +419,10 @@ namespace octet {
       // Setup camera for menu.
       TransformCamera(0, 0, current_camera_z_);
 
+      // Load menu image
+      GLuint menu_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/menu.gif");
+      menu_screen.init(menu_texture, 0, 0, 2, 2);
+
       /*
       font_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/big_0.gif");
 
@@ -498,11 +518,11 @@ namespace octet {
           switch (i) {
           case 0:
             should_move = true;
-            new_x_pos = difference_in_pos / (fps_ * 2);
+            new_x_pos = difference_in_pos / (FPS * 2);
             break;
           case 1:
             should_move = true;
-            new_y_pos = Lerp(0, difference_in_pos, 0.5f / fps_);
+            new_y_pos = Lerp(0, difference_in_pos, 0.5f / FPS);
             break;
           }
         }
@@ -518,9 +538,26 @@ namespace octet {
       // http://answers.unity3d.com/questions/533465/explanation-of-lerp.html
       return (1 - t) * y_pos_start + t * y_pos_end;
     }
+
+    void LoadLevel() {
+      if (level_gen_mode_ == FLOOD_FILL) {
+        Level::CurrentLevel().LoadLevel();
+      }
+      else {
+        Level::CurrentLevel().LoadLevel(current_level_num_);
+      }
+      if (camera_mode_ == ZOOM_TO_MAP) {
+        ZoomCameraToMap();
+      }
+      else {
+        CentreCameraOnPlayer();
+      }
+      game_state_ = GAME;
+      waiting_for_input_ = true;
+    }
     
-    // called every frame to move things
-    void simulate() {
+    // Called every frame to do things
+    void Update() {
       if (game_state_ == MENU) {
         bool start_game = false;
 
@@ -539,37 +576,56 @@ namespace octet {
         if (is_key_down(key::key_f5)) {
           level_gen_mode_ = TEXT_FILES;
         }
-        else if (is_key_down(key::key_f5)) {
+        else if (is_key_down(key::key_f6)) {
           level_gen_mode_ = FLOOD_FILL;
+        }
+
+        // Check for noise generated grass or texture from file.
+        if (is_key_down(key::key_f8)) {
+          grass_mode_ = NOISE;
+        }
+        else if (is_key_down(key::key_f9)) {
+          grass_mode_ = FROM_FILE;
         }
 
         // Check for starting the game.
         if (is_key_down(key::key_space)) {
           start_game = true;
+          menu_screen.init(0, -100, 0, 0, 0);  // Clear menu sprite.
+          if (grass_mode_ == FROM_FILE) { Level::CurrentLevel().DontUseNoiseGrass(); }
         }
 
         if (start_game) {
           // Create player and get pointer.
           Actor::Actors().resize(15);
-          Actor::Player().Init(Actor::PLAYER, 0, 0, 0.5f, 0.5f);
+          float actor_size = Level::CurrentLevel().CellSize();
+          Actor::Player().Init(Actor::PLAYER, 0, 0, actor_size);
+          for (int i = 1; i < 15; i++) {
+            Actor::Actors().at(i).Init(Actor::GUARD, -100, 0, actor_size);
+          }
 
           // Load the opening level.
           current_level_num_ = 1;
-          Level::CurrentLevel().LoadLevel(current_level_num_);
+          LoadLevel();
 
           // Setup the default zoom level based on first level;
           ZoomCameraToMap();
           if (camera_mode_ != ZOOM_TO_MAP) {
             CentreCameraOnPlayer();
           }
-
-          // Start to listen for player game key-presses.
-          waiting_for_input_ = true;
-
-          // Start the game on next loop.
-          game_state_ = GAME;
         }
         return;
+      }
+      else if (game_state_ == FAILED_LEVEL) {
+        if (timer > 0) {
+          timer--;
+        }
+        if (timer < (FAIL_WAIT_TIME / 2) && timer > 0) {
+          return;
+        }
+        else {
+          LoadLevel(); // Reset level. TODO Not very efficient but it'll do for now.
+        }
       }
       else if (game_state_ == GAME_OVER) {
         return;
@@ -602,40 +658,30 @@ namespace octet {
       if (waiting_for_input_) {
         // Check player's decisions first.
         int player_update_return = Actor::Player().Update();
-        if (player_update_return < 4) {     // A button has been pressed.
-         
+        if (player_update_return < Actor::ACTOR_IDLE) {  // A button has been pressed.
+
           waiting_for_input_ = false;       // Stop listening for input.
-          input_wait_counter = input_wait;  // Reset wait counter.
+          input_wait_counter = INPUT_WAIT_TIME;  // Reset wait counter.
 
           // Update camera if nececery.
           if (camera_mode_ == JUMP_TO_PLAYER) {
             CentreCameraOnPlayer();
           }
         }
-        else if (player_update_return == 10) {
-          if (current_level_num_ != number_of_levels_) {
-            SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WIN);
-            current_level_num_++;
-            if (level_gen_mode_ == FLOOD_FILL) {
-              Level::CurrentLevel().LoadLevel();
-            }
-            else {
-              Level::CurrentLevel().LoadLevel(current_level_num_);
-            }
-            if (camera_mode_ == ZOOM_TO_MAP) {
-              ZoomCameraToMap();
-            }
-            else {
-              CentreCameraOnPlayer();
-            }
+        else if (player_update_return == Actor::GOAL_REACHED) {  // Goal reached
+          if (current_level_num_++ < NUM_LEVELS) {  // Add 1 after comparison
+            SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_SUCCESS);
+            LoadLevel();
           }
-          else { 
+          else {
+            SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_WIN);
             printf("You Win!");
-            game_over = true; 
+            game_state_ = GAME_OVER;
           }
         }
       }
-      else {  // Ignore input while counting down wait time.
+      else {  // 'waiting_for_input_' == false
+        // Ignore input while counting down wait time.
         if (input_wait_counter > 0) {
           input_wait_counter--;
         }
@@ -644,10 +690,15 @@ namespace octet {
         }
       }
 
-      // Check Guards' decisions.
-      //for (int i = 1; i < Actor::Actors().size(); i++) {
-      //  Actor::GetActor(i).Update();
-      //}
+      for (int i = Level::CurrentLevel().NumberOfGuards(); i > 0; i--) {
+        int guard_update_return = Actor::GetActor(i).Update();
+        if (guard_update_return == Actor::CAUGHT_BY_GUARD && game_state_ == GAME) {
+          SoundManager::GameSound().PlaySoundfx(SoundManager::SFX_CAUGHT);
+          waiting_for_input_ = false;
+          timer = FAIL_WAIT_TIME;
+          game_state_ = FAILED_LEVEL;
+        }      
+      }
 
       // Update camera if nececery.
       if (camera_mode_ == SLIDE_TO_PLAYER) {
@@ -657,7 +708,7 @@ namespace octet {
 
     // this is called to draw the world
     void draw_world(int x, int y, int w, int h) {
-      simulate();
+      Update();
 
       // set a viewport - includes whole window area
       glViewport(x, y, w, h);
@@ -682,6 +733,9 @@ namespace octet {
           Actor::Actors().at(i).GetSprite().render(texture_shader_, cameraToWorld);
         }
         Actor::Player().GetSprite().render(texture_shader_, cameraToWorld);
+      }
+      else if (game_state_ == MENU) {
+        menu_screen.render(texture_shader_, cameraToWorld);
       }
 
       /*

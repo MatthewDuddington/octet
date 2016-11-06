@@ -252,20 +252,31 @@ Door & Switch Ideas:
 
 Basis for textures:  
 (all applicable licences permit reuse and modification)  
-Grass 512x512  
+Grass (original prototype)  
 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/  
-Concrete 509x512  
+Concrete  
 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/  
 Wire mesh  
 https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/  
-Bush  
-http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html  
-Clouds (unused)  
-https://pixabay.com/en/clouds-mammatus-mammatus-cloud-747254/  
+Bushes  
+http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html
+Menu BG composite  
+https://pixabay.com/en/texture-wall-oyster-oyster-colored-1590106/  
+https://pixabay.com/en/moss-wall-green-rock-texture-457387/  
+
+Music:  
+BGM  
+http://www.incompetech.com/music/royalty-free/index.html?isrc=USUAN1100754  
+"Rising"  
+Kevin MacLeod (incompetech.com)  
+Licensed under Creative Commons: By Attribution 3.0  
+http://creativecommons.org/licenses/by/3.0/  
 
 Sounds:  
 (all applicable licences permit reuse and modification)  
 Sfx_Wrong  
 https://www.freesound.org/people/Isaac200000/sounds/188013/  
-Sfx_Win
+Sfx_Win  
 
+Sfx_Caught  
+http://www.freesound.org/people/Robinhood76/sounds/60521/  

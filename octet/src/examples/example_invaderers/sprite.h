@@ -15,10 +15,10 @@ namespace octet {
 
   enum Direction {
       // Suitible for indexes
-      NORTH,
       EAST,
-      SOUTH,
+      NORTH,
       WEST,
+      SOUTH,
 
       // Suitable for degree rotation values
       R_EAST = 0,
@@ -151,6 +151,13 @@ namespace octet {
       return local_rotation_;
     }
 
+    Direction LocalRotationDirection() {
+      if (LocalRotation() == R_NORTH) { return R_NORTH; }
+      else if (LocalRotation() == R_SOUTH) { return R_SOUTH; }
+      else if (LocalRotation() == R_EAST) { return R_EAST; }
+      else if (LocalRotation() == R_WEST) { return R_WEST; }
+    }
+
     // position the object relative to another.
     void set_relative(sprite &rhs, float x, float y) {
       modelToWorld = rhs.modelToWorld;
@@ -161,7 +168,7 @@ namespace octet {
     void set_relative_pos(sprite &rhs, float x, float y) {
       int temp_local_rotation = local_rotation_;
       set_relative(rhs, x, y);
-      LocalRotation(temp_local_rotation);  // Reapply any rotations after moving.
+      Rotate(temp_local_rotation);  // Reapply any rotations after moving.
     }
 
     const mat4t& ModelToWorld() {

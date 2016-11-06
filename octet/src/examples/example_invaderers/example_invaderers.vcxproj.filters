@@ -473,5 +473,11 @@
     <Text Include="Resources\level1.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="Resources\level3.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Resources\level4.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
