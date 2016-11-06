@@ -83,6 +83,7 @@ namespace octet {
     GLuint win_texture;
 
     float current_camera_z_ = GUI_CAMERA_Z;
+    mat4t camera_zero_pos_;  // Used for resetting the camera for new games & gui.
 
     // random number generator
     class random randomizer;
@@ -100,6 +101,7 @@ namespace octet {
 
       // set up the matrices
       cameraToWorld.loadIdentity();
+      camera_zero_pos_ = cameraToWorld;
 
       // Load menu image.
       menu_texture =
@@ -122,7 +124,7 @@ namespace octet {
 
     void TransformCamera( float x, float y, float z ) { cameraToWorld.translate( x, y, z ); }
 
-    void ResetCamera() { TransformCamera(0, 0, -current_camera_z_); } // TODO Maybe better if this was just a straight matrix reset?
+    void ResetCamera() { cameraToWorld = camera_zero_pos_; }
 
     // Used for repositioning for each level size
     void ZoomCameraToMap()
@@ -207,7 +209,8 @@ namespace octet {
       current_level_num_ = 0;  // Not STARTING_LEVEL so it's always the menu.
       current_camera_z_ = GUI_CAMERA_Z;
       
-      TransformCamera(0, 0, current_camera_z_);   // Setup camera for menu.
+      ResetCamera();
+      TransformCamera(0, 0, GUI_CAMERA_Z);   // Setup camera for menu.
       gui_screen.init(menu_texture, 0, 0, 2, 2);  // Display menu image.
 
       SoundManager::GameSound().PlayBGM(SoundManager::BGM);   // Start background music.
@@ -223,7 +226,11 @@ namespace octet {
 
       // INPUT CHECKS :: UPDATE FUNCTION //
       // At any time press ESC to restart.
-      if (is_key_down(key_esc)) { ResetGame(); }
+      if (is_key_down(key_esc)) 
+      { 
+        ResetGame(); 
+        return; 
+      }
 
       // MENU STUFF :: UPDATE FUNCTION //
       if (game_state_ == MENU) {
@@ -240,7 +247,7 @@ namespace octet {
 
         // Check for noise generated grass or texture from file.
         if      (is_key_down(key::key_f8)) { grass_mode_ = NOISE; }
-        else if (is_key_down(key::key_f9)) { grass_mode_ = FROM_FILE; }
+        else if (is_key_down(key::key_f4)) { grass_mode_ = FROM_FILE; }
 
         // Check for starting the game.
         if (is_key_down(key::key_space))
@@ -248,7 +255,8 @@ namespace octet {
           start_game = true;
           gui_screen.init(0, -100, 0, 0, 0);  // Clear menu sprite.
 
-          if (grass_mode_ == FROM_FILE) { Level::CurrentLevel().DontUseNoiseGrass(); }
+          if (grass_mode_ == FROM_FILE) { Level::CurrentLevel().UseNoiseGrass(false); }
+          else { Level::CurrentLevel().UseNoiseGrass(true); }
         }
 
         if (start_game)
@@ -290,6 +298,7 @@ namespace octet {
           return;
         }
         else { LoadLevel(); } // Reset level. TODO Not very efficient but it'll do for now.
+        return;
       }
 
       // WINNING GAME :: UPDATE FUNCTION //
@@ -322,14 +331,16 @@ namespace octet {
               LoadLevel();
               waiting_for_input_ = false;
               input_wait_counter = INPUT_WAIT_TIME;
+              return;
             }
             else
             {  // All levels completed.
               SoundManager::GameSound().PlayBGM(SoundManager::SFX_WIN);  // Stops BGM and overwrights with Win sound.
-              gui_screen.init( win_texture, 100, 0, 2, 2 );  // Load win screen
+              gui_screen.init( win_texture, 0, 0, 2, 2 );  // Load win screen
               ResetCamera();
               TransformCamera( 0, 0, GUI_CAMERA_Z );
               game_state_ = GAME_OVER;
+              return;
             }
           }
         }
@@ -400,9 +411,9 @@ namespace octet {
         Actor::Player().GetSprite()
           .render( texture_shader_, cameraToWorld );    // Render player
       }
-      else if (game_state_ == MENU) {
-        gui_screen.render( texture_shader_, cameraToWorld );
-      }
+      else if ( game_state_ == MENU
+             || game_state_ == GAME_OVER)
+      { gui_screen.render( texture_shader_, cameraToWorld ); }
 
       // move the listener with the camera
       vec4 &cpos = cameraToWorld.w();

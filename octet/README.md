@@ -38,19 +38,19 @@ Structure / Approach:
   (Thus, I apologise for the resultant mixed formatting in some modules!)
 
   - A few significant diverges however:  
-  - Firsty, I drop opening code block braces onto new lines, except for simple,
+  - Firstly, I drop opening code block braces onto new lines, except for simple,
     single line blocks.  
-  - Secondly, I add a space inside function decleration parameter brackets and
+  - Secondly, I add a space inside function declaration parameter brackets and
     in call argument brackets if there is more than one element.  
   - Finally, where I have multiple long parameters or arguments, I split these 
-    onto new lines. Seperating tokens go below the calling token. This gives an 
+    onto new lines. Separating tokens go below the calling token. This gives an 
     eyeline to follow and helps prevent the IDE from realigning things 
-    impropperly with the auto indent.  
-    Where paramaters or arguments are very short, or are fundementally related 
+    improperly with the auto indent.  
+    Where parameters or arguments are very short, or are fundamentally related 
     (such as an X, Y, Z position) and also short, they are kept on the same 
     line.  
-   - Rule #1 is apparently: readability and clarity above all other rules)  
-     Where I need to adhear to a house standard, retrospective auto formatting is possible before commits are merged)
+   - Rule #1 is apparently: readability and clarity above all other rules.  
+     Where I need to adhere to a house standard, retrospective auto formatting is possible before commits are merged)
 
 Gameplay:
 
@@ -64,18 +64,8 @@ Gameplay:
   checking rather than collision detection) and so a path must be found through
   the level.
 
-  // TODO
 - 'Guard' NPCs have line of sight and will capture the player (restarts the
   level) if they are triggered. Thus, the player must avoid them.
-
-  // TODO
-- Guards take turns simultaneously with the player, changing the dangerous areas
-  of the map as the player moves through the level.
-
-Animation: // TODO
-
-- Actors progress through a sprite sequence using a simple UV position
-  translation across a texture sprite sheet. 
 
 File Reading:
 
@@ -181,60 +171,124 @@ the texture of existing sprites, I also introduced a new sprite into the scene
 (a dog's head that was 'artistically' rendered in MS paint using a trackpad
 while on a train) to represent a second ship.
 
---------------------------------------------------------------------------------
+Adjustment of the inputs and changing additional transform properties were my 
+next goals. Amending the "keys" enum in app_common.h enabled WASD control to be 
+added using their Hexadecimal ASCII values. Searching the mat4t.h module 
+revealed the source of matrix transformations and many pre-existing functions. 
+Rotation was added to the 'dogs head' ship via QE keys, and a quick remapping of
+the missile firing relative sprite position resulted in a mobile, tank-control
+like entity.
 
-// TODO Write these up:
+From this initial tinkering I felt I was able to draw similarities to my 
+experience with using the Unity library and producing unique scripts. So I 
+embarked on the initial stages of the adapted game.
 
-Added transform on new WASD keys
-Rotation methods dug up in mat4t class
-Added via QE keys
-Remapped the missile firing to the dog head.
+A key criteria for the assignment was to make use of external data sources to 
+effect the game in some way. I chose to pursue a simple level design text file 
+parser, partly as I had never worked in that way before but also because 
+accessing external files through code was new to me.
 
-Key criteria is to read from external file to generate levels.
-Have never done file opening before
-Seemed to be getting part way.
-Collaborated with Robert Doig to work through possible ways of doing this.
-Elegant solutions were getting too complicated to get working without knowing
-what assumptions were valid. So decided to get basic and inefficient working
-first and we'll clean up as we go.
+Working with **Robert Doig** (MSc) and later with reference to Andy's example 
+csv reader code, together we gradually worked out a simple system to read out a 
+char stream from the text file and store it for subsequent use. Initially we had
+attempted to construct something more sophisticated and elegant, however we 
+realised that, for the scope of what it needed to do, it seemed more prudent to 
+follow a specific rather than generic approach. We each then developed an stage 
+two system to process the chars into a tiled sprite level appropriate for our 
+individual games.
 
-Game Idea:
-Maze sneaking
-Guards with LoS and rotation
-When spotted change sprite colour to yellow using shader
-When alarm triggered change sprite colours to red using shader
-Simple animations from moving UVs
+My idea was to develop a maze like, sneaking strategy type MVP, as this largely 
+appeared to give scope for the types of behaviours I wanted to try and produce. 
+The Squaresoft 'Go' games were my basic target influence.
 
-Simple menu
-Change imported language from choice at start
-Save and load?
-Guards can move?
+Some elements of this idea I was unable to add within the time, such as moving 
+NPCs, animations through moving UV positions on a sprite sheet and procedural, 
+flood fill algorithm based basic level generation. However, I successfully 
+achieved an adaptable and reliable level design parser, added algorithmic grass 
+to the shader based on my understanding of an online example, added a simple 
+blending mode system to the texture shader and successfully built the core 
+essential functions for the gameplay.
 
-Using unstable branches as part of github usage.
+Likewise, I feel more confident in certain aspects of understanding and writing 
+C++ code and substantially more aware of a basic level debugging capabilities in
+Visual Studio. Particularly satisfying was the epiphany moment following two 
+weeks of encountering the unspecific LNK2001 error code - which turned out to 
+relate to non initialised static variables. This particular challenge was 
+probably the most disruptive to my progression as I was unable to solve this for
+some time. However, I was very satisfied at the eventual answer I was able to 
+develop which is seemingly similar to a singleton pattern variation. 
 
-Wednesday 26th, spent almost all day with assisting others rather than working on my own code oops!
-Assisted Pablo Larenas with debugging level instantiation loops and explained concept of arrays and indexes. Also assisted Pablo with interpreting and altering Nick's random positioning code to differentiate where the player, traps, guards and goal would be positioned at instantiation. I also helped him to work through the start of some code to read a few numbers form a text file.
+Working with the shader was the next significant milestone after the level 
+creation code as this was the second main requirement of the project.
 
-Assisted Delainey Ackerman with debugging her file input loop.
+**Nick Veselov** (MSc) gave me a very useful explanation of the four key places 
+that needed to be amended to add new functionality to the fragment shader. From 
+his advice I was able to work out how these elements interacted - A GLuint acts 
+as a flag to which the address of a uniform variable can be added. The incoming 
+arguments from the render() call can then be passed into the shader by using the
+GLuint flag as a go-between.
 
-Nick Veselov assisted me by explaining overview of how to add new properties to a shader.
+Later in the term **Robert Doig** (MSc) pointed me to an ideal example of shader
+code (http://glslsandbox.com/e#36439.0) that would create a noisy texture. I was
+able to gradually deconstruct the deceptively simple set of intertwining 
+functions to understand what was going on and slightly adapted it to include it 
+within my texture shader. Prior to this, I had been attempting to make use of 
+random number generation to seed the fragment shader but had been struggling to 
+find functions and approaches that did not cause the shader to break and display
+only a white square.
 
-Suggestion from Jack Evans to store neighbours in MapCell so don't need to calculate each time.
+Much of the gameplay aspects followed in the final two weeks of the assignment
+as I had achieved a critical mass of foundational code that I was able to add
+and iterate with substantially fewer instances of the game not running at all.
 
-Solved long standing issue of LNK2001 error!
+Prior to this point I had begun to make use of Unstable Branches within my 
+GitHub repository so that I was able to make a few commits even on days where 
+the code did not compile successfully for a long time. Towards the end, this was
+much less of an issue.
 
-Robert Doig showed me a Shader Sandbox example (http://glslsandbox.com/e#36439.0) he had discovered which implemented the kind of procedural pixel effect I was looking for.
+I was able to create a couple of different approaches to moving / positioning
+the camera based on either the player location (sliding to follow or popping to 
+match positions) or the level design (zooming itself backwards to fit the 
+longest edge of the level snugly within the window).
 
+This lead to a basic menu screen where different options could be applied to the
+game upon start up, and later functionality like resetting the game, skipping 
+levels and so forth were added to assist with demoing and testing.
 
+For fun on the last day I also polished up the sounds and bookend screens just 
+to make it feel a little more presentable.
 
-Camera movement versions: Zoom based on level's longest side, pop to player's position every movement, slide over time to follow player's location.
+As well as receiving help, slightly to my surprise I was also able to provide 
+useful help to quite a few other students over the course of the assignment. 
+Much of this was on account of simply being present in the shared lab space on 
+most days, and so mini discussions would often reveal some new idea or 
+understanding between us all. Such as **Jack Evans** (MSc) offering the 
+particularly helpful suggestion of storing awareness of adjacent cells within 
+each cell, so that I didn't need to derive it from fresh each time. Jack also 
+helped me earlier on in the term with understanding some differences in 
+conventions between C# and C++.
 
-Spawned guards
+Specifically, I spent a notable length of time assisting **Pablo Larenas** (MA) 
+with understanding, debugging and expanding upon certain aspects of the code 
+other students had assisted him with. Furthermore, I was able to work through 
+the concept of Arrays and indexes with Pablo to the stage where he was able to 
+understand how to manipulate and interpret them himself. By the end of our half-
+day he had been able to change and control the random locations of instantiated 
+npcs, level objects etc.
 
+Similarly, during reading week I was able to spend a morning passing on my 
+understanding of basic shader access to **Eloise Calandre** (MA), as well as 
+explain the basic principle and structure behind classes in OOP and their 
+constituent members.
 
-Door & Switch Ideas:
-- Suffix number e.g. D1 and T1 would link together
-- Use a set of letters as doors and have Uppercase and Lowercase relate to door and switch pairs (Thanks to Luke Sanderson for this idea)
+**Delainey Ackerman** (MA) requested my help to debug the file parsing code she 
+was working with and we were able to chop and change parts of it to reach a 
+successfully functioning state. Likewise, was able to help **Luke Sanderson** 
+(MSc) with an example of what Robert and I had done with the file parser as well
+as assisting him with a basic understating of where to integrate random numbers
+into his code to randomly assign positions.
+
+// IMAGE TO GO HERE OF WHITEBOARD
 
 --------------------------------------------------------------------------------
 
@@ -252,7 +306,10 @@ Door & Switch Ideas:
 
 - Shaders don't appear to allow all C++ code to run inside them in the same way 
   as conventional .h files.  
-  Declaration order matters. It cannot read class member variables outside the scope of the shader structure - hence some of the reason for the multi-step declaration and setting of uniforms. Some standard functions don't seem to be compatible. Cannot use 'f' to define floats unless using later version. 
+  Declaration order matters. It cannot read class member variables outside the 
+  scope of the shader structure - hence some of the reason for the multi-step 
+  declaration and setting of uniforms. Some standard functions don't seem to be 
+  compatible. Cannot use 'f' to define floats unless using later version. 
   An invalid result creates a white square only.
 
 - Resources (such as textures and sounds) must be loaded to the resource 

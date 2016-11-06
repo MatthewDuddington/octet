@@ -207,8 +207,8 @@ namespace octet {
       return num_of_guards_;
     }
 
-    void DontUseNoiseGrass() {
-      use_noise_grass_ = false;
+    void UseNoiseGrass(bool b) {
+      use_noise_grass_ = b;
     }
 
     void LoadLevel(int level_num = 0) {
