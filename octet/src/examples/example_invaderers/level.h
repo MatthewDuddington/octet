@@ -19,11 +19,10 @@ namespace octet {
     // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4424.pdf
     // http://stackoverflow.com/questions/18860895/how-to-initialize-static-members-in-the-header
     // Suggested answer is to use a static function which returns it's own static variable of the type desired. I have modified the example to enable Set and Get behaviour within the same function. With setting only possible within the class as public getter only returns.
-    static Level*& current_level_(Level* level_object = NULL) {
+    static Level*& current_level_(Level* level_object = NULL)
+    {
       static Level* current_level_;
-      if (level_object != NULL) {
-        current_level_ = level_object;
-      }
+      if (level_object != NULL) { current_level_ = level_object; }
       return current_level_;
     };
 
@@ -42,7 +41,8 @@ namespace octet {
     void BuildLevel(std::string level_file_location = "PROCEDURAL") {
 
       // Reset guards
-      while (num_of_guards_ > 0) {
+      while (num_of_guards_ > 0)
+      {
         sprite& guard = Actor::Actors().at(num_of_guards_).GetSprite();
         guard.translate(-100, 0);
         guard.is_enabled() = false;
@@ -51,21 +51,31 @@ namespace octet {
 
       // Load map textures
       //GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/start.gif");
-      GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/goal.gif");
-      GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/path.gif");
-      GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/wall.gif");
-      GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush.gif");
-      GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical.gif");
-      GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal.gif");
-      GLuint goal_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/goal_t.gif");
-      GLuint bush_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush_t.gif");
-      GLuint fence_verti_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical_t.gif");
-      GLuint fence_horiz_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal_t.gif");
+      GLuint goal_texture =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/goal.gif" );
+      GLuint path_texture =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/path.gif" );
+      GLuint wall_texture =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/wall.gif" );
+      GLuint bush_texture =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/bush.gif" );
+      GLuint fence_verti_texture =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/fence_vertical.gif" );
+      GLuint fence_horiz_texture =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/fence_horizontal.gif" );
+      GLuint goal_texture_t =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/goal_t.gif" );
+      GLuint bush_texture_t =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/bush_t.gif" );
+      GLuint fence_verti_texture_t =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/fence_vertical_t.gif" );
+      GLuint fence_horiz_texture_t =
+        resource_dict::get_texture_handle( GL_RGBA, "assets/invaderers/fence_horizontal_t.gif" );
 
       // Load level design and set level specific information.
 
       LevelFileHandler level_file_handler;  // Assistant module to read the level design file.
-      level_file_handler.Init(level_file_location, level_width_, level_height_);  // TODO add way to load level from int rather than hard coded address.
+      level_file_handler.Init( level_file_location, level_width_, level_height_ );  // TODO add way to load level from int rather than hard coded address.
       level_grid_.resize(Size());  // Prepare level grid vector with the sizes calculated during level file buffering.
 
       // Create a big background tile for the grass.
@@ -151,7 +161,7 @@ namespace octet {
             column, row,   // Level grid x and y coordinates
             texture,       // Texture image
             x_pos, y_pos,  // x and y positions of sprite
-            cell_size_);   // Width and height of sprite
+            cell_size_ );  // Width and height of sprite
 
           // Loop until map filled.
         }
@@ -161,71 +171,61 @@ namespace octet {
     // TODO This should really be in the Actor class.
     // Sets up the actor.
     // Rotation must be set using one of the 'R_' directions.
-    void SetupActor(Actor& actor, Actor::ActorType type, float x_pos, float y_pos, int current_cell, Direction rotation) {
-      actor.Init(type, x_pos, y_pos, cell_size_);
-      actor.OccupiedCell(&level_grid_.at(current_cell));
-      actor.GetSprite().set_relative(level_grid_.at(current_cell-1).GetSprite(), cell_size_, 0); // Because current cell hasn't been initialised with its position yet, need to offset from previous cell. 'Start' type cell is never in column 0 so it is safe to assume previous index cell is always to the left.
+    void SetupActor( Actor& actor
+      ,              Actor::ActorType type
+      ,              float x_pos, float y_pos
+      ,              int current_cell
+      ,              Direction rotation )
+    {
+      actor.Init( type, x_pos, y_pos, cell_size_ );
+      actor.OccupiedCell( &level_grid_.at(current_cell) );
+      actor.GetSprite().set_relative( level_grid_.at(current_cell-1).GetSprite(), cell_size_, 0 ); // Because current cell hasn't been initialised with its position yet, need to offset from previous cell. 'Start' type cell is never in column 0 so it is safe to assume previous index cell is always to the left.
       actor.GetSprite().LocalRotation(rotation);
     }
 
 
   public:
-    Level() {
-      current_level_(this);
-    }
+    Level() { current_level_(this); }
 
     // Way to access functions of the current level
-    static Level& CurrentLevel() {
-      return *current_level_();
-    }
+    static Level& CurrentLevel() { return *current_level_(); }
+    std::vector<MapCell>& LevelGrid() { return level_grid_; }
 
-    const int Size() {
-      return level_width_ * level_height_;
-    }
+    const int Size() { return level_width_ * level_height_; }
+    const int& Width() { return level_width_; }
+    const int& Height() { return level_height_; }
 
-    const int& Width() {
-      return level_width_;
-    }
+    const int LongestSideSize() { return level_width_ > level_height_ ? level_width_ : level_height_; }
+    const float& CellSize() { return cell_size_; }
 
-    const int& Height() {
-      return level_height_;
-    }
+    const int& NumberOfGuards() { return num_of_guards_; }
 
-    const int LongestSideSize() {
-      return level_width_ > level_height_ ? level_width_ : level_height_;
-    }
+    void UseNoiseGrass(bool b) { use_noise_grass_ = b; }
 
-    std::vector<MapCell>& LevelGrid() {
-      return level_grid_;
-    }
-
-    const float& CellSize() {
-      return cell_size_;
-    }
-
-    const int& NumberOfGuards() {
-      return num_of_guards_;
-    }
-
-    void UseNoiseGrass(bool b) {
-      use_noise_grass_ = b;
-    }
-
-    void LoadLevel(int level_num = 0) {
+    void LoadLevel(int level_num = 0)
+    {
       if (level_num != 0) {  // Builds level from .txt file design.
         std::string level_file_location = "Resources/level" + std::to_string(level_num) + ".txt";  // Construct file path as string.
         BuildLevel(level_file_location);
         return;
       }
+      // else
       BuildLevel("PROCEDURAL");
     }
 
-    void RenderMap(texture_shader& texture_shader, mat4t cameraToWorld) {
-      map_background_.render(texture_shader, cameraToWorld, vec4{ 0.6f, 0.9f, 0.4f, 1 }, texture_shader::GRASS);
-      for (int i = 0; i < Size(); ++i) {
-        LevelGrid().at(i).GetSprite().render(texture_shader, cameraToWorld);
+    void RenderMap( texture_shader& texture_shader
+      ,             mat4t cameraToWorld )
+    {
+      map_background_.render( texture_shader
+                            , cameraToWorld
+                            , vec4{ 0.6f, 0.9f, 0.4f, 1 }
+                            , texture_shader::GRASS );
+      for ( int i = 0; i < Size(); ++i )
+      {
+        LevelGrid().at(i).GetSprite().render( texture_shader, cameraToWorld );
       }
     }
+
   };
 
 }

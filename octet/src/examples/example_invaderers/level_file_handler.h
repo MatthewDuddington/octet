@@ -21,8 +21,8 @@ namespace octet {
 
     std::vector<char> level_design_;  // Stores the current level's string of map design characters.
 
-    void ExtractFileContent(const char file_location[],
-                            int &level_width, int &level_height)
+    void ExtractFileContent( const char file_location[]
+      ,                      int &level_width, int &level_height )
     {
       std::ifstream input_file(file_location);  // Open file.
 
@@ -33,11 +33,11 @@ namespace octet {
         std::string line_buffer;  // Store current line here
         level_height = -1;        // Reset level height count (first row is 0 so start at -1)
 
-        while (!input_file.eof()) {              // Stop at end of file
-          std::getline(input_file, line_buffer); // Extract the current line to the buffer
+        while (!input_file.eof()) {                // Stop at end of file
+          std::getline( input_file, line_buffer ); // Extract the current line to the buffer
          
           // Add each char from the temporary buffer to the permanent vector
-          for (int i = 0; i < line_buffer.length(); i++) {
+          for ( int i = 0; i < line_buffer.length(); i++ ) {
             level_design_.push_back(line_buffer.at(i));
           }
           level_height++;  // Determine the level height by counting each loop
@@ -48,7 +48,7 @@ namespace octet {
 
     // Uses Flood Fill type algorithm
     // Influenced by example from https://www.youtube.com/watch?v=xYOG8kH2tF8
-    void CreateFloodFillDesign(int &level_width, int &level_height) {
+    void CreateFloodFillDesign( int &level_width, int &level_height ) {
       //
       //level_design_.push_back(generatedchar)
     }
@@ -57,27 +57,30 @@ namespace octet {
   public:
     LevelFileHandler() {}
 
-    void Init(const std::string file_location,
-              int &level_width,
-              int &level_height)
+    void Init( const std::string file_location
+      ,        int &level_width
+      ,        int &level_height )
     {
       if (file_location != "PROCEDURAL") {
-        ExtractFileContent(file_location.c_str(), level_width, level_height);
+        ExtractFileContent( file_location.c_str(), level_width, level_height );
       }
       else {
-        CreateFloodFillDesign(level_width, level_height);
+        CreateFloodFillDesign( level_width, level_height );
       }
     }
 
     // Loads the level file only once and returns the char.
-    char GetDesignSymbol(int symbol_index) {
-      if (level_design_.size() < symbol_index) {
-        printf("ERROR: Index requested is out of range for the loaded level design. \n");
+    char GetDesignSymbol(int symbol_index)
+    {
+      if (level_design_.size() < symbol_index) 
+      {
+        printf( "ERROR: Index requested is out of range for the loaded level design. \n" );
         return NULL;
       }
       else {
-        if (symbol_index == level_design_.size() - 1) {
-          printf("End of file. Level design file read complete. Clearing file content cache. \n");
+        if (symbol_index == level_design_.size() - 1)
+        {
+          printf( "End of file. Level design file read complete. Clearing file content cache. \n" );
           char temp_char = level_design_.at(symbol_index); // Temporarily store the return value so it doesn't get cleared.
           level_design_.clear();  // Clean up char array (also important for correct level width to be determined if previous level was a larger map)
           return temp_char;
@@ -85,6 +88,7 @@ namespace octet {
         return level_design_.at(symbol_index);
       }
     }
+
   };
 
 }

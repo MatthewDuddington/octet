@@ -89,6 +89,7 @@ namespace octet {
       alSourcei( current_bg_source_, AL_BUFFER, sound_ALuints_[bgm] );
       alSourcePlay(current_bg_source_);
     }
+
   };
 
 }

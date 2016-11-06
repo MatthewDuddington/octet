@@ -12,7 +12,7 @@
 namespace octet {
 
   class MapCell {
-  private:
+
     sprite sprite_;
     
     enum CellType;
@@ -105,6 +105,7 @@ namespace octet {
         test_cell = &test_cell->GetAdjacentCell(direction);
         if (test_cell == &map_cell) { return true; }
       }
+
       return false;
     }
 

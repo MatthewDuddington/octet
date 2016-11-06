@@ -127,11 +127,13 @@ namespace octet {
         return ACTOR_IDLE;
       }
 
-      // else Actor == Guard  
+      // else Actor == Guard
+      // If player moves into a cell in line of sight distance of a guard...
       if ( OccupiedCell().IsInLineWithMe( Actor::Player().OccupiedCell()
                                         , GetSprite().LocalRotationDirection()
-                                        , 2 )  // If player moves into a cell in line of sight distance of a guard...
-        || &OccupiedCell() == &Actor::Player().OccupiedCell() ) // ...or actually moves into the same cell as the guard. TODO Optionally this second condition could be ignored and instead allow the player to 'knock out' guards when approaching from the side or behind.
+                                        , 2 )
+        || &OccupiedCell() == &Actor::Player().OccupiedCell() )
+        // ...or actually moves into the same cell as the guard. TODO Optionally this second condition could be ignored and instead allow the player to 'knock out' guards when approaching from the side or behind.
       { return CAUGHT_BY_GUARD; }  // Main app will reset level.
       // else Do nothing.
       return ACTOR_IDLE;

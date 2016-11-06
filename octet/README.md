@@ -74,12 +74,16 @@ File Reading:
 
 - File path of text to be read is partially dynamic and enables the loading of  multiple levels.
 
-Procedural Generation: // TODO
+Procedural Generation: // TODO (Code begun but incomplete)
 
-- level_file_handler.h is also conceptually overloaded with the capability to
+- level_file_handler.h will also be conceptually overloaded with the capability to
   generate a semi randomised level layout. Walls always spawn at outer edges.
   
-- A flood fill algorithm ensures all 'walkable' areas are joined together.
+- A flood fill algorithm will ensure all 'walkable' areas are joined together.
+
+Animation: // TODO (Code begun but incomplete)
+
+- Actors will be able to progress through a sprite sequence using a simple UV position translation across a texture sprite sheet. 
 
 Shader:
 
