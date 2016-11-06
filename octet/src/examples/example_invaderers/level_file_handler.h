@@ -22,8 +22,7 @@ namespace octet {
     std::vector<char> level_design_;  // Stores the current level's string of map design characters.
 
     void ExtractFileContent(const char file_location[],
-                            int &level_width,
-                            int &level_height)
+                            int &level_width, int &level_height)
     {
       std::ifstream input_file(file_location);  // Open file.
 
@@ -47,6 +46,13 @@ namespace octet {
       }
     }
 
+    // Uses Flood Fill type algorithm
+    // Influenced by example from https://www.youtube.com/watch?v=xYOG8kH2tF8
+    void CreateFloodFillDesign(int &level_width, int &level_height) {
+      //
+      //level_design_.push_back(generatedchar)
+    }
+
 
   public:
     LevelFileHandler() {}
@@ -59,8 +65,7 @@ namespace octet {
         ExtractFileContent(file_location.c_str(), level_width, level_height);
       }
       else {
-        // TODO Procedurally generate level design.
-        // Add level design to level_design_ variable.
+        CreateFloodFillDesign(level_width, level_height);
       }
     }
 

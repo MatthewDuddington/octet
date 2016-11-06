@@ -50,13 +50,14 @@ namespace octet {
       }
 
       // Load map textures
-      GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/start.gif");
+      //GLuint start_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/start.gif");
       GLuint goal_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/goal.gif");
       GLuint path_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/path.gif");
       GLuint wall_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/wall.gif");
       GLuint bush_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush.gif");
       GLuint fence_verti_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical.gif");
       GLuint fence_horiz_texture = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal.gif");
+      GLuint goal_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/goal_t.gif");
       GLuint bush_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/bush_t.gif");
       GLuint fence_verti_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_vertical_t.gif");
       GLuint fence_horiz_texture_t = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/fence_horizontal_t.gif");
@@ -111,19 +112,22 @@ namespace octet {
             cell_type = MapCell::BUSH;
             break;
           case 'S':  // Start
-            texture = start_texture;
+            if (!use_noise_grass_) { texture = path_texture; }
+            // texture = start_texture;
             cell_type = MapCell::START;
             SetupActor(Actor::Player(), Actor::PLAYER, x_pos, y_pos, current_cell, R_SOUTH);
             printf("%d", Actor::Actors().size());
             break;
           case 'G':  // Goal
-            texture = goal_texture;
+            if (!use_noise_grass_) { texture = goal_texture; }
+            else { texture = goal_texture_t; }
             cell_type = MapCell::GOAL;
             break;
           case '>':  // Guards, fall through
           case '^':
           case '<': 
           case 'V':
+            if (!use_noise_grass_) { texture = path_texture; }
             cell_type = MapCell::PATH;
             Direction rotation;
             if (current_design_symbol == '>') { rotation = R_EAST; }   // Guard facing right

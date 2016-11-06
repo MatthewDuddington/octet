@@ -264,7 +264,7 @@ typedef void ALvoid;
 #define AL_CONE_OUTER_GAIN                        0x1022
 
 /**
- * Indicate distance above which sources are not
+ * Indicate distance above which sources_ are not
  * attenuated using the inverse clamped distance model.
  *
  * Default: +inf
@@ -496,10 +496,10 @@ AL_API void AL_APIENTRY alGetListeneriv( ALenum param, ALint* values );
  */
 
 /* Create Source objects */
-AL_API void AL_APIENTRY alGenSources( ALsizei n, ALuint* sources ); 
+AL_API void AL_APIENTRY alGenSources( ALsizei n, ALuint* sources_ ); 
 
 /* Delete Source objects */
-AL_API void AL_APIENTRY alDeleteSources( ALsizei n, const ALuint* sources );
+AL_API void AL_APIENTRY alDeleteSources( ALsizei n, const ALuint* sources_ );
 
 /* Verify a handle is a valid Source */ 
 AL_API ALboolean AL_APIENTRY alIsSource( ALuint sid ); 

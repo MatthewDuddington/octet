@@ -34,7 +34,7 @@ namespace octet { namespace containers {
     }
 
     // When dealing with windows or java, we will come across the less popular
-    // utf16 encoding scheme. All other sources of text will likely be in UTF8, ANSI or shift-JIS
+    // utf16 encoding scheme. All other sources_ of text will likely be in UTF8, ANSI or shift-JIS
     // We use UTF8 internally as it is compact and popular.
     unsigned utf16_to_utf8(char *dest, const wchar_t *value) {
       unsigned num_bytes = 0;

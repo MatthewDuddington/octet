@@ -32,15 +32,25 @@ Structure / Approach:
 
 - Broadly, I have tried to adhere to the Google C++ style guide.  
   https://google.github.io/styleguide/cppguide.html  
-  Though, I have chosen to avoid refactoring any existing Octet / Invaiderers
-  code, mainly for greater clarity in what I have changed, but also to avoid
-  inadvertently breaking non-obvious calls.  
+  Though, I have chosen to avoid refactoring too much existing Octet / 
+  Invaiderers code, mainly for greater clarity in what I have added, but also 
+  to avoid inadvertently breaking non-obvious calls.  
   (Thus, I apologise for the resultant mixed formatting in some modules!)
 
-  - Similarly, I diverge with the Google style where I have multiple long
-    parameters or arguments. I split these to new lines and carry the opening
-    brace, as this makes it clearer for me to read back.  
-    (Rule #1 - readability and clarity is king)
+  - A few significant diverges however:  
+  - Firsty, I drop opening code block braces onto new lines, except for simple,
+    single line blocks.  
+  - Secondly, I add a space inside function decleration parameter brackets and
+    in call argument brackets if there is more than one element.  
+  - Finally, where I have multiple long parameters or arguments, I split these 
+    onto new lines. Seperating tokens go below the calling token. This gives an 
+    eyeline to follow and helps prevent the IDE from realigning things 
+    impropperly with the auto indent.  
+    Where paramaters or arguments are very short, or are fundementally related 
+    (such as an X, Y, Z position) and also short, they are kept on the same 
+    line.  
+   - Rule #1 is apparently: readability and clarity above all other rules)  
+     Where I need to adhear to a house standard, retrospective auto formatting is possible before commits are merged)
 
 Gameplay:
 
@@ -211,11 +221,15 @@ Nick Veselov assisted me by explaining overview of how to add new properties to 
 
 Suggestion from Jack Evans to store neighbours in MapCell so don't need to calculate each time.
 
+Solved long standing issue of LNK2001 error!
+
 Robert Doig showed me a Shader Sandbox example (http://glslsandbox.com/e#36439.0) he had discovered which implemented the kind of procedural pixel effect I was looking for.
 
-TODO List (final 10 days)
-- Spawn guards
-- Apply line of sight check to guards (basic functionality already within map cell)
+
+
+Camera movement versions: Zoom based on level's longest side, pop to player's position every movement, slide over time to follow player's location.
+
+Spawned guards
 
 
 Door & Switch Ideas:
@@ -237,9 +251,8 @@ Door & Switch Ideas:
   same time within function scope.
 
 - Shaders don't appear to allow all C++ code to run inside them in the same way 
-  as conventional .h files (Declaration order matters more so. Also it cannot 
-  read class member variables outside the scope of the shader structure - hence 
-  some of the reason for the multi-step declaration and setting of uniforms).  
+  as conventional .h files.  
+  Declaration order matters. It cannot read class member variables outside the scope of the shader structure - hence some of the reason for the multi-step declaration and setting of uniforms. Some standard functions don't seem to be compatible. Cannot use 'f' to define floats unless using later version. 
   An invalid result creates a white square only.
 
 - Resources (such as textures and sounds) must be loaded to the resource 
@@ -254,15 +267,28 @@ Basis for textures:
 (all applicable licences permit reuse and modification)  
 Grass (original prototype)  
 https://sftextures.com/2014/08/06/green-grass-mixed-weed-and-clover-plant-seamless-texture/  
-Concrete  
+Wall  
 https://sftextures.com/2015/04/27/concrete-road-block-squared-black-and-white-marble-noisy-surface-texture/  
-Wire mesh  
+Fence  
 https://pixabay.com/en/fence-iron-fence-mesh-wire-mesh-1094920/  
-Bushes  
+Bush 
 http://plants.swtexture.com/2009/08/tree-ficus-benyamina-hilli.html
 Menu BG composite  
 https://pixabay.com/en/texture-wall-oyster-oyster-colored-1590106/  
 https://pixabay.com/en/moss-wall-green-rock-texture-457387/  
+Goal  
+https://pixabay.com/en/emergency-exit-exit-door-way-sign-98585/  
+Win screen composite
+http://www.geograph.org.uk/photo/1520138
+"TF6024 : A gap in the bushes"
+(c) Richard Humphrey (geograph.org.uk/profile/39484)  
+This file is licensed under the Creative Commons Attribution-Share Alike 2.0
+Generic license.
+http://www.geograph.org.uk/photo/1508666  
+"SN8056 : Hillside with rowans, Powys"  
+(c) Roger Kidd (geograph.org.uk/profile/12192)  
+This file is licensed under the Creative Commons Attribution-Share Alike 2.0
+Generic license.  
 
 Music:  
 BGM  
@@ -276,7 +302,9 @@ Sounds:
 (all applicable licences permit reuse and modification)  
 Sfx_Wrong  
 https://www.freesound.org/people/Isaac200000/sounds/188013/  
-Sfx_Win  
-
 Sfx_Caught  
 http://www.freesound.org/people/Robinhood76/sounds/60521/  
+sfx_Success  
+http://www.freesound.org/people/InspectorJ/sounds/347246/  
+Sfx_Win  
+http://www.freesound.org/people/squashy555/sounds/269244/  

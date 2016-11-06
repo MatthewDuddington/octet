@@ -279,7 +279,7 @@ namespace octet {
   class ALCcontext {
     enum { ring_size = 8 };
     dynarray<ref<ALbuffer> > buffers;
-    dynarray<ref<ALsource> > sources;
+    dynarray<ref<ALsource> > sources_;
     dynarray<float> mixer;
     dynarray<int16_t> mixer_bin;
     unsigned rate;
@@ -290,8 +290,8 @@ namespace octet {
     void fill_buffer(int16_t *dest) {
       memset(&mixer[0], 0, mixer.size() * sizeof(mixer[0]));
 
-      for (unsigned i = 0; i != sources.size(); ++i) {
-        ALsource *src = sources[i];
+      for (unsigned i = 0; i != sources_.size(); ++i) {
+        ALsource *src = sources_[i];
         if (src) {
           // fill mixer
           ALbuffer *buffer = get_buffer(src->geti(AL_BUFFER));
@@ -323,7 +323,7 @@ namespace octet {
       samples = 0;
 
       buffers.resize(1);
-      sources.resize(1);
+      sources_.resize(1);
 
       mixer.resize(1024);
       mixer_bin.resize(mixer.size() * ring_size);
@@ -372,8 +372,8 @@ namespace octet {
     }
 
     unsigned gen_source() {
-      unsigned res = sources.size();
-      sources.resize(res + 1);
+      unsigned res = sources_.size();
+      sources_.resize(res + 1);
       return res;
     }
 
@@ -386,11 +386,11 @@ namespace octet {
     }
 
     ALsource *get_source(unsigned i ) {
-      if (i >= sources.size()) return 0;
-      if (!sources[i]) {
-        sources[i] = new ALsource();
+      if (i >= sources_.size()) return 0;
+      if (!sources_[i]) {
+        sources_[i] = new ALsource();
       }
-      return sources[i];
+      return sources_[i];
     }
 
     // render the sound
@@ -546,15 +546,15 @@ namespace octet {
   }
 
 
-  inline void alGenSources( ALsizei n, ALuint* sources ) {
+  inline void alGenSources( ALsizei n, ALuint* sources_ ) {
     ALCcontext *ctxt = Fake_AL_context();
     for (ALsizei i = 0; i != n; ++i) {
-      sources[i] = ctxt->gen_source();
+      sources_[i] = ctxt->gen_source();
     }
   }
  
 
-  inline void alDeleteSources( ALsizei n, const ALuint* sources ) {
+  inline void alDeleteSources( ALsizei n, const ALuint* sources_ ) {
   }
 
 

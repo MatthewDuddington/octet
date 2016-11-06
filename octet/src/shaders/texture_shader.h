@@ -71,7 +71,7 @@ namespace octet { namespace shaders {
             break;
           case 3:  // OVERLAY
             vec4 a = texture2D(sampler, uv_);
-            if ((a.x + a.y + a.z) / 3 < 0.5) {
+            if ((a.x + a.y + a.z) / 3 < 0.5f) {
               return 2 * texture2D(sampler, uv_) * colour_uniform;
             }
             else {
@@ -87,7 +87,7 @@ namespace octet { namespace shaders {
             // *1e6 is multiplying the small result of the sine calculation by 1,000,000 - i.e. moves the first six decimals into the integer-part. 
             // fract() Returns only the remaining fractional-part of the result of the previous step. This, in combination with the *1e6, throws away the first 6 decimals of the sine result. Effectively, this removes a lot of the 'sameness' between adjacent fragments. 
             float fract_num_a = fract(sin(length(gl_FragCoord.xy)) * 1e6);
-            float fract_num_b = fract(sin(length(gl_FragCoord.xy / 1.5)) * 1e5);
+            float fract_num_b = fract(sin(length(gl_FragCoord.xy / 1.5f)) * 1e5);
             colour_uniform = (colour_uniform * fract_num_a) + (colour_uniform / 2 * fract_num_b);
             colour_uniform.w = 1;
             return colour_uniform;
