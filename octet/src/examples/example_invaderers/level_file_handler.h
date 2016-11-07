@@ -54,14 +54,18 @@ namespace octet {
       vec2 random_xy = RandomXY( 15, 15, 7, 7 );
       level_width = random_xy.x;
       level_height = random_xy.y;
+      vec2 start_position = RandomXY(level_width / 4, level_height / 4); // Place start in top left corner somewhere
 
       // 2 dimensional array of bools to represent possible obstacle placement.
       std::vector< std::vector<bool> > proxy_map( level_height, std::vector<bool>(level_width) );
+      std::vector< std::vector<bool> > checked_map( level_height, std::vector<bool>(level_width) );
 
       int number_of_obsticals = (int)(level_width * level_height * obstical_density);
       for (int i = 0; i < number_of_obsticals; i++)
       {
-        while (!ok_position) {
+        random_xy = RandomXY(level_width - 2, level_height - 2);
+        checked_map[random_xy.x][random_xy.y] = true;
+        if (!ok_position) {
           random_xy = RandomXY(level_width - 2, level_height - 2);
 
         }
