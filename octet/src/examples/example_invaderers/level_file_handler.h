@@ -51,12 +51,12 @@ namespace octet {
     // Influenced by example from https://www.youtube.com/watch?v=xYOG8kH2tF8
     void CreateFloodFillDesign( int &level_width, int &level_height ) {
       // Controls how many obstacles appear in the level.
-      int obstical_density = 0.4f;
+      float obstical_density = 0.4f;
       
       // Decide how big the map should be.
       vec2 random_xy = RandomXY( 15, 15, 7, 7 );
-      level_width = random_xy.x;
-      level_height = random_xy.y;
+      level_width = random_xy.x();
+      level_height = random_xy.y();
       // Place start in top left corner somewhere
       vec2 start_position = RandomXY((int)level_width / 4, (int)level_height / 4); 
       // Place goal somewhere near the bottom
@@ -74,7 +74,7 @@ namespace octet {
       for ( int i = 0; i < number_of_obsticals; i++ )
       {
         random_xy = RandomXY(level_width - 2, level_height - 2);
-        proxy_map[random_xy.x][random_xy.y] = true;
+        proxy_map[(int)random_xy.x()][(int)random_xy.y()] = true;
         current_placed_obsticals++;
 
         if ( random_xy.get() == start_position.get()
@@ -84,7 +84,7 @@ namespace octet {
                                , level_width - 2, level_height - 2
                                , start_position) )
         {
-          proxy_map[random_xy.x][random_xy.y] = false;
+          proxy_map[(int)random_xy.x()][(int)random_xy.y()] = false;
           current_placed_obsticals--;
         }
       }
@@ -132,7 +132,7 @@ namespace octet {
 
       int walkable_cell_count = 1;
 
-      while (queue.size > 0) {
+      while (queue.size() > 0) {
         vec2 coord = queue.at(queue.size()-1); // Get last item...
         queue.pop_back();  // ...and remove it from the queue.
 
