@@ -46,28 +46,36 @@ namespace octet {
       }
     }
 
-    int obstical_density = 0.4f;
 
     // Uses Flood Fill type algorithm
     // Influenced by example from https://www.youtube.com/watch?v=xYOG8kH2tF8
     void CreateFloodFillDesign( int &level_width, int &level_height ) {
+      // Controls how many obstacles appear in the level.
+      int obstical_density = 0.4f;
+      
       vec2 random_xy = RandomXY( 15, 15, 7, 7 );
       level_width = random_xy.x;
       level_height = random_xy.y;
-      vec2 start_position = RandomXY(level_width / 4, level_height / 4); // Place start in top left corner somewhere
+      vec2 start_position = RandomXY((int)level_width / 4, (int)level_height / 4); // Place start in top left corner somewhere
 
       // 2 dimensional array of bools to represent possible obstacle placement.
       std::vector< std::vector<bool> > proxy_map( level_height, std::vector<bool>(level_width) );
-      std::vector< std::vector<bool> > checked_map( level_height, std::vector<bool>(level_width) );
+      std::vector< std::vector<bool> > check_map( level_height, std::vector<bool>(level_width) );
 
       int number_of_obsticals = (int)(level_width * level_height * obstical_density);
+      int current_placed_obsticals = 0;
       for (int i = 0; i < number_of_obsticals; i++)
       {
         random_xy = RandomXY(level_width - 2, level_height - 2);
-        checked_map[random_xy.x][random_xy.y] = true;
-        if (!ok_position) {
-          random_xy = RandomXY(level_width - 2, level_height - 2);
+        check_map[random_xy.x][random_xy.y] = true;
+        current_placed_obsticals++;
 
+        if ( random_xy.get() != start_position.get()
+          && map_can_be_walked(check_map, current_placed_obsticals, level_width - 2, level_height - 2, start_position) )
+        { proxy_map = check_map; }
+        else {
+          check_map[random_xy.x][random_xy.y] = false;
+          current_placed_obsticals--;
         }
       }
 
@@ -91,10 +99,14 @@ namespace octet {
         }
     }
 
-    bool proxy_map_can_be_walked( std::vector< std::vector<bool> > proxy_map
-      ,                           int total_acceptable_obsitcals ) 
+    bool map_can_be_walked( std::vector< std::vector<bool> > check_map
+      ,                     int total_acceptable_obsticals
+      ,                     int width, int height
+      ,                     vec2 start_position ) 
     {
-
+      std::vector< std::vector<bool> > map_flags(height, std::vector<bool>(width));
+      std::vector<vec2> queue;
+      queue.push_back()
     }
 
 
