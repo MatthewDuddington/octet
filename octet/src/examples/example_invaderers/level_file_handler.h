@@ -57,6 +57,7 @@ namespace octet {
       vec2 random_xy = RandomXY( 15, 15, 7, 7 );
       level_width = random_xy.x();
       level_height = random_xy.y();
+
       // Place start in top left corner somewhere
       vec2 start_position = RandomXY((int)level_width / 4, (int)level_height / 4); 
       // Place goal somewhere near the bottom
@@ -67,7 +68,7 @@ namespace octet {
       std::vector< std::vector<bool> > proxy_map( level_height, std::vector<bool>(level_width) );
       //std::vector< std::vector<bool> > check_map( level_height, std::vector<bool>(level_width) );
 
-      // Decide the total number of obsticals we should have.
+      // Decide the total number of obstacls we should have.
       int number_of_obsticals = (int)(level_width * level_height * obstical_density);
 
       int current_placed_obsticals = 0;
@@ -111,9 +112,10 @@ namespace octet {
               else if ( goal_position.x() == row
                      && goal_position.y() == colum)
               { level_design_.push_back('G'); }
-              else if (proxy_map[row][colum]) {
-                level_design_.push_back('b'); 
-              }
+              else if (proxy_map[row][colum])
+              { level_design_.push_back('b'); }
+              else
+              { level_design_.push_back(' '); }
             }
           }
         }
@@ -173,7 +175,11 @@ namespace octet {
   vec2 RandomXY( int max_x, int max_y, int min_x = 1, int min_y = 1 )
   {
     random randomiser;
-    return vec2( randomiser.get(min_x, max_x), randomiser.get(min_y, max_y) );
+    float x = randomiser.get(min_x, max_x);
+    float y = randomiser.get(min_y, max_y);
+    printf("%f %f\n", x, y);
+    return vec2( x, y );
+    //return vec2(rand() % (max_x)+1, rand() % (max_y)+1);
   }
 
   public:
